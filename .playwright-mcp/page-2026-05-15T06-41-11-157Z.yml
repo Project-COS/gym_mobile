@@ -1,0 +1,5 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - paragraph [ref=e8]: Loading workspace
+  - button "Open Next.js Dev Tools" [ref=e35] [cursor=pointer]:
+    - img [ref=e36]

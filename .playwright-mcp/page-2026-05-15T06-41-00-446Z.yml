@@ -1,0 +1,116 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "RAKA HRIS home" [ref=e6] [cursor=pointer]:
+          - /url: /home
+          - img "RAKA HRIS logo" [ref=e8]
+          - generic [ref=e9]: RAKA HRIS
+        - link "Back to Home" [ref=e10] [cursor=pointer]:
+          - /url: /home
+    - main [ref=e11]:
+      - generic [ref=e14]:
+        - region "Welcome back to RAKA HRIS." [ref=e15]:
+          - generic [ref=e16]:
+            - generic [ref=e19]:
+              - link "RAKA HRIS home" [ref=e20] [cursor=pointer]:
+                - /url: /home
+                - img "RAKA HRIS logo" [ref=e22]
+                - generic [ref=e23]: RAKA HRIS
+              - generic [ref=e24]:
+                - img [ref=e25]
+                - text: Secure login
+              - heading "Welcome back to RAKA HRIS." [level=1] [ref=e28]
+              - paragraph [ref=e29]: Access your HR workspace to manage employees, attendance, approvals, payroll preparation, and reports.
+              - generic [ref=e30]:
+                - generic [ref=e31]:
+                  - img [ref=e32]
+                  - text: Role-based access
+                - generic [ref=e35]:
+                  - img [ref=e36]
+                  - text: Employee self-service
+                - generic [ref=e41]:
+                  - img [ref=e42]
+                  - text: HR reporting
+            - generic [ref=e44]:
+              - generic [ref=e46]:
+                - img [ref=e48]
+                - generic [ref=e51]:
+                  - paragraph [ref=e52]: Attendance synced
+                  - paragraph [ref=e53]: Today, 08:05 AM
+              - generic [ref=e55]:
+                - img [ref=e57]
+                - generic [ref=e60]:
+                  - paragraph [ref=e61]: Leave request approved
+                  - paragraph [ref=e62]: Manager reviewed
+              - generic [ref=e64]:
+                - img [ref=e66]
+                - generic [ref=e70]:
+                  - paragraph [ref=e71]: Payroll data ready
+                  - paragraph [ref=e72]: Clean records prepared
+              - generic [ref=e74]:
+                - img [ref=e76]
+                - generic [ref=e79]:
+                  - paragraph [ref=e80]: Secure HR access
+                  - paragraph [ref=e81]: Role-based permissions
+              - img "RAKA HRIS dashboard preview" [ref=e89]
+        - region "Sign in to your account" [ref=e90]:
+          - generic [ref=e93]:
+            - generic [ref=e95]:
+              - generic [ref=e96]:
+                - img [ref=e97]
+                - text: Secure login
+              - heading "Sign in to your account" [level=1] [ref=e100]
+              - generic [ref=e101]: Enter your credentials to continue to your RAKA HRIS workspace.
+            - generic [ref=e103]:
+              - generic [ref=e105]:
+                - generic [ref=e108]: Email address
+                - generic [ref=e112]:
+                  - img [ref=e114]
+                  - textbox "Email address" [ref=e117]:
+                    - /placeholder: you@company.com
+              - generic [ref=e119]:
+                - generic [ref=e122]:
+                  - generic [ref=e123]: Password
+                  - link "Forgot password?" [ref=e124] [cursor=pointer]:
+                    - /url: /forgot-password
+                - generic [ref=e128]:
+                  - img [ref=e130]
+                  - textbox "Password Forgot password?" [ref=e134]:
+                    - /placeholder: Enter your password
+                  - img "eye-invisible" [ref=e136] [cursor=pointer]:
+                    - img [ref=e137]
+              - generic [ref=e140]:
+                - generic [ref=e141] [cursor=pointer]:
+                  - checkbox "Remember me" [ref=e143]
+                  - generic [ref=e144]: Remember me
+                - generic [ref=e145]:
+                  - text: Need access?
+                  - link "Create account" [ref=e146] [cursor=pointer]:
+                    - /url: /register
+              - button "Sign in" [ref=e147] [cursor=pointer]:
+                - img [ref=e149]
+                - generic [ref=e151]: Sign in
+              - separator [ref=e152]:
+                - generic [ref=e154]: or
+              - button "Sign in with Google" [ref=e156] [cursor=pointer]:
+                - img [ref=e158]
+                - generic [ref=e163]: Sign in with Google
+            - alert [ref=e164]:
+              - img [ref=e166]
+              - generic [ref=e169]:
+                - generic [ref=e170]: Protected access
+                - generic [ref=e171]: Your access is protected with secure authentication and role-based permissions.
+            - link "Back to homepage" [ref=e173] [cursor=pointer]:
+              - /url: /home
+    - contentinfo [ref=e174]:
+      - generic [ref=e175]:
+        - paragraph [ref=e176]: © 2026 RAKA HRIS. All rights reserved.
+        - generic [ref=e177]:
+          - link "Privacy Policy" [ref=e178] [cursor=pointer]:
+            - /url: /privacy-policy
+          - link "Terms of Service" [ref=e179] [cursor=pointer]:
+            - /url: /terms-of-service
+  - button "Open Next.js Dev Tools" [ref=e185] [cursor=pointer]:
+    - img [ref=e186]
+  - alert [ref=e189]
