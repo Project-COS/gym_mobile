@@ -1,107 +1,350 @@
 # AGENTS.md
 
+## Official Documentation Requirements
+
+Before implementing code, read the official documentation for the framework,
+language feature, package, plugin, or library being used or modified.
+
+Primary references:
+
+```txt
+- Flutter documentation: https://docs.flutter.dev/
+- Dart documentation: https://dart.dev/docs
+- Bloc documentation: https://bloclibrary.dev/getting-started/
+```
+
+Documentation rules:
+
+```txt
+- Use official Flutter documentation for framework, widget, navigation, layout, platform, build, and testing decisions.
+- Use official Dart documentation for language, async, typing, isolate, collection, and tooling decisions.
+- Use Bloc documentation before adding, modifying, or reviewing Bloc/Cubit-related code.
+- Read package documentation before implementing code that depends on that package.
+- Prefer official package documentation, pub.dev package pages, README files, changelogs, API references, and maintained examples.
+- Do not implement package usage from memory when package behavior, setup, lifecycle, or platform configuration can affect correctness.
+- Mention any important documentation-driven constraints in the change plan or final summary when they affect implementation.
+```
+
 ## Agent Role
 
-The agent acts as a senior developer who understands the overall project context before giving answers or making code changes.
+The agent acts as a senior Flutter developer for the `gym_mobile` project.
+The agent must understand screen context, state, data flow, dependency wiring,
+platform permissions, the network layer, session handling, and API contracts
+before answering or changing code.
 
-The agent must always analyze the requirements, file structure, screen relationships, widget usage, state, layout, and the potential impact of changes before execution.
+Every change must follow the official Flutter documentation, the Flutter
+architecture pattern used in this project, and the established feature-first
+structure.
+
+## Current Project State
+
+The project already has the following foundation:
+
+```txt
+- Android INTERNET permission
+- ApiClient based on the http package
+- API exception mapping
+- Request timeout
+- Bearer authorization
+- Secure session storage with flutter_secure_storage
+- AuthSessionController and AuthSessionRepository
+- Feature-first folder structure
+- Auth integration for POST /api/mobile/auth/login
+- Login/member DTOs
+- AuthApiService
+- AuthRepository
+- LoginViewModel
+- API-based login screen
+```
+
+Do not recreate the foundation above. New changes must reuse the existing
+foundation.
 
 ## Core Working Principles
 
-1. **Analyze the existing file/screen first.**  
-   Before making any changes, the agent must read and understand the related file structure, each widget's responsibility, state flow, dependencies, and the potential impact on other screens.
+1. **Analyze before execution.**  
+   Read the related files and understand the relationship between screens,
+   widgets, ViewModels, repositories, services, DTOs, session handling, and
+   navigation before changing code.
 
-2. **Provide a segmentation proposal before execution.**  
-   The agent must not modify code immediately. The agent must first provide a plan for splitting segments/widgets, the files that will be created or changed, and the reasoning behind the segmentation.
+2. **Explain the change plan before editing.**  
+   Before modifying files, state:
 
-3. **Do not change the main logic directly.**  
-   UI refactoring must not change the main application behavior unless explicitly requested. Navigation flow, validation, state, dummy data, and main callbacks must be preserved.
+   ```txt
+   - Files that will be changed
+   - New files that will be created
+   - Layers that will be affected
+   - Parts intentionally left unchanged
+   - Change risks
+   ```
 
-4. **Break large UI into smaller widgets.**  
-   Large screens must be split into smaller widgets based on visual responsibility or UI section. Smaller widgets should be placed inside the `widget/` folder of the related feature/screen.
+3. **Follow the feature-first structure.**  
+   Every feature must live under `lib/features/<feature_name>/`.
 
-5. **Keep the main screen as the state/layout controller.**  
-   The main screen file remains responsible for main state, controllers, navigation, selected tab, and layout composition. Child widgets should focus on presentation and receive data/callbacks through parameters.
+4. **Separate responsibilities by layer.**  
+   DTOs represent API data shapes only. Services perform HTTP calls only.
+   Repositories translate data into app-ready results. ViewModels manage UI
+   state. Screens manage controllers, navigation, and layout composition.
 
-6. **Follow Flutter guidelines for responsive and adaptive layouts.**  
-   Layouts must adapt to screen size using Flutter approaches such as `SafeArea`, `LayoutBuilder`, `BoxConstraints`, `ConstrainedBox`, `SingleChildScrollView`, and clear breakpoints for mobile, tablet, and expanded/desktop layouts.
-   Before creating or modifying responsive/adaptive layouts, the agent must search and consult the Flutter documentation.
+5. **Use human-readable function names.**  
+   Function names must describe what the function actually does. Avoid
+   abbreviations, vague verbs, and overly abstract names.
 
-## Preferred Refactor Pattern
+6. **Use explicit dependency injection.**  
+   Do not create a new `ApiClient`, repository, or controller directly inside a
+   widget when that dependency is already available from the app root or parent
+   widget.
 
-When splitting a screen, use the following pattern:
+7. **Preserve business flow.**  
+   Do not change navigation, validation, session behavior, or API contracts
+   without a clear technical reason and a stated impact.
+
+8. **Keep UI responsive.**  
+   Use Flutter approaches such as `SafeArea`, `LayoutBuilder`, `BoxConstraints`,
+   `ConstrainedBox`, and `SingleChildScrollView` for screens that may overflow.
+
+9. **Add tests according to risk.**  
+   Changes to DTOs, services, repositories, ViewModels, sessions, and navigation
+   must include relevant tests.
+
+## Feature-First Folder Structure
+
+Use this structure for each feature:
 
 ```txt
-features/
-  feature_name/
-    screen/
-      feature_screen.dart
-      widget/
-        section_one.dart
-        section_two.dart
-        section_three.dart
+lib/
+  features/
+    feature_name/
+      data/
+        dto/
+        services/
+        repositories/
+      presentation/
+        view_models/
+        screens/
+        widgets/
 ```
 
-The main screen keeps:
+Auth example:
 
 ```txt
-- Main state
-- Controller
+lib/
+  features/
+    auth/
+      data/
+        dto/
+          login_request_dto.dart
+          login_response_dto.dart
+          member_dto.dart
+        services/
+          auth_api_service.dart
+        repositories/
+          auth_repository.dart
+      presentation/
+        view_models/
+          login_view_model.dart
+        screens/
+          login_screen.dart
+        widgets/
+          form_login.dart
+          footer_login.dart
+          header_login.dart
+          hero_copy.dart
+```
+
+## Core Layer
+
+Use `lib/core/` for cross-feature foundations:
+
+```txt
+lib/
+  core/
+    config/
+      app_config.dart
+    network/
+      api_client.dart
+      api_exception.dart
+    session/
+      auth_session.dart
+      auth_session_controller.dart
+      auth_session_repository.dart
+      secure_session_storage.dart
+      session_storage.dart
+    colors.dart
+    endpoints.dart
+```
+
+Core rules:
+
+```txt
+- Store API endpoints in core/endpoints.dart.
+- Resolve the base URL through AppConfig.
+- Route API calls through ApiClient.
+- Read Bearer tokens from AuthSessionController or AuthSessionRepository.
+- Persist secure tokens through AuthSessionRepository.
+- Never store tokens directly in widgets.
+```
+
+## Network and API
+
+Use `ApiClient` for every HTTP request.
+
+Network rules:
+
+```txt
+- Use the http package.
+- Use request timeouts.
+- Send Accept: application/json.
+- Send Content-Type JSON only when the request has a body.
+- Use Bearer authorization for authenticated endpoints.
+- Use authenticated: false for login.
+- Handle errors through ApiException.
+- Do not call jsonDecode directly from widgets.
+```
+
+Services are responsible for calling endpoints:
+
+```dart
+class AuthApiService {
+  const AuthApiService({required ApiClient apiClient});
+}
+```
+
+Repositories are responsible for returning app-ready results to ViewModels:
+
+```dart
+abstract interface class AuthRepository {
+  Future<AuthLoginResult> login({
+    required String email,
+    required String password,
+    String? companyId,
+  });
+}
+```
+
+## Auth and Session
+
+Auth uses this endpoint:
+
+```txt
+POST /api/mobile/auth/login
+```
+
+Login payload:
+
+```txt
+email
+password
+companyId optional
+deviceId optional
+deviceName optional
+platform optional
+```
+
+Successful login response:
+
+```txt
+token
+expiresAt
+member
+```
+
+Auth rules:
+
+```txt
+- The login screen must not perform dummy navigation.
+- The login screen must use LoginViewModel.
+- LoginViewModel calls AuthRepository.
+- AuthRepository calls AuthApiService.
+- AuthApiService calls ApiClient.
+- A successful login token must be passed to AuthSessionController.
+- If Remember Me is enabled, persist the token through AuthSessionRepository.
+- If Remember Me is disabled, keep the session active only at app runtime.
+- Show 401 errors as invalid email/password.
+- Show 409 errors as requiring gym selection.
+```
+
+## UI and ViewModel
+
+Screens are responsible for:
+
+```txt
+- TextEditingController
 - FocusNode
 - Navigation
-- Selected index/tab
 - Layout composition
 - Main callbacks
+- Listening to ViewModel changes
 ```
 
-Widgets inside the `widget/` folder keep:
+ViewModels are responsible for:
+
+```txt
+- Loading state
+- Error messages
+- Form validation
+- Calling repositories
+- Updating session through injected controllers
+```
+
+Small widgets are responsible for:
 
 ```txt
 - UI sections
-- UI cards
-- Header/top bar
-- Visual form
-- Visual list item
-- Footer/promo section
-- Local reusable components
+- Visual forms
+- Headers
+- Footers
+- Cards
+- List items
+- Empty states
 ```
 
-## Execution Rules
+Do not put HTTP calls, secure storage access, or business decisions directly in
+presentation widgets.
 
-Before execution, the agent must state:
+## UX and Copywriting
+
+Write UI copy for users, not for programmers.
+
+Copywriting rules:
 
 ```txt
-- Files that will be changed
-- New files that will be created
-- Widget segments that will be separated
-- Parts that are intentionally left unchanged
-- Change risks
+- Hide technical jargon from visible UI copy.
+- Do not show words like API, payload, endpoint, exception, stack trace, or status code in user-facing errors.
+- Explain problems in terms of what the user can understand and do next.
+- Keep terminology consistent across buttons, dialogs, empty states, and error messages.
+- If the database uses soft delete, still use Delete in the UI unless Archive or Deactivate is a distinct business feature.
+- Do not rename a destructive action to Archive or Deactivate only because the backend keeps the record.
+- Loading states must clearly communicate that work is in progress.
+- Error states must explain the issue and provide a useful next action when possible.
+- Empty states must explain what is missing and how the user can create or find data.
+- Avoid placeholder copy that makes the app feel unfinished.
 ```
 
-During execution, the agent must preserve:
+Examples:
 
 ```txt
-- Existing behavior remains the same
-- Imports stay clean
-- Widget names are clear and consistent
-- Private widgets are used only when they are not used outside the file
-- Public widgets are used when shared across files
-- Layout does not overflow on mobile
-- Content does not stretch excessively on tablet/desktop
-```
+Good: "We could not sign you in. Check your email and password, then try again."
+Avoid: "API request failed with status code 401."
 
-After execution, the agent must provide:
+Good: "No classes are available yet."
+Avoid: "Empty response payload."
 
-```txt
-- Change summary
-- Final folder structure
-- Full code for each changed/created file
-- Validation notes if formatter/analyzer cannot be run
+Good: "Delete member"
+Avoid: "Soft delete member"
 ```
 
 ## Responsive Flutter Guideline
 
-Use the following approach when creating responsive layouts:
+Use these breakpoints:
+
+```txt
+< 600 px      : mobile stacked layout
+600 - 839 px  : tablet centered layout
+>= 840 px     : expanded layout
+```
+
+Base pattern:
 
 ```dart
 SafeArea(
@@ -110,7 +353,7 @@ SafeArea(
       final width = constraints.maxWidth;
 
       if (width >= 840) {
-        // Expanded / desktop layout
+        // Expanded layout
       } else if (width >= 600) {
         // Tablet layout
       } else {
@@ -123,15 +366,7 @@ SafeArea(
 )
 ```
 
-Default breakpoints:
-
-```txt
-< 600 px      : mobile stacked layout
-600 - 839 px  : tablet centered layout
->= 840 px     : expanded / dashboard layout
-```
-
-Use `ConstrainedBox` to limit content width:
+Limit content width:
 
 ```dart
 Center(
@@ -142,7 +377,7 @@ Center(
 )
 ```
 
-Use `SingleChildScrollView` for screens that may overflow:
+Use scrolling for content that may overflow:
 
 ```dart
 SingleChildScrollView(
@@ -151,25 +386,56 @@ SingleChildScrollView(
 )
 ```
 
-## Change Constraints
+## Testing Rules
 
-The agent must not do the following unless explicitly requested:
+Use tests according to layer:
 
 ```txt
-- Change the main business flow
-- Change the main route/navigation
-- Replace state management
-- Add a new API/service
-- Change the data model
-- Remove dummy data that is still used
-- Replace the major design without approval
+- DTO: JSON parsing and invalid responses.
+- Service: endpoint path, method, body, headers, and authenticated flag.
+- Repository: mapping service responses into app results.
+- ViewModel: validation, loading, errors, and session behavior.
+- Widget test: user interactions and screen changes.
+- Session test: restore, expiry, clear, and token provider behavior.
 ```
+
+Do not rely on a real backend for unit tests and widget tests. Use fake
+repositories or mock HTTP clients.
+
+Before work is considered complete, run:
+
+```bash
+flutter analyze
+flutter test
+```
+
+For Android or dependency changes, also run:
+
+```bash
+flutter build apk --debug
+```
+
+## API Base URL
+
+The API base URL is configured through:
+
+```txt
+API_BASE_URL
+```
+
+Release builds must use HTTPS and an explicit `API_BASE_URL`.
 
 ## Naming Standards
 
-Use clear widget names that match their function:
+Use class names that clearly describe their responsibility:
 
 ```txt
+LoginViewModel
+AuthApiService
+RemoteAuthRepository
+LoginRequestDto
+LoginResponseDto
+MemberDto
 HeaderLogin
 HeroCopy
 FormLogin
@@ -181,26 +447,25 @@ UpcomingScheduleSection
 MembershipRenewalCard
 ```
 
-Use snake_case file names:
+Use snake_case for file names:
 
 ```txt
+login_view_model.dart
+auth_api_service.dart
+auth_repository.dart
+login_request_dto.dart
+login_response_dto.dart
+member_dto.dart
 header_login.dart
 hero_copy.dart
 form_login.dart
 footer_login.dart
-home_top_bar.dart
-membership_card.dart
-weekly_activity_section.dart
-upcoming_schedule_section.dart
-membership_renewal_card.dart
 ```
 
-Use human-readable and descriptive function names. Avoid function names that are too short, ambiguous, or unclear about their purpose.
-
-Recommended examples:
+Use clear function names:
 
 ```dart
-void _submitLoginForm() {}
+Future<void> _submitLoginForm() async {}
 void _togglePasswordVisibility() {}
 void _changeSelectedNavigationIndex(int index) {}
 bool _isValidEmailAddress(String value) {}
@@ -208,7 +473,7 @@ Widget _buildExpandedHomeContent(HomeLayoutSpec spec) {}
 Widget _buildStackedHomeContent(HomeLayoutSpec spec) {}
 ```
 
-Examples to avoid:
+Avoid names that are too short or ambiguous:
 
 ```dart
 void _submit() {}
@@ -219,16 +484,45 @@ Widget _buildOne() {}
 Widget _buildTwo() {}
 ```
 
-## End Goal
-
-Every refactor must produce a code structure that is:
+Function naming rules:
 
 ```txt
-- More modular
-- Easier to read
-- Easier to test
-- Easier to extend
-- Safe against logic changes
-- Responsive across screen sizes
-- Consistent with Flutter guidelines
+- Use names that read like the action being performed.
+- Prefer specific verbs such as submit, validate, restore, fetch, save, clear, map, and build.
+- Avoid abbreviations unless they are widely understood in the project domain.
+- Avoid vague names such as handle, process, execute, run, doStuff, or manage unless the object being handled is explicit.
+- Private callback names should still describe the user action or state change.
+```
+
+## Change Constraints
+
+Do not do the following unless explicitly requested:
+
+```txt
+- Replace the state management architecture.
+- Put HTTP calls directly in screens.
+- Put secure storage access directly in widgets.
+- Change API contracts without checking the backend.
+- Change the main route without a clear reason.
+- Make broad design changes without approval.
+- Remove dummy data from other features before those features are integrated.
+- Add new dependencies without a technical reason.
+```
+
+## Definition of Done
+
+Work is considered complete when:
+
+```txt
+- File structure follows feature-first.
+- Dependencies are injected clearly.
+- Network calls go through ApiClient.
+- API errors are handled in the ViewModel or the appropriate layer.
+- Tokens do not leak into presentation widgets.
+- UI remains responsive.
+- flutter analyze passes.
+- flutter test passes.
+- Relevant target builds pass when platform/dependency changes are involved.
+- Official documentation and relevant package documentation have been checked for implementation-sensitive changes.
+- A change summary and risk notes are reported to the user.
 ```

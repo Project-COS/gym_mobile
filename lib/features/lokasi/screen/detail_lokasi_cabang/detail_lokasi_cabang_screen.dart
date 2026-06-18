@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/colors.dart';
+import '../../../booking/data/repositories/booking_class_repository.dart';
 import '../branch_location_data.dart';
+import '../../presentation/cubit/location_class_schedule_cubit.dart';
 import 'widget/branch_cta_card.dart';
 import 'widget/branch_detail_hero_card.dart';
 import 'widget/branch_detail_top_bar.dart';
@@ -24,13 +27,40 @@ class DetailLokasiCabangScreen extends StatefulWidget {
 }
 
 class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
+  late final LocationClassScheduleCubit _scheduleCubit;
+
   BranchLocation get _branch => widget.branch ?? branchLocations.first;
 
+  @override
+  void initState() {
+    super.initState();
+    _scheduleCubit = LocationClassScheduleCubit(
+      repository: context.read<BookingClassRepository>(),
+    )..fetchSchedulesForLocation(_branch.id);
+  }
+
+  @override
+  void didUpdateWidget(covariant DetailLokasiCabangScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.branch?.id != widget.branch?.id) {
+      _scheduleCubit.fetchSchedulesForLocation(_branch.id);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scheduleCubit.close();
+    super.dispose();
+  }
+
   Future<void> _openMaps() async {
-    final Uri mapsUri = Uri.https('www.google.com', '/maps/search/', {
-      'api': '1',
-      'query': _branch.mapQuery,
-    });
+    final Uri mapsUri =
+        Uri.tryParse(_branch.mapUrl ?? '') ??
+        Uri.https('www.google.com', '/maps/search/', {
+          'api': '1',
+          'query': _branch.mapQuery,
+        });
 
     await _launchExternalUri(
       mapsUri,
@@ -91,52 +121,55 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   Widget build(BuildContext context) {
     final BranchLocation branch = _branch;
 
-    return Scaffold(
-      backgroundColor: AppColors.blackCore,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final DetailLocationLayoutSpec spec =
-                DetailLocationLayoutSpec.fromWidth(constraints.maxWidth);
+    return BlocProvider<LocationClassScheduleCubit>.value(
+      value: _scheduleCubit,
+      child: Scaffold(
+        backgroundColor: AppColors.blackCore,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final DetailLocationLayoutSpec spec =
+                  DetailLocationLayoutSpec.fromWidth(constraints.maxWidth);
 
-            return Stack(
-              children: [
-                Positioned(
-                  top: spec.isExpanded ? -176 : -112,
-                  right: spec.isExpanded ? -120 : -96,
-                  child: _GlowOrb(
-                    size: spec.isExpanded ? 420 : 320,
-                    color: AppColors.gymGold,
-                    opacity: spec.isExpanded ? 0.16 : 0.18,
-                  ),
-                ),
-                Positioned(
-                  bottom: spec.isExpanded ? -152 : -104,
-                  left: spec.isExpanded ? -132 : -96,
-                  child: _GlowOrb(
-                    size: spec.isExpanded ? 360 : 288,
-                    color: AppColors.darkGold,
-                    opacity: spec.isExpanded ? 0.10 : 0.12,
-                  ),
-                ),
-                SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: spec.pagePadding,
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: spec.maxContentWidth,
-                      ),
-                      child: spec.isExpanded
-                          ? _buildExpandedDetailContent(spec, branch)
-                          : _buildStackedDetailContent(spec, branch),
+              return Stack(
+                children: [
+                  Positioned(
+                    top: spec.isExpanded ? -176 : -112,
+                    right: spec.isExpanded ? -120 : -96,
+                    child: _GlowOrb(
+                      size: spec.isExpanded ? 420 : 320,
+                      color: AppColors.gymGold,
+                      opacity: spec.isExpanded ? 0.16 : 0.18,
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                  Positioned(
+                    bottom: spec.isExpanded ? -152 : -104,
+                    left: spec.isExpanded ? -132 : -96,
+                    child: _GlowOrb(
+                      size: spec.isExpanded ? 360 : 288,
+                      color: AppColors.darkGold,
+                      opacity: spec.isExpanded ? 0.10 : 0.12,
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: spec.pagePadding,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: spec.maxContentWidth,
+                        ),
+                        child: spec.isExpanded
+                            ? _buildExpandedDetailContent(spec, branch)
+                            : _buildStackedDetailContent(spec, branch),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -166,10 +199,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
         SizedBox(height: spec.sectionGap),
         BranchFacilitySection(facilities: branch.facilities),
         SizedBox(height: spec.sectionGap),
-        BranchScheduleSection(
-          schedules: branch.schedules,
-          onViewAllPressed: () => _showComingSoonMessage('Jadwal'),
-        ),
+        _buildBranchClassScheduleSection(),
         SizedBox(height: spec.sectionGap),
         BranchTrainerSection(trainers: branch.trainers),
         SizedBox(height: spec.sectionGap),
@@ -225,10 +255,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
                   SizedBox(height: spec.sectionGap),
                   BranchFacilitySection(facilities: branch.facilities),
                   SizedBox(height: spec.sectionGap),
-                  BranchScheduleSection(
-                    schedules: branch.schedules,
-                    onViewAllPressed: () => _showComingSoonMessage('Jadwal'),
-                  ),
+                  _buildBranchClassScheduleSection(),
                   SizedBox(height: spec.sectionGap),
                   BranchTrainerSection(trainers: branch.trainers),
                 ],
@@ -237,6 +264,39 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildBranchClassScheduleSection() {
+    return BlocBuilder<LocationClassScheduleCubit, LocationClassScheduleState>(
+      builder: (context, scheduleState) {
+        if (scheduleState.status == LocationClassScheduleStatus.loading ||
+            scheduleState.status == LocationClassScheduleStatus.initial) {
+          return const _BranchScheduleStatusCard.loading();
+        }
+
+        if (scheduleState.status == LocationClassScheduleStatus.failure) {
+          return _BranchScheduleStatusCard.failure(
+            message:
+                scheduleState.errorMessage ??
+                'Jadwal kelas belum bisa dimuat. Silakan coba kembali.',
+            onRetryPressed: () {
+              context
+                  .read<LocationClassScheduleCubit>()
+                  .fetchSchedulesForLocation(_branch.id);
+            },
+          );
+        }
+
+        if (scheduleState.schedules.isEmpty) {
+          return const _BranchScheduleStatusCard.empty();
+        }
+
+        return BranchScheduleSection(
+          schedules: scheduleState.schedules,
+          onViewAllPressed: () => _showComingSoonMessage('Jadwal'),
+        );
+      },
     );
   }
 }
@@ -315,6 +375,98 @@ class _GlowOrb extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BranchScheduleStatusCard extends StatelessWidget {
+  const _BranchScheduleStatusCard.loading()
+    : message = 'Memuat jadwal kelas...',
+      onRetryPressed = null,
+      icon = null;
+
+  const _BranchScheduleStatusCard.empty()
+    : message = 'Belum ada kelas terjadwal di cabang ini.',
+      onRetryPressed = null,
+      icon = Icons.event_busy_rounded;
+
+  const _BranchScheduleStatusCard.failure({
+    required this.message,
+    required this.onRetryPressed,
+  }) : icon = Icons.info_rounded;
+
+  final String message;
+  final VoidCallback? onRetryPressed;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final VoidCallback? retryAction = onRetryPressed;
+    final IconData? statusIcon = icon;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Jadwal Hari Ini',
+          style: TextStyle(
+            color: AppColors.metallicWhite,
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.graphiteBlack.withValues(alpha: 0.94),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.gunmetal),
+          ),
+          child: Row(
+            children: [
+              if (statusIcon == null)
+                const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    color: AppColors.gymGold,
+                  ),
+                )
+              else
+                Icon(statusIcon, color: AppColors.gymGold, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    color: AppColors.silverGray,
+                    fontSize: 12,
+                    height: 1.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (retryAction != null) ...[
+                const SizedBox(width: 12),
+                TextButton(
+                  onPressed: retryAction,
+                  child: const Text(
+                    'Coba lagi',
+                    style: TextStyle(
+                      color: AppColors.gymGold,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -26,6 +26,7 @@ class BranchLocation {
     required this.facilities,
     required this.schedules,
     required this.trainers,
+    this.mapUrl,
     this.isFeatured = false,
     this.isNearest = false,
     this.isOpen = true,
@@ -45,6 +46,7 @@ class BranchLocation {
   final List<BranchFacility> facilities;
   final List<BranchSchedule> schedules;
   final List<BranchTrainer> trainers;
+  final String? mapUrl;
   final bool isFeatured;
   final bool isNearest;
   final bool isOpen;

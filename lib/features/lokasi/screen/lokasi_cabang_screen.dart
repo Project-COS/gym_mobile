@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/colors.dart';
+import '../data/repositories/location_repository.dart';
+import '../presentation/cubit/location_cubit.dart';
 import 'branch_location_data.dart';
 import 'detail_lokasi_cabang/detail_lokasi_cabang_screen.dart';
 import 'widget/branch_empty_state.dart';
@@ -18,6 +21,25 @@ class LokasiCabangScreen extends StatefulWidget {
 }
 
 class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<LocationCubit>(
+      create: (context) =>
+          LocationCubit(repository: context.read<LocationRepository>())
+            ..fetchLocations(),
+      child: const _LokasiCabangView(),
+    );
+  }
+}
+
+class _LokasiCabangView extends StatefulWidget {
+  const _LokasiCabangView();
+
+  @override
+  State<_LokasiCabangView> createState() => _LokasiCabangViewState();
+}
+
+class _LokasiCabangViewState extends State<_LokasiCabangView> {
   final TextEditingController _searchController = TextEditingController();
 
   BranchFilter _activeFilter = BranchFilter.all;
@@ -36,8 +58,8 @@ class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
     super.dispose();
   }
 
-  List<BranchLocation> get _visibleBranches {
-    return branchLocations.where((branch) {
+  List<BranchLocation> _filterVisibleBranches(List<BranchLocation> branches) {
+    return branches.where((branch) {
       return branch.matchesKeyword(_searchController.text) &&
           branch.matchesFilter(_activeFilter);
     }).toList();
@@ -63,11 +85,13 @@ class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
     );
   }
 
-  Future<void> _openMaps(String query) async {
-    final Uri mapsUri = Uri.https('www.google.com', '/maps/search/', {
-      'api': '1',
-      'query': query,
-    });
+  Future<void> _openMaps(BranchLocation branch) async {
+    final Uri mapsUri =
+        Uri.tryParse(branch.mapUrl ?? '') ??
+        Uri.https('www.google.com', '/maps/search/', {
+          'api': '1',
+          'query': branch.mapQuery,
+        });
 
     try {
       final bool isLaunched = await launchUrl(
@@ -93,61 +117,75 @@ class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.blackCore,
-      child: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final LocationLayoutSpec spec = LocationLayoutSpec.fromWidth(
-              constraints.maxWidth,
-            );
-            final List<BranchLocation> visibleBranches = _visibleBranches;
+    return BlocBuilder<LocationCubit, LocationState>(
+      builder: (context, locationState) {
+        return Container(
+          color: AppColors.blackCore,
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final LocationLayoutSpec spec = LocationLayoutSpec.fromWidth(
+                  constraints.maxWidth,
+                );
+                final List<BranchLocation> visibleBranches =
+                    _filterVisibleBranches(locationState.locations);
 
-            return Stack(
-              children: [
-                Positioned(
-                  top: spec.isExpanded ? -176 : -112,
-                  right: spec.isExpanded ? -120 : -96,
-                  child: _GlowOrb(
-                    size: spec.isExpanded ? 420 : 320,
-                    color: AppColors.gymGold,
-                    opacity: spec.isExpanded ? 0.16 : 0.18,
-                  ),
-                ),
-                Positioned(
-                  bottom: spec.isExpanded ? -152 : -104,
-                  left: spec.isExpanded ? -132 : -96,
-                  child: _GlowOrb(
-                    size: spec.isExpanded ? 360 : 288,
-                    color: AppColors.darkGold,
-                    opacity: spec.isExpanded ? 0.10 : 0.12,
-                  ),
-                ),
-                SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: spec.pagePadding,
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: spec.maxContentWidth,
+                return Stack(
+                  children: [
+                    Positioned(
+                      top: spec.isExpanded ? -176 : -112,
+                      right: spec.isExpanded ? -120 : -96,
+                      child: _GlowOrb(
+                        size: spec.isExpanded ? 420 : 320,
+                        color: AppColors.gymGold,
+                        opacity: spec.isExpanded ? 0.16 : 0.18,
                       ),
-                      child: spec.isExpanded
-                          ? _buildExpandedLocationContent(spec, visibleBranches)
-                          : _buildStackedLocationContent(spec, visibleBranches),
                     ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                    Positioned(
+                      bottom: spec.isExpanded ? -152 : -104,
+                      left: spec.isExpanded ? -132 : -96,
+                      child: _GlowOrb(
+                        size: spec.isExpanded ? 360 : 288,
+                        color: AppColors.darkGold,
+                        opacity: spec.isExpanded ? 0.10 : 0.12,
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: spec.pagePadding,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: spec.maxContentWidth,
+                          ),
+                          child: spec.isExpanded
+                              ? _buildExpandedLocationContent(
+                                  spec,
+                                  locationState,
+                                  visibleBranches,
+                                )
+                              : _buildStackedLocationContent(
+                                  spec,
+                                  locationState,
+                                  visibleBranches,
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildStackedLocationContent(
     LocationLayoutSpec spec,
+    LocationState locationState,
     List<BranchLocation> visibleBranches,
   ) {
     return Column(
@@ -163,13 +201,14 @@ class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
           onFilterChanged: _changeActiveBranchFilter,
         ),
         SizedBox(height: spec.sectionGap),
-        _buildBranchResult(visibleBranches),
+        _buildBranchResult(locationState, visibleBranches),
       ],
     );
   }
 
   Widget _buildExpandedLocationContent(
     LocationLayoutSpec spec,
+    LocationState locationState,
     List<BranchLocation> visibleBranches,
   ) {
     return Row(
@@ -193,12 +232,29 @@ class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
           ),
         ),
         SizedBox(width: spec.columnGap),
-        Expanded(child: _buildBranchResult(visibleBranches)),
+        Expanded(child: _buildBranchResult(locationState, visibleBranches)),
       ],
     );
   }
 
-  Widget _buildBranchResult(List<BranchLocation> visibleBranches) {
+  Widget _buildBranchResult(
+    LocationState locationState,
+    List<BranchLocation> visibleBranches,
+  ) {
+    if (locationState.status == LocationLoadStatus.loading ||
+        locationState.status == LocationLoadStatus.initial) {
+      return const _LocationStatusCard.loading();
+    }
+
+    if (locationState.status == LocationLoadStatus.failure) {
+      return _LocationStatusCard.failure(
+        message:
+            locationState.errorMessage ??
+            'Lokasi belum bisa dimuat. Silakan coba kembali.',
+        onRetryPressed: context.read<LocationCubit>().fetchLocations,
+      );
+    }
+
     if (visibleBranches.isEmpty) {
       return const BranchEmptyState();
     }
@@ -206,7 +262,7 @@ class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
     return BranchListSection(
       branches: visibleBranches,
       onDetailPressed: _openBranchDetail,
-      onMapPressed: (branch) => _openMaps(branch.mapQuery),
+      onMapPressed: _openMaps,
     );
   }
 }
@@ -284,6 +340,76 @@ class _GlowOrb extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LocationStatusCard extends StatelessWidget {
+  const _LocationStatusCard.loading()
+    : message = 'Memuat lokasi cabang...',
+      onRetryPressed = null;
+
+  const _LocationStatusCard.failure({
+    required this.message,
+    required this.onRetryPressed,
+  });
+
+  final String message;
+  final VoidCallback? onRetryPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final VoidCallback? retryAction = onRetryPressed;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.graphiteBlack.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.gunmetal),
+      ),
+      child: Row(
+        children: [
+          if (retryAction == null)
+            const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.4,
+                color: AppColors.gymGold,
+              ),
+            )
+          else
+            const Icon(Icons.info_rounded, color: AppColors.gymGold, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: AppColors.silverGray,
+                fontSize: 12,
+                height: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (retryAction != null) ...[
+            const SizedBox(width: 12),
+            TextButton(
+              onPressed: retryAction,
+              child: const Text(
+                'Coba lagi',
+                style: TextStyle(
+                  color: AppColors.gymGold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
