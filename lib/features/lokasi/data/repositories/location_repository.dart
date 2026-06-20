@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../../screen/branch_location_data.dart';
 import '../dto/mobile_location_response_dto.dart';
 import '../services/location_api_service.dart';
@@ -35,6 +34,7 @@ class RemoteLocationRepository implements LocationRepository {
       capacity: location.capacityLabel ?? 'Umum',
       access: 'Membership aktif',
       imageUrl: _pickPrimaryImageUrl(location.images),
+      galleryImages: _mapGalleryImages(location),
       facilities: _mapFacilities(location.facilities),
       schedules: schedules,
       trainers: const [],
@@ -60,19 +60,46 @@ class RemoteLocationRepository implements LocationRepository {
     return images.first.url;
   }
 
+  List<BranchGalleryImage> _mapGalleryImages(MobileLocationDto location) {
+    final seenImageUrls = <String>{};
+    final galleryImages = <BranchGalleryImage>[];
+
+    for (final image in location.images) {
+      final imageUrl = image.url.trim();
+
+      if (imageUrl.isEmpty || seenImageUrls.contains(imageUrl)) {
+        continue;
+      }
+
+      seenImageUrls.add(imageUrl);
+      galleryImages.add(
+        BranchGalleryImage(
+          imageUrl: imageUrl,
+          caption: image.caption,
+          semanticLabel:
+              image.altText ?? image.caption ?? 'Foto ${location.name}',
+        ),
+      );
+    }
+
+    return galleryImages;
+  }
+
   List<BranchFacility> _mapFacilities(
     List<MobileLocationFacilityDto> facilities,
   ) {
     if (facilities.isEmpty) {
       return const [
-        BranchFacility(icon: Icons.fitness_center_rounded, name: 'Gym Area'),
+        BranchFacility(icon: AppLucideIcons.dumbbell, name: 'Gym Area'),
       ];
     }
 
     return facilities
         .map(
           (facility) => BranchFacility(
-            icon: _mapFacilityIcon(facility.iconKey ?? facility.name),
+            icon: AppLucideIcons.resolveGymIcon(
+              facility.iconKey ?? facility.name,
+            ),
             name: facility.name,
           ),
         )
@@ -104,37 +131,6 @@ class RemoteLocationRepository implements LocationRepository {
           ),
         )
         .toList(growable: false);
-  }
-
-  IconData _mapFacilityIcon(String key) {
-    final normalizedKey = key.toLowerCase();
-
-    if (normalizedKey.contains('shower')) {
-      return Icons.shower_rounded;
-    }
-    if (normalizedKey.contains('park')) {
-      return Icons.local_parking_rounded;
-    }
-    if (normalizedKey.contains('wifi')) {
-      return Icons.wifi_rounded;
-    }
-    if (normalizedKey.contains('locker') || normalizedKey.contains('lock')) {
-      return Icons.lock_rounded;
-    }
-    if (normalizedKey.contains('bike') || normalizedKey.contains('cardio')) {
-      return Icons.directions_bike_rounded;
-    }
-    if (normalizedKey.contains('group') || normalizedKey.contains('class')) {
-      return Icons.groups_rounded;
-    }
-    if (normalizedKey.contains('drink') || normalizedKey.contains('juice')) {
-      return Icons.local_drink_rounded;
-    }
-    if (normalizedKey.contains('security')) {
-      return Icons.security_rounded;
-    }
-
-    return Icons.fitness_center_rounded;
   }
 
   String _formatOperatingHours(List<MobileLocationScheduleDto> schedules) {

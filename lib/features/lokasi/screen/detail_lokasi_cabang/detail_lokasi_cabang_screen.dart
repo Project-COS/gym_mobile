@@ -11,15 +11,16 @@ import 'widget/branch_cta_card.dart';
 import 'widget/branch_detail_hero_card.dart';
 import 'widget/branch_detail_top_bar.dart';
 import 'widget/branch_facility_section.dart';
+import 'widget/branch_gallery_section.dart';
 import 'widget/branch_info_section.dart';
 import 'widget/branch_quick_stats_grid.dart';
 import 'widget/branch_schedule_section.dart';
 import 'widget/branch_trainer_section.dart';
 
 class DetailLokasiCabangScreen extends StatefulWidget {
-  const DetailLokasiCabangScreen({super.key, this.branch});
+  const DetailLokasiCabangScreen({super.key, required this.branch});
 
-  final BranchLocation? branch;
+  final BranchLocation branch;
 
   @override
   State<DetailLokasiCabangScreen> createState() =>
@@ -29,22 +30,20 @@ class DetailLokasiCabangScreen extends StatefulWidget {
 class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   late final LocationClassScheduleCubit _scheduleCubit;
 
-  BranchLocation get _branch => widget.branch ?? branchLocations.first;
-
   @override
   void initState() {
     super.initState();
     _scheduleCubit = LocationClassScheduleCubit(
       repository: context.read<BookingClassRepository>(),
-    )..fetchSchedulesForLocation(_branch.id);
+    )..fetchSchedulesForLocation(widget.branch.id);
   }
 
   @override
   void didUpdateWidget(covariant DetailLokasiCabangScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.branch?.id != widget.branch?.id) {
-      _scheduleCubit.fetchSchedulesForLocation(_branch.id);
+    if (oldWidget.branch.id != widget.branch.id) {
+      _scheduleCubit.fetchSchedulesForLocation(widget.branch.id);
     }
   }
 
@@ -56,10 +55,10 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
 
   Future<void> _openMaps() async {
     final Uri mapsUri =
-        Uri.tryParse(_branch.mapUrl ?? '') ??
+        Uri.tryParse(widget.branch.mapUrl ?? '') ??
         Uri.https('www.google.com', '/maps/search/', {
           'api': '1',
-          'query': _branch.mapQuery,
+          'query': widget.branch.mapQuery,
         });
 
     await _launchExternalUri(
@@ -69,7 +68,10 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   }
 
   Future<void> _callBranch() async {
-    final Uri phoneUri = Uri(scheme: 'tel', path: _branch.dialPhoneNumber);
+    final Uri phoneUri = Uri(
+      scheme: 'tel',
+      path: widget.branch.dialPhoneNumber,
+    );
 
     await _launchExternalUri(
       phoneUri,
@@ -98,7 +100,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   }
 
   Future<void> _shareBranch() async {
-    final String shareText = '${_branch.name} - ${_branch.address}';
+    final String shareText = '${widget.branch.name} - ${widget.branch.address}';
 
     await Clipboard.setData(ClipboardData(text: shareText));
 
@@ -119,7 +121,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final BranchLocation branch = _branch;
+    final BranchLocation branch = widget.branch;
 
     return BlocProvider<LocationClassScheduleCubit>.value(
       value: _scheduleCubit,
@@ -194,6 +196,10 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
         ),
         SizedBox(height: spec.sectionGap),
         BranchQuickStatsGrid(branch: branch),
+        if (branch.galleryImages.isNotEmpty) ...[
+          SizedBox(height: spec.sectionGap),
+          BranchGallerySection(images: branch.galleryImages),
+        ],
         SizedBox(height: spec.sectionGap),
         BranchInfoSection(branch: branch),
         SizedBox(height: spec.sectionGap),
@@ -238,6 +244,10 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
                   ),
                   SizedBox(height: spec.sectionGap),
                   BranchQuickStatsGrid(branch: branch),
+                  if (branch.galleryImages.isNotEmpty) ...[
+                    SizedBox(height: spec.sectionGap),
+                    BranchGallerySection(images: branch.galleryImages),
+                  ],
                   SizedBox(height: spec.sectionGap),
                   BranchCtaCard(
                     branch: branch,
@@ -283,7 +293,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
             onRetryPressed: () {
               context
                   .read<LocationClassScheduleCubit>()
-                  .fetchSchedulesForLocation(_branch.id);
+                  .fetchSchedulesForLocation(widget.branch.id);
             },
           );
         }

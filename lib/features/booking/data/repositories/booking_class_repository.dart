@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../booking_data.dart';
 import '../dto/mobile_class_response_dto.dart';
 import '../services/booking_class_api_service.dart';
@@ -117,47 +116,21 @@ class RemoteBookingClassRepository implements BookingClassRepository {
   List<BookingBenefit> _mapBenefits(List<MobileClassBenefitDto> benefits) {
     if (benefits.isEmpty) {
       return const [
-        BookingBenefit(icon: Icons.groups_rounded, label: 'Group Class'),
+        BookingBenefit(icon: AppLucideIcons.users, label: 'Group Class'),
       ];
     }
 
     return benefits
         .map(
           (benefit) => BookingBenefit(
-            icon: _mapBenefitIcon(benefit.iconKey ?? benefit.label),
+            icon: AppLucideIcons.resolveGymIcon(
+              benefit.iconKey ?? benefit.label,
+              fallback: AppLucideIcons.badgeCheck,
+            ),
             label: benefit.label,
           ),
         )
         .toList(growable: false);
-  }
-
-  IconData _mapBenefitIcon(String key) {
-    final normalizedKey = key.toLowerCase();
-
-    if (normalizedKey.contains('fire') ||
-        normalizedKey.contains('burn') ||
-        normalizedKey.contains('hiit')) {
-      return Icons.local_fire_department_rounded;
-    }
-    if (normalizedKey.contains('heart') ||
-        normalizedKey.contains('recovery') ||
-        normalizedKey.contains('mobility')) {
-      return Icons.favorite_rounded;
-    }
-    if (normalizedKey.contains('time') || normalizedKey.contains('duration')) {
-      return Icons.timer_rounded;
-    }
-    if (normalizedKey.contains('group') || normalizedKey.contains('class')) {
-      return Icons.groups_rounded;
-    }
-    if (normalizedKey.contains('chart') || normalizedKey.contains('progress')) {
-      return Icons.show_chart_rounded;
-    }
-    if (normalizedKey.contains('eco') || normalizedKey.contains('yoga')) {
-      return Icons.eco_rounded;
-    }
-
-    return Icons.verified_rounded;
   }
 
   List<String> _mapTags(

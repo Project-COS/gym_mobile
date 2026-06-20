@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/colors.dart';
+import '../../../core/icons/app_lucide_icons.dart';
 import '../../activity/screens/activity_screen.dart';
 import '../../booking/screens/booking_screen/booking_screen.dart';
 import '../../lokasi/screen/lokasi_cabang_screen.dart';
@@ -31,11 +32,11 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final List<IconData> _icons = const [
-    Icons.home_rounded,
-    Icons.location_on_rounded,
-    Icons.calendar_month_rounded,
-    Icons.show_chart_rounded,
-    Icons.person_rounded,
+    AppLucideIcons.home,
+    AppLucideIcons.mapPin,
+    AppLucideIcons.calendar,
+    AppLucideIcons.chart,
+    AppLucideIcons.person,
   ];
 
   void _changeSelectedNavigationIndex(int index) {

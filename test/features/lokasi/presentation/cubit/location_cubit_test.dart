@@ -21,6 +21,7 @@ void main() {
             capacity: 'Medium',
             access: 'Membership aktif',
             imageUrl: 'https://cdn.example/location.jpg',
+            galleryImages: [],
             facilities: [],
             schedules: [],
             trainers: [],

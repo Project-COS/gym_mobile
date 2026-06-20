@@ -22,14 +22,6 @@ class BranchQuickStatsGrid extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _QuickStatCard(
-            icon: Icons.navigation_rounded,
-            label: 'Jarak',
-            value: branch.distance,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _QuickStatCard(
             icon: Icons.groups_rounded,
             label: 'Kapasitas',
             value: branch.capacity,

@@ -36,22 +36,10 @@ class BranchCard extends StatelessWidget {
               ]
             : null,
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Positioned.fill(child: _BranchCover(imageUrl: branch.imageUrl)),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.blackCore.withValues(alpha: 0.92),
-                    AppColors.blackCore.withValues(alpha: 0.74),
-                    AppColors.blackCore.withValues(alpha: 0.86),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          _BranchCover(imageUrl: branch.imageUrl, semanticLabel: branch.name),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -93,21 +81,65 @@ class BranchCard extends StatelessWidget {
 }
 
 class _BranchCover extends StatelessWidget {
-  const _BranchCover({required this.imageUrl});
+  const _BranchCover({required this.imageUrl, required this.semanticLabel});
 
   final String imageUrl;
+  final String semanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: 0.20,
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => const ColoredBox(
-          color: AppColors.steelBlack,
-          child: SizedBox.expand(),
-        ),
+    return SizedBox(
+      height: 148,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
+            semanticLabel: semanticLabel,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+
+              return const ColoredBox(
+                color: AppColors.steelBlack,
+                child: Center(
+                  child: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      color: AppColors.gymGold,
+                    ),
+                  ),
+                ),
+              );
+            },
+            errorBuilder: (_, _, _) => const ColoredBox(
+              color: AppColors.steelBlack,
+              child: Center(
+                child: Icon(
+                  Icons.image_not_supported_rounded,
+                  color: AppColors.silverGray,
+                  size: 26,
+                ),
+              ),
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  AppColors.blackCore.withValues(alpha: 0.46),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -222,14 +254,6 @@ class _BranchMetaGrid extends StatelessWidget {
             icon: Icons.schedule_rounded,
             label: 'Jam Buka',
             value: branch.hours,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _MetaBox(
-            icon: Icons.navigation_rounded,
-            label: 'Jarak',
-            value: branch.distance,
           ),
         ),
       ],

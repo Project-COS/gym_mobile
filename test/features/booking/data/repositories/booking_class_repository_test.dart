@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:do_gym/core/icons/app_lucide_icons.dart';
 import 'package:do_gym/features/booking/data/dto/mobile_class_response_dto.dart';
 import 'package:do_gym/features/booking/data/repositories/booking_class_repository.dart';
 import 'package:do_gym/features/booking/data/services/booking_class_api_service.dart';
@@ -83,6 +84,7 @@ void main() {
     expect(classes.first.slotLabel, '10 Slot');
     expect(classes.first.coachName, 'Coach Maya');
     expect(classes.first.benefits.first.label, 'Mobility');
+    expect(classes.first.benefits.first.icon, AppLucideIcons.heart);
   });
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:do_gym/core/icons/app_lucide_icons.dart';
 import 'package:do_gym/features/lokasi/data/dto/mobile_location_response_dto.dart';
 import 'package:do_gym/features/lokasi/data/repositories/location_repository.dart';
 import 'package:do_gym/features/lokasi/data/services/location_api_service.dart';
@@ -29,9 +30,15 @@ void main() {
               images: const [
                 MobileLocationImageDto(
                   url: 'https://cdn.example/location.jpg',
-                  altText: null,
-                  caption: null,
+                  altText: 'Main training area',
+                  caption: 'Area latihan utama',
                   isPrimary: true,
+                ),
+                MobileLocationImageDto(
+                  url: 'https://cdn.example/location-lobby.jpg',
+                  altText: null,
+                  caption: 'Lobby member',
+                  isPrimary: false,
                 ),
               ],
               facilities: const [
@@ -59,7 +66,15 @@ void main() {
     expect(locations.first.name, 'DO GYM Denpasar');
     expect(locations.first.hours, '06:00 - 22:00');
     expect(locations.first.mapUrl, 'https://nav.example/location-1');
+    expect(locations.first.imageUrl, 'https://cdn.example/location.jpg');
+    expect(locations.first.galleryImages, hasLength(2));
+    expect(locations.first.galleryImages.first.caption, 'Area latihan utama');
+    expect(
+      locations.first.galleryImages.last.imageUrl,
+      'https://cdn.example/location-lobby.jpg',
+    );
     expect(locations.first.facilities.first.name, 'Shower Room');
+    expect(locations.first.facilities.first.icon, AppLucideIcons.shower);
   });
 }
 

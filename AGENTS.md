@@ -302,6 +302,38 @@ Small widgets are responsible for:
 Do not put HTTP calls, secure storage access, or business decisions directly in
 presentation widgets.
 
+## API Screen Refresh, Scrolling, and Loading
+
+Every API-integrated feature screen that displays remote data must provide a
+complete refresh, scrolling, loading, empty, and error experience.
+
+Refresh and scrolling rules:
+
+```txt
+- Add pull-to-refresh for API-backed list, dashboard, detail, and section screens when the data can be reloaded by the user.
+- Use Flutter's RefreshIndicator or the project-established refresh pattern for material screens.
+- The RefreshIndicator child must always be scrollable, including when content is short, empty, loading, or in an error state.
+- Use AlwaysScrollableScrollPhysics when needed so pull-to-refresh still works on empty or short content.
+- Avoid non-scrollable API states that trap the user without a refresh path.
+- Preserve the existing scroll position where practical when refreshing existing content.
+- Do not create nested scroll views that fight each other unless the layout explicitly requires coordinated slivers.
+```
+
+Loading layout rules:
+
+```txt
+- Initial full-screen loading states must be visually centered within the available viewport.
+- Section-level loading states must be centered within the section or card they belong to.
+- Do not place a CircularProgressIndicator at the top of a SingleChildScrollView unless the design intentionally calls for it.
+- Give loading, empty, and error states enough minimum height to look intentional on mobile and tablet layouts.
+- Keep loading indicators accessible and paired with clear user-facing loading text when the wait is not obviously brief.
+- Loading states must not cause layout jumps that make the refreshed content feel unstable.
+```
+
+When an API-backed screen has multiple states, structure the screen so every
+state keeps the same responsive shell, safe area, constraints, and refresh
+behavior unless a different interaction is intentional.
+
 ## UX and Copywriting
 
 Write UI copy for users, not for programmers.
@@ -519,6 +551,8 @@ Work is considered complete when:
 - Network calls go through ApiClient.
 - API errors are handled in the ViewModel or the appropriate layer.
 - Tokens do not leak into presentation widgets.
+- API-backed screens provide usable pull-to-refresh or an equivalent refresh path.
+- Loading states are centered in their full-screen or section-level viewport.
 - UI remains responsive.
 - flutter analyze passes.
 - flutter test passes.

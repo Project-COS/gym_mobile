@@ -7,11 +7,13 @@ class BookingDateStrip extends StatelessWidget {
   const BookingDateStrip({
     super.key,
     required this.title,
+    required this.dates,
     required this.selectedIndex,
     required this.onDateSelected,
   });
 
   final String title;
+  final List<BookingDateOption> dates;
   final int selectedIndex;
   final ValueChanged<int> onDateSelected;
 
@@ -47,9 +49,11 @@ class BookingDateStrip extends StatelessWidget {
                 ),
               ),
               alignment: Alignment.center,
-              child: const Text(
-                'Jan 2026',
-                style: TextStyle(
+              child: Text(
+                dates.isEmpty
+                    ? '-'
+                    : formatBookingMonthLabel(dates[selectedIndex].date),
+                style: const TextStyle(
                   color: AppColors.gymGold,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -63,10 +67,10 @@ class BookingDateStrip extends StatelessWidget {
           height: 92,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: bookingDateOptions.length,
+            itemCount: dates.length,
             separatorBuilder: (_, _) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
-              final BookingDateOption date = bookingDateOptions[index];
+              final BookingDateOption date = dates[index];
               final bool isActive = selectedIndex == index;
 
               return _DateCard(

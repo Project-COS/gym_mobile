@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/colors.dart';
 import '../../data/booking_data.dart';
+import '../../data/repositories/booking_class_repository.dart';
+import '../../../lokasi/data/repositories/location_repository.dart';
+import '../../../lokasi/screen/branch_location_data.dart';
 import '../detail_class_screen/detail_class_screen.dart';
 import '../detail_personal_trainer_screen/detail_personal_trainer_screen.dart';
 import 'widget/booking_category_filter.dart';
@@ -24,9 +28,16 @@ class _BookingScreenState extends State<BookingScreen> {
   ClassCategory _activeCategory = ClassCategory.all;
   int _selectedPersonalTrainerDateIndex = 0;
   int _selectedClassDateIndex = 0;
+  final List<BookingDateOption> _dateOptions =
+      buildUpcomingBookingDateOptions();
+  List<GroupClassSession> _classSessions = const [];
+  List<BranchLocation>? _classLocations;
+  BookingClassLoadStatus _classLoadStatus = BookingClassLoadStatus.initial;
+  String? _classErrorMessage;
+  String? _classLocationName;
 
   List<GroupClassSession> get _visibleClasses {
-    return groupClassSessions.where((session) {
+    return _classSessions.where((session) {
       return _activeCategory == ClassCategory.all ||
           session.category == _activeCategory;
     }).toList();
@@ -36,6 +47,11 @@ class _BookingScreenState extends State<BookingScreen> {
     setState(() {
       _activeTab = tab;
     });
+
+    if (tab == BookingTab.classSession &&
+        _classLoadStatus == BookingClassLoadStatus.initial) {
+      _fetchClassesForSelectedDate();
+    }
   }
 
   void _changeSelectedPersonalTrainerDateIndex(int index) {
@@ -48,6 +64,7 @@ class _BookingScreenState extends State<BookingScreen> {
     setState(() {
       _selectedClassDateIndex = index;
     });
+    _fetchClassesForSelectedDate();
   }
 
   void _changeActiveCategory(ClassCategory category) {
@@ -80,6 +97,72 @@ class _BookingScreenState extends State<BookingScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _fetchClassesForSelectedDate() async {
+    setState(() {
+      _classLoadStatus = BookingClassLoadStatus.loading;
+      _classErrorMessage = null;
+    });
+
+    final LocationRepository locationRepository = context
+        .read<LocationRepository>();
+    final BookingClassRepository bookingClassRepository = context
+        .read<BookingClassRepository>();
+
+    try {
+      final List<BranchLocation> locations =
+          _classLocations ?? await locationRepository.fetchLocations();
+      _classLocations = locations;
+
+      if (locations.isEmpty) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          _classSessions = const [];
+          _classLocationName = null;
+          _classLoadStatus = BookingClassLoadStatus.success;
+        });
+        return;
+      }
+
+      final BranchLocation selectedLocation = locations.first;
+      final DateTime selectedDate = _dateOptions[_selectedClassDateIndex].date;
+      final DateTime startsFrom = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+      );
+      final DateTime startsTo = startsFrom.add(const Duration(days: 1));
+      final List<GroupClassSession> classes = await bookingClassRepository
+          .fetchClassesForLocation(
+            locationId: selectedLocation.id,
+            startsFrom: startsFrom,
+            startsTo: startsTo,
+          );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _classSessions = classes;
+        _classLocationName = selectedLocation.name;
+        _classLoadStatus = BookingClassLoadStatus.success;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _classSessions = const [];
+        _classLoadStatus = BookingClassLoadStatus.failure;
+        _classErrorMessage = 'Kelas belum bisa dimuat. Silakan coba kembali.';
+      });
+    }
   }
 
   @override
@@ -193,6 +276,7 @@ class _BookingScreenState extends State<BookingScreen> {
       children: [
         BookingDateStrip(
           title: 'Pilih Tanggal PT',
+          dates: _dateOptions,
           selectedIndex: _selectedPersonalTrainerDateIndex,
           onDateSelected: _changeSelectedPersonalTrainerDateIndex,
         ),
@@ -225,6 +309,7 @@ class _BookingScreenState extends State<BookingScreen> {
       children: [
         BookingDateStrip(
           title: 'Pilih Tanggal Kelas',
+          dates: _dateOptions,
           selectedIndex: _selectedClassDateIndex,
           onDateSelected: _changeSelectedClassDateIndex,
         ),
@@ -235,23 +320,116 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
         SizedBox(height: spec.sectionGap),
         _SectionHeader(
-          title: 'Kelas Tersedia',
+          title: _classLocationName == null
+              ? 'Kelas Tersedia'
+              : 'Kelas di $_classLocationName',
           countLabel: '${visibleClasses.length} Kelas',
         ),
         const SizedBox(height: 14),
-        if (visibleClasses.isEmpty)
-          const BookingEmptyState()
-        else
-          _BookingList(
-            children: visibleClasses.map((session) {
-              return GroupClassBookingCard(
-                session: session,
-                onDetailPressed: () => _openClassDetail(session),
-                onBookingPressed: () => _showBookingToast(session.title),
-              );
-            }).toList(),
-          ),
+        _buildClassResult(visibleClasses),
       ],
+    );
+  }
+
+  Widget _buildClassResult(List<GroupClassSession> visibleClasses) {
+    if (_classLoadStatus == BookingClassLoadStatus.loading ||
+        _classLoadStatus == BookingClassLoadStatus.initial) {
+      return const _BookingStatusCard.loading();
+    }
+
+    if (_classLoadStatus == BookingClassLoadStatus.failure) {
+      return _BookingStatusCard.failure(
+        message:
+            _classErrorMessage ??
+            'Kelas belum bisa dimuat. Silakan coba kembali.',
+        onRetryPressed: _fetchClassesForSelectedDate,
+      );
+    }
+
+    if (visibleClasses.isEmpty) {
+      return const BookingEmptyState();
+    }
+
+    return _BookingList(
+      children: visibleClasses.map((session) {
+        return GroupClassBookingCard(
+          session: session,
+          onDetailPressed: () => _openClassDetail(session),
+          onBookingPressed: () => _showBookingToast(session.title),
+        );
+      }).toList(),
+    );
+  }
+}
+
+enum BookingClassLoadStatus { initial, loading, success, failure }
+
+class _BookingStatusCard extends StatelessWidget {
+  const _BookingStatusCard.loading()
+    : message = 'Memuat kelas tersedia...',
+      onRetryPressed = null;
+
+  const _BookingStatusCard.failure({
+    required this.message,
+    required this.onRetryPressed,
+  });
+
+  final String message;
+  final VoidCallback? onRetryPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final VoidCallback? retryAction = onRetryPressed;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.graphiteBlack.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.gunmetal),
+      ),
+      child: Row(
+        children: [
+          if (retryAction == null)
+            const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.4,
+                color: AppColors.gymGold,
+              ),
+            )
+          else
+            const Icon(Icons.info_rounded, color: AppColors.gymGold, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: AppColors.silverGray,
+                fontSize: 12,
+                height: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          if (retryAction != null) ...[
+            const SizedBox(width: 12),
+            TextButton(
+              onPressed: retryAction,
+              child: const Text(
+                'Coba lagi',
+                style: TextStyle(
+                  color: AppColors.gymGold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
