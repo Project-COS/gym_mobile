@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/network/api_exception.dart';
-import '../../../booking/data/repositories/personal_training_booking_repository.dart';
+import '../../../bookings/data/repositories/personal_training_booking_repository.dart';
 import '../../data/repositories/trainer_repository.dart';
 
 enum TrainerDetailLoadStatus { initial, loading, success, failure }

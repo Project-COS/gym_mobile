@@ -5,11 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:do_gym/core/icons/app_lucide_icons.dart';
 import 'package:do_gym/core/session/auth_session_cubit.dart';
 import 'package:do_gym/core/session/auth_session_repository.dart';
-import 'package:do_gym/features/booking/data/booking_data.dart';
-import 'package:do_gym/features/booking/data/repositories/personal_training_booking_repository.dart';
+import 'package:do_gym/features/activities/data/repositories/member_attendance_activity_repository.dart';
+import 'package:do_gym/features/bookings/data/booking_data.dart';
+import 'package:do_gym/features/bookings/data/repositories/personal_training_booking_repository.dart';
 import 'package:do_gym/features/classes/data/class_data.dart';
 import 'package:do_gym/features/classes/data/repositories/booking_class_repository.dart';
-import 'package:do_gym/features/lokasi/screen/branch_location_data.dart';
+import 'package:do_gym/features/locations/data/branch_location_data.dart';
 import 'package:do_gym/features/trainers/data/repositories/trainer_repository.dart';
 import 'package:do_gym/main.dart';
 
@@ -100,6 +101,51 @@ void main() {
 
     expect(find.text('BOOKING CONFIRMED'), findsOneWidget);
     expect(find.text('Barcode Check-in'), findsOneWidget);
+  });
+
+  testWidgets('activity attendance tab requests member attendance history', (
+    WidgetTester tester,
+  ) async {
+    _ignoreNetworkImageExceptionsDuringTest();
+
+    final attendanceRepository = FakeMemberAttendanceActivityRepository(
+      page: MemberAttendanceHistoryPage(
+        items: [
+          _createCompletedMemberAttendanceHistoryItem(),
+          _createOpenMemberAttendanceHistoryItem(),
+        ],
+        totalItems: 2,
+      ),
+    );
+
+    await tester.pumpWidget(
+      _buildTestApp(memberAttendanceActivityRepository: attendanceRepository),
+    );
+    await tester.pumpAndSettle();
+
+    await _signIn(tester);
+
+    expect(attendanceRepository.submittedFilter, isNull);
+
+    await tester.tap(find.text('Activity').last);
+    await tester.pumpAndSettle();
+
+    expect(
+      attendanceRepository.submittedFilter,
+      MemberAttendanceHistoryFilter.all,
+    );
+    expect(find.text('DO GYM Denpasar'), findsOneWidget);
+    expect(find.text('DO GYM Renon'), findsOneWidget);
+    expect(find.text('2 Data'), findsOneWidget);
+    expect(find.text('Belum check-out'), findsOneWidget);
+
+    await tester.tap(find.text('Hari Ini'));
+    await tester.pumpAndSettle();
+
+    expect(
+      attendanceRepository.submittedFilter,
+      MemberAttendanceHistoryFilter.today,
+    );
   });
 
   testWidgets('activity PT tab requests all booking statuses', (
@@ -237,6 +283,7 @@ void main() {
 Widget _buildTestApp({
   FakeBookingClassRepository? bookingClassRepository,
   FakePersonalTrainingBookingRepository? personalTrainingBookingRepository,
+  FakeMemberAttendanceActivityRepository? memberAttendanceActivityRepository,
   FakeProfileRepository? profileRepository,
 }) {
   final repository = AuthSessionRepository(storage: InMemorySessionStorage());
@@ -257,6 +304,9 @@ Widget _buildTestApp({
       trainers: const [_testTrainerProfile],
     ),
     memberAttendanceRepository: FakeMemberAttendanceRepository(),
+    memberAttendanceActivityRepository:
+        memberAttendanceActivityRepository ??
+        FakeMemberAttendanceActivityRepository(),
     profileRepository: profileRepository ?? FakeProfileRepository(),
   );
 }
@@ -431,6 +481,32 @@ const ClassBookingHistoryItem _scheduledClassBooking = ClassBookingHistoryItem(
   source: 'MOBILE_APP',
   canShowQr: true,
 );
+
+MemberAttendanceHistoryItem _createCompletedMemberAttendanceHistoryItem() {
+  return MemberAttendanceHistoryItem(
+    id: 'attendance-completed',
+    locationName: 'DO GYM Denpasar',
+    locationArea: 'Denpasar',
+    planName: 'Premium Access',
+    checkedInAt: DateTime(2026, 7, 5, 8, 0),
+    checkedOutAt: DateTime(2026, 7, 5, 9, 15),
+    status: 'COMPLETED',
+    durationMinutes: 75,
+  );
+}
+
+MemberAttendanceHistoryItem _createOpenMemberAttendanceHistoryItem() {
+  return MemberAttendanceHistoryItem(
+    id: 'attendance-open',
+    locationName: 'DO GYM Renon',
+    locationArea: 'Renon',
+    planName: 'Premium Access',
+    checkedInAt: DateTime(2026, 7, 5, 10, 0),
+    checkedOutAt: null,
+    status: 'OPEN',
+    durationMinutes: null,
+  );
+}
 
 void _ignoreNetworkImageExceptionsDuringTest() {
   final FlutterExceptionHandler? originalOnError = FlutterError.onError;

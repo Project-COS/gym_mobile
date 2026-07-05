@@ -27,6 +27,8 @@ void main() {
             FakePersonalTrainingBookingRepository(),
         trainerRepository: FakeTrainerRepository(),
         memberAttendanceRepository: FakeMemberAttendanceRepository(),
+        memberAttendanceActivityRepository:
+            FakeMemberAttendanceActivityRepository(),
         profileRepository: FakeProfileRepository(),
       ),
     );

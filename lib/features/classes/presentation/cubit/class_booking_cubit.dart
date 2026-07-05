@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/network/api_exception.dart';
-import '../../../booking/data/booking_data.dart';
+import '../../../bookings/data/booking_data.dart';
 import '../../data/repositories/booking_class_repository.dart';
 
 class ClassBookingState {

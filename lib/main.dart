@@ -10,13 +10,15 @@ import 'core/session/secure_session_storage.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/services/auth_api_service.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
-import 'features/booking/data/repositories/personal_training_booking_repository.dart';
-import 'features/booking/data/services/personal_training_booking_api_service.dart';
+import 'features/activities/data/repositories/member_attendance_activity_repository.dart';
+import 'features/activities/data/services/member_attendance_activity_api_service.dart';
+import 'features/bookings/data/repositories/personal_training_booking_repository.dart';
+import 'features/bookings/data/services/personal_training_booking_api_service.dart';
 import 'features/classes/data/repositories/booking_class_repository.dart';
 import 'features/classes/data/services/booking_class_api_service.dart';
 import 'features/home/screen/home_screen.dart';
-import 'features/lokasi/data/repositories/location_repository.dart';
-import 'features/lokasi/data/services/location_api_service.dart';
+import 'features/locations/data/repositories/location_repository.dart';
+import 'features/locations/data/services/location_api_service.dart';
 import 'features/member_attendance/data/repositories/member_attendance_repository.dart';
 import 'features/member_attendance/data/services/member_attendance_api_service.dart';
 import 'features/profile/data/repositories/profile_repository.dart';
@@ -57,6 +59,10 @@ void main() {
   final memberAttendanceRepository = RemoteMemberAttendanceRepository(
     apiService: MemberAttendanceApiService(apiClient: apiClient),
   );
+  final memberAttendanceActivityRepository =
+      RemoteMemberAttendanceActivityRepository(
+        apiService: MemberAttendanceActivityApiService(apiClient: apiClient),
+      );
   final profileRepository = RemoteProfileRepository(
     apiService: ProfileApiService(apiClient: apiClient),
   );
@@ -70,6 +76,7 @@ void main() {
       personalTrainingBookingRepository: personalTrainingBookingRepository,
       trainerRepository: trainerRepository,
       memberAttendanceRepository: memberAttendanceRepository,
+      memberAttendanceActivityRepository: memberAttendanceActivityRepository,
       profileRepository: profileRepository,
     ),
   );
@@ -85,6 +92,7 @@ class MyApp extends StatefulWidget {
     required this.personalTrainingBookingRepository,
     required this.trainerRepository,
     required this.memberAttendanceRepository,
+    required this.memberAttendanceActivityRepository,
     required this.profileRepository,
   });
 
@@ -95,6 +103,7 @@ class MyApp extends StatefulWidget {
   final PersonalTrainingBookingRepository personalTrainingBookingRepository;
   final TrainerRepository trainerRepository;
   final MemberAttendanceRepository memberAttendanceRepository;
+  final MemberAttendanceActivityRepository memberAttendanceActivityRepository;
   final ProfileRepository profileRepository;
 
   @override
@@ -143,6 +152,9 @@ class _MyAppState extends State<MyApp> {
         ),
         RepositoryProvider<MemberAttendanceRepository>.value(
           value: widget.memberAttendanceRepository,
+        ),
+        RepositoryProvider<MemberAttendanceActivityRepository>.value(
+          value: widget.memberAttendanceActivityRepository,
         ),
         RepositoryProvider<ProfileRepository>.value(
           value: widget.profileRepository,

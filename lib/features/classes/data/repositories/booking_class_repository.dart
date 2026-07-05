@@ -1,5 +1,5 @@
 import '../../../../core/icons/app_lucide_icons.dart';
-import '../../../booking/data/booking_data.dart';
+import '../../../bookings/data/booking_data.dart';
 import '../class_data.dart';
 import '../dto/mobile_class_booking_response_dto.dart';
 import '../dto/mobile_class_response_dto.dart';

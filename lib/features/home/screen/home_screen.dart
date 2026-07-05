@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/colors.dart';
 import '../../../core/icons/app_lucide_icons.dart';
-import '../../activity/screens/activity_screen.dart';
-import '../../booking/screens/booking_screen/booking_screen.dart';
-import '../../lokasi/screen/lokasi_cabang_screen.dart';
+import '../../activities/presentation/screens/activity_screen.dart';
+import '../../bookings/presentation/screens/booking_screen.dart';
+import '../../locations/presentation/screens/lokasi_cabang_screen.dart';
 import '../../member_attendance/data/repositories/member_attendance_repository.dart';
 import '../../member_attendance/presentation/cubit/member_attendance_qr_cubit.dart';
 import '../../member_attendance/presentation/widgets/member_attendance_qr_sheet.dart';

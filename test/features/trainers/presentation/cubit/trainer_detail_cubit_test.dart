@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:do_gym/core/network/api_exception.dart';
-import 'package:do_gym/features/booking/data/repositories/personal_training_booking_repository.dart';
+import 'package:do_gym/features/bookings/data/repositories/personal_training_booking_repository.dart';
 import 'package:do_gym/features/trainers/data/repositories/trainer_repository.dart';
 import 'package:do_gym/features/trainers/presentation/cubit/trainer_detail_cubit.dart';
 

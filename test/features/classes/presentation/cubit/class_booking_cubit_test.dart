@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:do_gym/core/network/api_exception.dart';
-import 'package:do_gym/features/booking/data/booking_data.dart';
+import 'package:do_gym/features/bookings/data/booking_data.dart';
 import 'package:do_gym/features/classes/data/class_data.dart';
 import 'package:do_gym/features/classes/data/repositories/booking_class_repository.dart';
 import 'package:do_gym/features/classes/presentation/cubit/class_booking_cubit.dart';

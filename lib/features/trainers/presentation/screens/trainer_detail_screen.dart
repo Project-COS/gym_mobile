@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/colors.dart';
-import '../../../booking/data/repositories/personal_training_booking_repository.dart';
-import '../../../booking/screens/booking_success_screen/booking_success_screen.dart';
+import '../../../bookings/data/repositories/personal_training_booking_repository.dart';
+import '../../../bookings/presentation/screens/booking_success_screen.dart';
 import '../../data/repositories/trainer_repository.dart';
 import '../cubit/trainer_detail_cubit.dart';
 import '../widgets/trainer_detail_widgets.dart';

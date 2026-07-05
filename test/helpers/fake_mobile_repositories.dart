@@ -1,8 +1,9 @@
+import 'package:do_gym/features/activities/data/repositories/member_attendance_activity_repository.dart';
 import 'package:do_gym/features/classes/data/repositories/booking_class_repository.dart';
-import 'package:do_gym/features/booking/data/repositories/personal_training_booking_repository.dart';
+import 'package:do_gym/features/bookings/data/repositories/personal_training_booking_repository.dart';
 import 'package:do_gym/features/classes/data/class_data.dart';
-import 'package:do_gym/features/lokasi/data/repositories/location_repository.dart';
-import 'package:do_gym/features/lokasi/screen/branch_location_data.dart';
+import 'package:do_gym/features/locations/data/repositories/location_repository.dart';
+import 'package:do_gym/features/locations/data/branch_location_data.dart';
 import 'package:do_gym/features/member_attendance/data/repositories/member_attendance_repository.dart';
 import 'package:do_gym/features/profile/data/profile_data.dart';
 import 'package:do_gym/features/profile/data/repositories/profile_repository.dart';
@@ -194,6 +195,32 @@ class FakeMemberAttendanceRepository implements MemberAttendanceRepository {
     }
 
     return qr;
+  }
+}
+
+class FakeMemberAttendanceActivityRepository
+    implements MemberAttendanceActivityRepository {
+  FakeMemberAttendanceActivityRepository({
+    this.page = const MemberAttendanceHistoryPage(items: [], totalItems: 0),
+    this.error,
+  });
+
+  final MemberAttendanceHistoryPage page;
+  final Object? error;
+  MemberAttendanceHistoryFilter? submittedFilter;
+
+  @override
+  Future<MemberAttendanceHistoryPage> fetchMemberAttendanceHistory({
+    MemberAttendanceHistoryFilter filter = MemberAttendanceHistoryFilter.all,
+  }) async {
+    submittedFilter = filter;
+    final Object? error = this.error;
+
+    if (error != null) {
+      throw error;
+    }
+
+    return page;
   }
 }
 

@@ -9,6 +9,7 @@ class ApiEndpoints {
   static const String trainers = 'trainers';
   static const String personalTrainingBookings = 'bookings/personal-training';
   static const String classBookings = 'bookings/classes';
+  static const String memberAttendances = 'attendance';
   static const String memberAttendanceQr = 'attendance/qr';
 
   static String locationTrainers(String locationId) {

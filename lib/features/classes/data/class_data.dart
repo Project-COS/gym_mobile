@@ -1,4 +1,4 @@
-import '../../booking/data/booking_data.dart';
+import '../../bookings/data/booking_data.dart';
 
 enum ClassCategory {
   all(label: 'Semua'),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/colors.dart';
-import '../../../booking/data/booking_data.dart';
+import '../../../bookings/data/booking_data.dart';
 import '../../data/class_data.dart';
 
 class ClassDetailTopBar extends StatelessWidget {
