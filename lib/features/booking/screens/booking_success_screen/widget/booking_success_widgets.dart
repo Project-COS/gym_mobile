@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../../core/colors.dart';
 
@@ -10,76 +11,81 @@ class BookingSuccessHero extends StatelessWidget {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(22),
+      constraints: const BoxConstraints(minHeight: 174),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.graphiteBlack,
-            AppColors.steelBlack,
+            AppColors.graphiteBlack.withValues(alpha: 0.98),
+            AppColors.steelBlack.withValues(alpha: 0.86),
             AppColors.success.withValues(alpha: 0.32),
           ],
-          stops: const [0, 0.55, 1.4],
+          stops: const [0, 0.62, 1.26],
         ),
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(34),
         border: Border.all(color: AppColors.success.withValues(alpha: 0.35)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.success.withValues(alpha: 0.08),
+            blurRadius: 40,
+            offset: const Offset(0, 18),
+          ),
+        ],
       ),
-      child: Column(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Container(
-            width: 76,
-            height: 76,
-            decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(26),
-              border: Border.all(
-                color: AppColors.success.withValues(alpha: 0.28),
+          Positioned(
+            top: -70,
+            right: -42,
+            child: Container(
+              width: 146,
+              height: 146,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.success.withValues(alpha: 0.16),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.success.withValues(alpha: 0.10),
-                  blurRadius: 36,
-                  offset: const Offset(0, 18),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 92,
+                height: 92,
+                decoration: BoxDecoration(
+                  color: AppColors.success.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(
+                    color: AppColors.success.withValues(alpha: 0.34),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.success.withValues(alpha: 0.13),
+                      blurRadius: 42,
+                      offset: const Offset(0, 20),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: const Icon(
-              Icons.verified_rounded,
-              color: AppColors.success,
-              size: 38,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'BOOKING CONFIRMED',
-            style: TextStyle(
-              color: AppColors.paleGold,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.6,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Booking Berhasil',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.metallicWhite,
-              fontSize: 28,
-              height: 1.15,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Jadwal latihan kamu sudah dikonfirmasi. Simpan kode booking dan gunakan barcode saat check-in.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.silverGray,
-              fontSize: 13,
-              height: 1.7,
-            ),
+                child: const Icon(
+                  Icons.verified_rounded,
+                  color: AppColors.success,
+                  size: 42,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'BOOKING CONFIRMED',
+                style: TextStyle(
+                  color: AppColors.paleGold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.8,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -96,11 +102,18 @@ class BookingCodeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
       decoration: BoxDecoration(
         color: AppColors.gymGold.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.28)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.gymGold.withValues(alpha: 0.07),
+            blurRadius: 28,
+            offset: const Offset(0, 16),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -119,9 +132,9 @@ class BookingCodeCard extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.gymGold,
-              fontSize: 22,
-              height: 1,
-              fontWeight: FontWeight.w800,
+              fontSize: 27,
+              height: 1.1,
+              fontWeight: FontWeight.w900,
               letterSpacing: 1,
             ),
           ),
@@ -152,7 +165,7 @@ class BookingSuccessDetailCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _SectionTitle('Detail Booking'),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _DetailRow(icon: Icons.verified_rounded, label: 'Sesi', value: title),
           _DetailRow(
             icon: Icons.schedule_rounded,
@@ -176,8 +189,15 @@ class BookingSuccessDetailCard extends StatelessWidget {
   }
 }
 
-class BarcodeCheckInCard extends StatelessWidget {
-  const BarcodeCheckInCard({super.key});
+class BookingQrCodeCard extends StatelessWidget {
+  const BookingQrCodeCard({
+    super.key,
+    required this.code,
+    required this.qrPayload,
+  });
+
+  final String code;
+  final String qrPayload;
 
   @override
   Widget build(BuildContext context) {
@@ -185,27 +205,64 @@ class BarcodeCheckInCard extends StatelessWidget {
       child: Column(
         children: [
           const Align(
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.center,
             child: _SectionTitle('Barcode Check-in'),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Container(
-            width: 184,
-            height: 92,
-            padding: const EdgeInsets.all(10),
+            width: 214,
+            height: 168,
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.metallicWhite,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.blackCore.withValues(alpha: 0.36),
+                  blurRadius: 30,
+                  offset: const Offset(0, 16),
+                ),
+              ],
             ),
-            child: CustomPaint(painter: _BarcodePainter()),
+            child: Center(
+              child: QrImageView(
+                data: qrPayload,
+                version: QrVersions.auto,
+                backgroundColor: AppColors.metallicWhite,
+                eyeStyle: const QrEyeStyle(
+                  eyeShape: QrEyeShape.square,
+                  color: AppColors.blackCore,
+                ),
+                dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleShape: QrDataModuleShape.square,
+                  color: AppColors.blackCore,
+                ),
+                padding: EdgeInsets.zero,
+                gapless: false,
+                semanticsLabel: 'Kode check-in booking $code',
+                errorStateBuilder: (_, _) {
+                  return const Center(
+                    child: Text(
+                      'Kode check-in belum bisa ditampilkan.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.blackCore,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 18),
           const Text(
             'Tunjukkan barcode ini ke staff DO GYM saat tiba di lokasi.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.silverGray,
-              fontSize: 11,
+              fontSize: 12,
               height: 1.6,
             ),
           ),
@@ -222,10 +279,10 @@ class BookingNoticeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.gymGold.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(28),
         border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.18)),
       ),
       child: const Row(
@@ -305,10 +362,10 @@ class _SuccessCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.graphiteBlack.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.gunmetal),
       ),
       child: child,
@@ -327,8 +384,9 @@ class _SectionTitle extends StatelessWidget {
       text,
       style: const TextStyle(
         color: AppColors.metallicWhite,
-        fontSize: 17,
-        fontWeight: FontWeight.w800,
+        fontSize: 20,
+        height: 1.2,
+        fontWeight: FontWeight.w900,
       ),
     );
   }
@@ -350,8 +408,8 @@ class _DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
-      margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 14),
+      margin: EdgeInsets.only(bottom: isLast ? 0 : 14),
       decoration: BoxDecoration(
         border: isLast
             ? null
@@ -365,18 +423,18 @@ class _DetailRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: AppColors.gymGold.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: AppColors.gymGold.withValues(alpha: 0.18),
               ),
             ),
-            child: Icon(icon, color: AppColors.gymGold, size: 18),
+            child: Icon(icon, color: AppColors.gymGold, size: 22),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,19 +443,19 @@ class _DetailRow extends StatelessWidget {
                   label.toUpperCase(),
                   style: const TextStyle(
                     color: AppColors.ironGray,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   value,
                   style: const TextStyle(
                     color: AppColors.metallicWhite,
-                    fontSize: 13,
-                    height: 1.6,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    height: 1.45,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ],
@@ -425,10 +483,10 @@ class _BottomActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48,
+      height: 60,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon, size: 18),
+        icon: Icon(icon, size: 24),
         label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
         style: ElevatedButton.styleFrom(
           elevation: 0,
@@ -440,50 +498,12 @@ class _BottomActionButton extends StatelessWidget {
             color: isPrimary ? AppColors.gymGold : AppColors.gunmetal,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
-          textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+          iconColor: isPrimary ? AppColors.blackCore : AppColors.metallicWhite,
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
         ),
       ),
     );
   }
-}
-
-class _BarcodePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()..color = AppColors.blackCore;
-    const List<double> widths = [
-      4,
-      2,
-      7,
-      3,
-      5,
-      2,
-      9,
-      4,
-      3,
-      6,
-      2,
-      8,
-      4,
-      5,
-      2,
-      6,
-      3,
-      8,
-    ];
-
-    double x = 0;
-    for (int index = 0; index < widths.length && x < size.width; index++) {
-      final double width = widths[index];
-      if (index.isEven) {
-        canvas.drawRect(Rect.fromLTWH(x, 0, width, size.height), paint);
-      }
-      x += width + 4;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

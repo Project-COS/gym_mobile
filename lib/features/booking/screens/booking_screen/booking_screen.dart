@@ -1,18 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/colors.dart';
 import '../../data/booking_data.dart';
-import '../../data/repositories/booking_class_repository.dart';
-import '../../../lokasi/data/repositories/location_repository.dart';
-import '../../../lokasi/screen/branch_location_data.dart';
-import '../detail_class_screen/detail_class_screen.dart';
-import '../detail_personal_trainer_screen/detail_personal_trainer_screen.dart';
-import 'widget/booking_category_filter.dart';
+import '../../presentation/screens/personal_training_booking_history_screen.dart';
+import '../../../classes/data/class_data.dart';
+import '../../../classes/data/repositories/booking_class_repository.dart';
+import '../../../classes/presentation/cubit/booking_class_cubit.dart';
+import '../../../classes/presentation/screens/detail_class_screen.dart';
+import '../../../classes/presentation/widgets/class_category_filter.dart';
+import '../../../classes/presentation/widgets/group_class_booking_card.dart';
+import '../../../trainers/data/repositories/trainer_repository.dart';
+import '../../../trainers/presentation/cubit/trainer_list_cubit.dart';
+import '../../../trainers/presentation/screens/trainer_detail_screen.dart';
+import '../../../trainers/presentation/widgets/trainer_catalog_widgets.dart';
 import 'widget/booking_date_strip.dart';
 import 'widget/booking_empty_state.dart';
 import 'widget/booking_hero_card.dart';
-import 'widget/booking_session_card.dart';
 import 'widget/booking_tab_selector.dart';
 import 'widget/booking_top_bar.dart';
 
@@ -23,60 +29,117 @@ class BookingScreen extends StatefulWidget {
   State<BookingScreen> createState() => _BookingScreenState();
 }
 
-class _BookingScreenState extends State<BookingScreen> {
+class _BookingScreenState extends State<BookingScreen>
+    with WidgetsBindingObserver {
   BookingTab _activeTab = BookingTab.personalTrainer;
-  ClassCategory _activeCategory = ClassCategory.all;
-  int _selectedPersonalTrainerDateIndex = 0;
+  String? _activeCategoryId;
   int _selectedClassDateIndex = 0;
-  final List<BookingDateOption> _dateOptions =
-      buildUpcomingBookingDateOptions();
-  List<GroupClassSession> _classSessions = const [];
-  List<BranchLocation>? _classLocations;
-  BookingClassLoadStatus _classLoadStatus = BookingClassLoadStatus.initial;
-  String? _classErrorMessage;
-  String? _classLocationName;
+  List<BookingDateOption> _dateOptions = buildUpcomingBookingDateOptions();
+  DateTime _dateOptionsBaseDate = normalizeBookingCalendarDate(DateTime.now());
+  Timer? _classDateRefreshTimer;
+  TrainerRepository? _trainerRepository;
+  TrainerListCubit? _trainerListCubit;
+  BookingClassRepository? _bookingClassRepository;
+  BookingClassCubit? _bookingClassCubit;
 
-  List<GroupClassSession> get _visibleClasses {
-    return _classSessions.where((session) {
-      return _activeCategory == ClassCategory.all ||
-          session.category == _activeCategory;
+  List<GroupClassSession> _visibleClasses(BookingClassState state) {
+    return state.sessions.where((session) {
+      return _activeCategoryId == null ||
+          session.categoryId == _activeCategoryId;
     }).toList();
   }
 
-  void _changeActiveTab(BookingTab tab) {
-    setState(() {
-      _activeTab = tab;
-    });
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleNextClassDateRefresh();
+  }
 
-    if (tab == BookingTab.classSession &&
-        _classLoadStatus == BookingClassLoadStatus.initial) {
-      _fetchClassesForSelectedDate();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final trainerRepository = context.read<TrainerRepository>();
+    final bookingClassRepository = context.read<BookingClassRepository>();
+
+    if (_trainerRepository != trainerRepository || _trainerListCubit == null) {
+      _trainerListCubit?.close();
+      _trainerRepository = trainerRepository;
+      _trainerListCubit = TrainerListCubit(repository: trainerRepository)
+        ..fetchTrainers();
+    }
+
+    if (_bookingClassRepository != bookingClassRepository ||
+        _bookingClassCubit == null) {
+      _bookingClassCubit?.close();
+      _bookingClassRepository = bookingClassRepository;
+      _bookingClassCubit = BookingClassCubit(
+        bookingClassRepository: bookingClassRepository,
+      );
     }
   }
 
-  void _changeSelectedPersonalTrainerDateIndex(int index) {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _classDateRefreshTimer?.cancel();
+    _trainerListCubit?.close();
+    _bookingClassCubit?.close();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+
+    final bool dateOptionsChanged = _refreshClassDateOptionsIfNeeded();
+    _scheduleNextClassDateRefresh();
+
+    if (dateOptionsChanged && _activeTab == BookingTab.classSession) {
+      _fetchClassesForSelectedDate(forceRefresh: true);
+    }
+  }
+
+  void _changeActiveTab(BookingTab tab) {
+    final bool shouldRefreshClassDates =
+        tab == BookingTab.classSession && _classDateOptionsNeedRefresh();
+
     setState(() {
-      _selectedPersonalTrainerDateIndex = index;
+      _activeTab = tab;
+
+      if (shouldRefreshClassDates) {
+        _refreshClassDateOptionsForToday();
+      }
     });
+
+    if (tab == BookingTab.classSession &&
+        (_bookingClassCubit?.state.status == BookingClassLoadStatus.initial ||
+            shouldRefreshClassDates)) {
+      _fetchClassesForSelectedDate(forceRefresh: shouldRefreshClassDates);
+    }
   }
 
   void _changeSelectedClassDateIndex(int index) {
     setState(() {
       _selectedClassDateIndex = index;
+      _activeCategoryId = null;
     });
     _fetchClassesForSelectedDate();
   }
 
-  void _changeActiveCategory(ClassCategory category) {
+  void _changeActiveCategory(String? categoryId) {
     setState(() {
-      _activeCategory = category;
+      _activeCategoryId = categoryId;
     });
   }
 
-  void _openPersonalTrainerDetail(PersonalTrainerSession session) {
+  void _openTrainerDetail(TrainerProfile trainer) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => DetailPersonalTrainerScreen(session: session),
+        builder: (_) => TrainerDetailScreen(trainerId: trainer.id),
       ),
     );
   }
@@ -89,131 +152,159 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  void _showBookingToast(String name) {
-    _showMessage('$name berhasil dibooking.');
+  void _openPersonalTrainingBookingHistory() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const PersonalTrainingBookingHistoryScreen(),
+      ),
+    );
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  Future<void> _fetchClassesForSelectedDate() async {
-    setState(() {
-      _classLoadStatus = BookingClassLoadStatus.loading;
-      _classErrorMessage = null;
-    });
-
-    final LocationRepository locationRepository = context
-        .read<LocationRepository>();
-    final BookingClassRepository bookingClassRepository = context
-        .read<BookingClassRepository>();
-
-    try {
-      final List<BranchLocation> locations =
-          _classLocations ?? await locationRepository.fetchLocations();
-      _classLocations = locations;
-
-      if (locations.isEmpty) {
-        if (!mounted) {
-          return;
-        }
-
-        setState(() {
-          _classSessions = const [];
-          _classLocationName = null;
-          _classLoadStatus = BookingClassLoadStatus.success;
-        });
-        return;
-      }
-
-      final BranchLocation selectedLocation = locations.first;
-      final DateTime selectedDate = _dateOptions[_selectedClassDateIndex].date;
-      final DateTime startsFrom = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-      );
-      final DateTime startsTo = startsFrom.add(const Duration(days: 1));
-      final List<GroupClassSession> classes = await bookingClassRepository
-          .fetchClassesForLocation(
-            locationId: selectedLocation.id,
-            startsFrom: startsFrom,
-            startsTo: startsTo,
-          );
-
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _classSessions = classes;
-        _classLocationName = selectedLocation.name;
-        _classLoadStatus = BookingClassLoadStatus.success;
-      });
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _classSessions = const [];
-        _classLoadStatus = BookingClassLoadStatus.failure;
-        _classErrorMessage = 'Kelas belum bisa dimuat. Silakan coba kembali.';
-      });
+  Future<void> _refreshActiveTab() {
+    if (_activeTab == BookingTab.personalTrainer) {
+      return _trainerListCubit?.fetchTrainers(forceRefresh: true) ??
+          Future<void>.value();
     }
+
+    _refreshClassDateOptionsIfNeeded();
+    return _fetchClassesForSelectedDate(forceRefresh: true);
+  }
+
+  Future<void> _fetchClassesForSelectedDate({bool forceRefresh = false}) {
+    return _bookingClassCubit?.fetchClassesForDate(
+          _dateOptions[_selectedClassDateIndex].date,
+          forceRefresh: forceRefresh,
+        ) ??
+        Future<void>.value();
+  }
+
+  void _scheduleNextClassDateRefresh() {
+    _classDateRefreshTimer?.cancel();
+
+    final now = DateTime.now();
+    final nextCalendarDay = normalizeBookingCalendarDate(
+      now,
+    ).add(const Duration(days: 1));
+
+    _classDateRefreshTimer = Timer(
+      nextCalendarDay.difference(now),
+      _refreshClassDateOptionsAfterMidnight,
+    );
+  }
+
+  void _refreshClassDateOptionsAfterMidnight() {
+    if (!mounted) {
+      return;
+    }
+
+    final bool dateOptionsChanged = _refreshClassDateOptionsIfNeeded();
+    _scheduleNextClassDateRefresh();
+
+    if (dateOptionsChanged && _activeTab == BookingTab.classSession) {
+      _fetchClassesForSelectedDate(forceRefresh: true);
+    }
+  }
+
+  bool _refreshClassDateOptionsIfNeeded() {
+    if (!_classDateOptionsNeedRefresh()) {
+      return false;
+    }
+
+    setState(_refreshClassDateOptionsForToday);
+    return true;
+  }
+
+  bool _classDateOptionsNeedRefresh() {
+    return !isSameBookingCalendarDate(_dateOptionsBaseDate, DateTime.now());
+  }
+
+  void _refreshClassDateOptionsForToday() {
+    final previouslySelectedDate = _dateOptions[_selectedClassDateIndex].date;
+    final today = normalizeBookingCalendarDate(DateTime.now());
+    final nextDateOptions = buildUpcomingBookingDateOptions(today: today);
+
+    _dateOptions = nextDateOptions;
+    _dateOptionsBaseDate = today;
+    _selectedClassDateIndex = findBookingDateOptionIndexForDate(
+      nextDateOptions,
+      previouslySelectedDate,
+    );
+    _activeCategoryId = null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final trainerListCubit = _trainerListCubit;
+    final bookingClassCubit = _bookingClassCubit;
+
+    if (trainerListCubit == null || bookingClassCubit == null) {
+      return const ColoredBox(
+        color: AppColors.blackCore,
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.gymGold),
+        ),
+      );
+    }
+
     return Container(
       color: AppColors.blackCore,
-      child: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final BookingLayoutSpec spec = BookingLayoutSpec.fromWidth(
-              constraints.maxWidth,
-            );
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<TrainerListCubit>.value(value: trainerListCubit),
+          BlocProvider<BookingClassCubit>.value(value: bookingClassCubit),
+        ],
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final BookingLayoutSpec spec = BookingLayoutSpec.fromWidth(
+                constraints.maxWidth,
+              );
 
-            return Stack(
-              children: [
-                Positioned(
-                  top: spec.isExpanded ? -176 : -112,
-                  right: spec.isExpanded ? -120 : -96,
-                  child: _GlowOrb(
-                    size: spec.isExpanded ? 420 : 320,
-                    color: AppColors.gymGold,
-                    opacity: spec.isExpanded ? 0.16 : 0.18,
-                  ),
-                ),
-                Positioned(
-                  bottom: spec.isExpanded ? -152 : -104,
-                  left: spec.isExpanded ? -132 : -96,
-                  child: _GlowOrb(
-                    size: spec.isExpanded ? 360 : 288,
-                    color: AppColors.darkGold,
-                    opacity: spec.isExpanded ? 0.10 : 0.12,
-                  ),
-                ),
-                SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: spec.pagePadding,
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: spec.maxContentWidth,
-                      ),
-                      child: spec.isExpanded
-                          ? _buildExpandedBookingContent(spec)
-                          : _buildStackedBookingContent(spec),
+              return Stack(
+                children: [
+                  Positioned(
+                    top: spec.isExpanded ? -176 : -112,
+                    right: spec.isExpanded ? -120 : -96,
+                    child: _GlowOrb(
+                      size: spec.isExpanded ? 420 : 320,
+                      color: AppColors.gymGold,
+                      opacity: spec.isExpanded ? 0.16 : 0.18,
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                  Positioned(
+                    bottom: spec.isExpanded ? -152 : -104,
+                    left: spec.isExpanded ? -132 : -96,
+                    child: _GlowOrb(
+                      size: spec.isExpanded ? 360 : 288,
+                      color: AppColors.darkGold,
+                      opacity: spec.isExpanded ? 0.10 : 0.12,
+                    ),
+                  ),
+                  RefreshIndicator(
+                    color: AppColors.gymGold,
+                    backgroundColor: AppColors.graphiteBlack,
+                    onRefresh: _refreshActiveTab,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: spec.pagePadding,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: spec.maxContentWidth,
+                          ),
+                          child: spec.isExpanded
+                              ? _buildExpandedBookingContent(spec)
+                              : _buildStackedBookingContent(spec),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -223,7 +314,7 @@ class _BookingScreenState extends State<BookingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const BookingTopBar(),
+        _BookingHeader(onHistoryPressed: _openPersonalTrainingBookingHistory),
         SizedBox(height: spec.sectionGap),
         const BookingHeroCard(),
         SizedBox(height: spec.sectionGap),
@@ -246,7 +337,9 @@ class _BookingScreenState extends State<BookingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const BookingTopBar(),
+              _BookingHeader(
+                onHistoryPressed: _openPersonalTrainingBookingHistory,
+              ),
               SizedBox(height: spec.sectionGap),
               const BookingHeroCard(),
               SizedBox(height: spec.sectionGap),
@@ -271,78 +364,103 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Widget _buildPersonalTrainerContent(BookingLayoutSpec spec) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BookingDateStrip(
-          title: 'Pilih Tanggal PT',
-          dates: _dateOptions,
-          selectedIndex: _selectedPersonalTrainerDateIndex,
-          onDateSelected: _changeSelectedPersonalTrainerDateIndex,
-        ),
-        SizedBox(height: spec.sectionGap),
-        _SectionHeader(
-          title: 'Personal Trainer',
-          countLabel: '${personalTrainerSessions.length} Trainer',
-        ),
-        const SizedBox(height: 14),
-        _BookingList(
-          children: personalTrainerSessions.map((session) {
-            return PersonalTrainerBookingCard(
-              session: session,
-              onDetailPressed: () => _openPersonalTrainerDetail(session),
-              onBookingPressed: () => _showBookingToast(
-                'PT Session ${session.name.replaceFirst('Coach ', '')}',
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+    return BlocBuilder<TrainerListCubit, TrainerListState>(
+      builder: (context, state) {
+        final trainers = state.trainers;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TrainerCatalogHeader(count: trainers.length),
+            const SizedBox(height: 14),
+            _buildTrainerResult(state),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTrainerResult(TrainerListState state) {
+    if (state.status == TrainerListLoadStatus.loading &&
+        state.trainers.isEmpty) {
+      return const TrainerStatusCard.loading();
+    }
+
+    if (state.status == TrainerListLoadStatus.failure &&
+        state.trainers.isEmpty) {
+      return TrainerStatusCard.failure(
+        message:
+            state.errorMessage ??
+            'Trainer belum bisa dimuat. Silakan coba kembali.',
+        onRetryPressed: () =>
+            _trainerListCubit?.fetchTrainers(forceRefresh: true),
+      );
+    }
+
+    if (state.trainers.isEmpty) {
+      return const TrainerStatusCard.empty();
+    }
+
+    return _BookingList(
+      children: state.trainers.map((trainer) {
+        return TrainerProfileCard(
+          trainer: trainer,
+          onDetailPressed: () => _openTrainerDetail(trainer),
+        );
+      }).toList(),
     );
   }
 
   Widget _buildClassContent(BookingLayoutSpec spec) {
-    final List<GroupClassSession> visibleClasses = _visibleClasses;
+    return BlocBuilder<BookingClassCubit, BookingClassState>(
+      builder: (context, state) {
+        final List<GroupClassSession> visibleClasses = _visibleClasses(state);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BookingDateStrip(
-          title: 'Pilih Tanggal Kelas',
-          dates: _dateOptions,
-          selectedIndex: _selectedClassDateIndex,
-          onDateSelected: _changeSelectedClassDateIndex,
-        ),
-        SizedBox(height: spec.sectionGap),
-        BookingCategoryFilter(
-          activeCategory: _activeCategory,
-          onCategoryChanged: _changeActiveCategory,
-        ),
-        SizedBox(height: spec.sectionGap),
-        _SectionHeader(
-          title: _classLocationName == null
-              ? 'Kelas Tersedia'
-              : 'Kelas di $_classLocationName',
-          countLabel: '${visibleClasses.length} Kelas',
-        ),
-        const SizedBox(height: 14),
-        _buildClassResult(visibleClasses),
-      ],
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BookingDateStrip(
+              title: 'Pilih Tanggal Kelas',
+              dates: _dateOptions,
+              selectedIndex: _selectedClassDateIndex,
+              onDateSelected: _changeSelectedClassDateIndex,
+            ),
+            SizedBox(height: spec.sectionGap),
+            ClassCategoryFilter(
+              categories: state.categories,
+              activeCategoryId: _activeCategoryId,
+              onCategoryChanged: _changeActiveCategory,
+            ),
+            SizedBox(height: spec.sectionGap),
+            _SectionHeader(
+              title: state.locationName == null
+                  ? 'Kelas Semua Cabang'
+                  : 'Kelas di ${state.locationName}',
+              countLabel: '${visibleClasses.length} Kelas',
+            ),
+            const SizedBox(height: 14),
+            _buildClassResult(state, visibleClasses),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildClassResult(List<GroupClassSession> visibleClasses) {
-    if (_classLoadStatus == BookingClassLoadStatus.loading ||
-        _classLoadStatus == BookingClassLoadStatus.initial) {
+  Widget _buildClassResult(
+    BookingClassState state,
+    List<GroupClassSession> visibleClasses,
+  ) {
+    if (state.status == BookingClassLoadStatus.loading ||
+        state.status == BookingClassLoadStatus.initial) {
       return const _BookingStatusCard.loading();
     }
 
-    if (_classLoadStatus == BookingClassLoadStatus.failure) {
+    if (state.status == BookingClassLoadStatus.failure) {
       return _BookingStatusCard.failure(
         message:
-            _classErrorMessage ??
+            state.errorMessage ??
             'Kelas belum bisa dimuat. Silakan coba kembali.',
-        onRetryPressed: _fetchClassesForSelectedDate,
+        onRetryPressed: () => _fetchClassesForSelectedDate(forceRefresh: true),
       );
     }
 
@@ -355,14 +473,46 @@ class _BookingScreenState extends State<BookingScreen> {
         return GroupClassBookingCard(
           session: session,
           onDetailPressed: () => _openClassDetail(session),
-          onBookingPressed: () => _showBookingToast(session.title),
+          onBookingPressed: () => _openClassDetail(session),
         );
       }).toList(),
     );
   }
 }
 
-enum BookingClassLoadStatus { initial, loading, success, failure }
+class _BookingHeader extends StatelessWidget {
+  const _BookingHeader({required this.onHistoryPressed});
+
+  final VoidCallback onHistoryPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Expanded(child: BookingTopBar()),
+        const SizedBox(width: 12),
+        OutlinedButton.icon(
+          onPressed: onHistoryPressed,
+          icon: const Icon(Icons.history_rounded, size: 16),
+          label: const Text('History PT'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.gymGold,
+            side: BorderSide(color: AppColors.gymGold.withValues(alpha: 0.44)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            textStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class _BookingStatusCard extends StatelessWidget {
   const _BookingStatusCard.loading()

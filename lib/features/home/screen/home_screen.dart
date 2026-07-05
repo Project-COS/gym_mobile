@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/colors.dart';
 import '../../../core/icons/app_lucide_icons.dart';
 import '../../activity/screens/activity_screen.dart';
 import '../../booking/screens/booking_screen/booking_screen.dart';
 import '../../lokasi/screen/lokasi_cabang_screen.dart';
+import '../../member_attendance/data/repositories/member_attendance_repository.dart';
+import '../../member_attendance/presentation/cubit/member_attendance_qr_cubit.dart';
+import '../../member_attendance/presentation/widgets/member_attendance_qr_sheet.dart';
+import '../../profile/presentation/screens/profile_screen.dart';
 import 'widget/home_bottom_navigation_bar.dart';
 import 'widget/home_navigation_rail.dart';
 import 'widget/home_top_bar.dart';
@@ -50,8 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
       const HomeScreenContent(),
       const LokasiCabangScreen(),
       const BookingScreen(),
-      const ActivityScreen(),
-      const CenterPage(title: 'Profile'),
+      ActivityScreen(isActive: _selectedIndex == 3),
+      ProfileScreen(isActive: _selectedIndex == 4),
     ];
   }
 
@@ -113,6 +118,26 @@ class HomeScreenContent extends StatefulWidget {
 }
 
 class _HomeScreenContentState extends State<HomeScreenContent> {
+  void _openMemberAttendanceQr() {
+    final repository = context.read<MemberAttendanceRepository>();
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.graphiteBlack,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) {
+        return BlocProvider(
+          create: (_) =>
+              MemberAttendanceQrCubit(repository: repository)..createQr(),
+          child: const MemberAttendanceQrSheet(),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -148,7 +173,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
       children: [
         const HomeTopBar(),
         SizedBox(height: spec.sectionGap),
-        const MembershipCard(),
+        MembershipCard(onShowQr: _openMemberAttendanceQr),
         SizedBox(height: spec.sectionGap),
         const WeeklyActivitySection(),
         SizedBox(height: spec.sectionGap),
@@ -170,7 +195,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
             children: [
               const HomeTopBar(),
               SizedBox(height: spec.sectionGap),
-              const MembershipCard(),
+              MembershipCard(onShowQr: _openMemberAttendanceQr),
               SizedBox(height: spec.sectionGap),
               const UpcomingScheduleSection(),
             ],

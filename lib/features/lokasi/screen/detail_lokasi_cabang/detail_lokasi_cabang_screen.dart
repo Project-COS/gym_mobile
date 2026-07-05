@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/colors.dart';
-import '../../../booking/data/repositories/booking_class_repository.dart';
+import '../../../classes/data/repositories/booking_class_repository.dart';
 import '../branch_location_data.dart';
 import '../../presentation/cubit/location_class_schedule_cubit.dart';
 import 'widget/branch_cta_card.dart';

@@ -10,13 +10,13 @@ enum ActivityTab {
   personalTrainer(
     label: 'PT',
     sectionTitle: 'Riwayat PT',
-    countLabel: '5 Session',
+    countLabel: '0 Session',
     icon: Icons.how_to_reg_rounded,
   ),
   classSession(
     label: 'Kelas',
     sectionTitle: 'Riwayat Kelas',
-    countLabel: '7 Kelas',
+    countLabel: '0 Kelas',
     icon: Icons.groups_rounded,
   );
 
@@ -52,6 +52,32 @@ class ActivityHistoryMeta {
   final String value;
 }
 
+class ActivityBookingDetail {
+  const ActivityBookingDetail({
+    required this.itemId,
+    required this.typeCode,
+    required this.title,
+    required this.schedule,
+    required this.duration,
+    required this.location,
+    required this.bookingCode,
+    required this.source,
+    required this.qrPayload,
+    required this.canShowQr,
+  });
+
+  final String itemId;
+  final String typeCode;
+  final String title;
+  final String schedule;
+  final String duration;
+  final String location;
+  final String bookingCode;
+  final String source;
+  final String qrPayload;
+  final bool canShowQr;
+}
+
 class ActivityHistoryItem {
   const ActivityHistoryItem({
     required this.tab,
@@ -61,6 +87,7 @@ class ActivityHistoryItem {
     required this.icon,
     required this.metas,
     this.isFeatured = false,
+    this.bookingDetail,
   });
 
   final ActivityTab tab;
@@ -70,18 +97,19 @@ class ActivityHistoryItem {
   final IconData icon;
   final List<ActivityHistoryMeta> metas;
   final bool isFeatured;
+  final ActivityBookingDetail? bookingDetail;
 }
 
 const List<ActivitySummaryStat> activitySummaryStats = [
   ActivitySummaryStat(value: '12', label: 'Kedatangan'),
-  ActivitySummaryStat(value: '5', label: 'PT Session'),
-  ActivitySummaryStat(value: '7', label: 'Kelas'),
+  ActivitySummaryStat(value: '-', label: 'PT Session'),
+  ActivitySummaryStat(value: '-', label: 'Kelas'),
 ];
 
 const Map<ActivityTab, List<String>> activityFilters = {
   ActivityTab.attendance: ['Semua', 'Hari Ini', 'Minggu Ini', 'Bulan Ini'],
-  ActivityTab.personalTrainer: ['Semua', 'Selesai', 'Minggu Ini', 'Bulan Ini'],
-  ActivityTab.classSession: ['Semua', 'Selesai', 'Minggu Ini', 'Bulan Ini'],
+  ActivityTab.personalTrainer: ['Semua', 'Selesai'],
+  ActivityTab.classSession: ['Semua', 'Selesai'],
 };
 
 const List<ActivityHistoryItem> activityHistoryItems = [
@@ -170,94 +198,6 @@ const List<ActivityHistoryItem> activityHistoryItems = [
         icon: Icons.timer_rounded,
         label: 'Durasi',
         value: '1j 25m',
-      ),
-    ],
-  ),
-  ActivityHistoryItem(
-    tab: ActivityTab.personalTrainer,
-    title: 'PT Session',
-    subtitle: 'Coach Budi Santoso - 25 Jan 2026',
-    status: 'Selesai',
-    icon: Icons.how_to_reg_rounded,
-    isFeatured: true,
-    metas: [
-      ActivityHistoryMeta(
-        icon: Icons.calendar_month_rounded,
-        label: 'Tanggal',
-        value: '25 Jan',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.schedule_rounded,
-        label: 'Jam',
-        value: '17:00',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.person_rounded,
-        label: 'Trainer',
-        value: 'Budi',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.location_on_rounded,
-        label: 'Branch',
-        value: 'Denpasar',
-      ),
-    ],
-  ),
-  ActivityHistoryItem(
-    tab: ActivityTab.personalTrainer,
-    title: 'PT Session',
-    subtitle: 'Coach Raka Pratama - 22 Jan 2026',
-    status: 'Selesai',
-    icon: Icons.how_to_reg_rounded,
-    metas: [
-      ActivityHistoryMeta(
-        icon: Icons.calendar_month_rounded,
-        label: 'Tanggal',
-        value: '22 Jan',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.schedule_rounded,
-        label: 'Jam',
-        value: '19:00',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.person_rounded,
-        label: 'Trainer',
-        value: 'Raka',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.location_on_rounded,
-        label: 'Branch',
-        value: 'Renon',
-      ),
-    ],
-  ),
-  ActivityHistoryItem(
-    tab: ActivityTab.personalTrainer,
-    title: 'PT Session',
-    subtitle: 'Coach Maya Sari - 18 Jan 2026',
-    status: 'Selesai',
-    icon: Icons.how_to_reg_rounded,
-    metas: [
-      ActivityHistoryMeta(
-        icon: Icons.calendar_month_rounded,
-        label: 'Tanggal',
-        value: '18 Jan',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.schedule_rounded,
-        label: 'Jam',
-        value: '08:00',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.person_rounded,
-        label: 'Trainer',
-        value: 'Maya',
-      ),
-      ActivityHistoryMeta(
-        icon: Icons.location_on_rounded,
-        label: 'Branch',
-        value: 'Sunset Road',
       ),
     ],
   ),

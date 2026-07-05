@@ -10,11 +10,19 @@ import 'core/session/secure_session_storage.dart';
 import 'features/auth/data/repositories/auth_repository.dart';
 import 'features/auth/data/services/auth_api_service.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
-import 'features/booking/data/repositories/booking_class_repository.dart';
-import 'features/booking/data/services/booking_class_api_service.dart';
+import 'features/booking/data/repositories/personal_training_booking_repository.dart';
+import 'features/booking/data/services/personal_training_booking_api_service.dart';
+import 'features/classes/data/repositories/booking_class_repository.dart';
+import 'features/classes/data/services/booking_class_api_service.dart';
 import 'features/home/screen/home_screen.dart';
 import 'features/lokasi/data/repositories/location_repository.dart';
 import 'features/lokasi/data/services/location_api_service.dart';
+import 'features/member_attendance/data/repositories/member_attendance_repository.dart';
+import 'features/member_attendance/data/services/member_attendance_api_service.dart';
+import 'features/profile/data/repositories/profile_repository.dart';
+import 'features/profile/data/services/profile_api_service.dart';
+import 'features/trainers/data/repositories/trainer_repository.dart';
+import 'features/trainers/data/services/trainer_api_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +47,19 @@ void main() {
   final bookingClassRepository = RemoteBookingClassRepository(
     apiService: BookingClassApiService(apiClient: apiClient),
   );
+  final personalTrainingBookingRepository =
+      RemotePersonalTrainingBookingRepository(
+        apiService: PersonalTrainingBookingApiService(apiClient: apiClient),
+      );
+  final trainerRepository = RemoteTrainerRepository(
+    apiService: TrainerApiService(apiClient: apiClient),
+  );
+  final memberAttendanceRepository = RemoteMemberAttendanceRepository(
+    apiService: MemberAttendanceApiService(apiClient: apiClient),
+  );
+  final profileRepository = RemoteProfileRepository(
+    apiService: ProfileApiService(apiClient: apiClient),
+  );
 
   runApp(
     MyApp(
@@ -46,6 +67,10 @@ void main() {
       authRepository: authRepository,
       locationRepository: locationRepository,
       bookingClassRepository: bookingClassRepository,
+      personalTrainingBookingRepository: personalTrainingBookingRepository,
+      trainerRepository: trainerRepository,
+      memberAttendanceRepository: memberAttendanceRepository,
+      profileRepository: profileRepository,
     ),
   );
 }
@@ -57,12 +82,20 @@ class MyApp extends StatefulWidget {
     required this.authRepository,
     required this.locationRepository,
     required this.bookingClassRepository,
+    required this.personalTrainingBookingRepository,
+    required this.trainerRepository,
+    required this.memberAttendanceRepository,
+    required this.profileRepository,
   });
 
   final AuthSessionCubit sessionCubit;
   final AuthRepository authRepository;
   final LocationRepository locationRepository;
   final BookingClassRepository bookingClassRepository;
+  final PersonalTrainingBookingRepository personalTrainingBookingRepository;
+  final TrainerRepository trainerRepository;
+  final MemberAttendanceRepository memberAttendanceRepository;
+  final ProfileRepository profileRepository;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -101,6 +134,18 @@ class _MyAppState extends State<MyApp> {
         ),
         RepositoryProvider<BookingClassRepository>.value(
           value: widget.bookingClassRepository,
+        ),
+        RepositoryProvider<PersonalTrainingBookingRepository>.value(
+          value: widget.personalTrainingBookingRepository,
+        ),
+        RepositoryProvider<TrainerRepository>.value(
+          value: widget.trainerRepository,
+        ),
+        RepositoryProvider<MemberAttendanceRepository>.value(
+          value: widget.memberAttendanceRepository,
+        ),
+        RepositoryProvider<ProfileRepository>.value(
+          value: widget.profileRepository,
         ),
       ],
       child: BlocProvider<AuthSessionCubit>.value(

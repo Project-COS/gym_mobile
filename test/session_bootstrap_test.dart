@@ -23,6 +23,11 @@ void main() {
         authRepository: FakeAuthRepository(),
         locationRepository: FakeLocationRepository(),
         bookingClassRepository: FakeBookingClassRepository(),
+        personalTrainingBookingRepository:
+            FakePersonalTrainingBookingRepository(),
+        trainerRepository: FakeTrainerRepository(),
+        memberAttendanceRepository: FakeMemberAttendanceRepository(),
+        profileRepository: FakeProfileRepository(),
       ),
     );
     await tester.pumpAndSettle();

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 
 class MembershipCard extends StatelessWidget {
-  const MembershipCard({super.key});
+  const MembershipCard({super.key, this.onShowQr});
+
+  final VoidCallback? onShowQr;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +99,24 @@ class MembershipCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onShowQr,
+              icon: const Icon(Icons.qr_code_2_rounded, size: 18),
+              label: const Text('Tampilkan Barcode'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.gymGold,
+                foregroundColor: AppColors.blackCore,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                textStyle: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
           ),
         ],

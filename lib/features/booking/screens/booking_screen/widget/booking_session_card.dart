@@ -67,68 +67,6 @@ class PersonalTrainerBookingCard extends StatelessWidget {
   }
 }
 
-class GroupClassBookingCard extends StatelessWidget {
-  const GroupClassBookingCard({
-    super.key,
-    required this.session,
-    required this.onDetailPressed,
-    required this.onBookingPressed,
-  });
-
-  final GroupClassSession session;
-  final VoidCallback onDetailPressed;
-  final VoidCallback onBookingPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return _BookingCardShell(
-      isFeatured: session.isFeatured,
-      minHeight: 220,
-      imageUrl: session.coverImageUrl,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 188),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ClassHeader(session: session),
-            const SizedBox(height: 36),
-            Row(
-              children: [
-                Expanded(
-                  child: _MetaBox(
-                    icon: Icons.location_on_rounded,
-                    label: 'Branch',
-                    value: session.branch,
-                    glass: true,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _MetaBox(
-                    icon: Icons.schedule_rounded,
-                    label: 'Durasi',
-                    value: session.duration,
-                    glass: true,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _ChipWrap(chips: session.tags),
-            const SizedBox(height: 14),
-            _ActionRow(
-              primaryLabel: 'Booking',
-              secondaryLabel: 'Detail',
-              onPrimaryPressed: onBookingPressed,
-              onSecondaryPressed: onDetailPressed,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _BookingCardShell extends StatelessWidget {
   const _BookingCardShell({
     required this.isFeatured,
@@ -294,52 +232,6 @@ class _SessionHeader extends StatelessWidget {
   }
 }
 
-class _ClassHeader extends StatelessWidget {
-  const _ClassHeader({required this.session});
-
-  final GroupClassSession session;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                session.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.metallicWhite,
-                  fontSize: 19,
-                  height: 1.3,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                session.subtitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppColors.metallicWhite.withValues(alpha: 0.88),
-                  fontSize: 12,
-                  height: 1.6,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        _SlotStatusChip(label: session.slotLabel),
-      ],
-    );
-  }
-}
-
 class _RatingChip extends StatelessWidget {
   const _RatingChip({required this.rating});
 
@@ -374,74 +266,25 @@ class _RatingChip extends StatelessWidget {
   }
 }
 
-class _SlotStatusChip extends StatelessWidget {
-  const _SlotStatusChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 30,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.18)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: const BoxDecoration(
-              color: AppColors.success,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.success,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _MetaBox extends StatelessWidget {
   const _MetaBox({
     required this.icon,
     required this.label,
     required this.value,
-    this.glass = false,
   });
 
   final IconData icon;
   final String label;
   final String value;
-  final bool glass;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: glass
-            ? AppColors.blackCore.withValues(alpha: 0.34)
-            : AppColors.steelBlack.withValues(alpha: 0.78),
+        color: AppColors.steelBlack.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: glass
-              ? Colors.white.withValues(alpha: 0.10)
-              : AppColors.gunmetal.withValues(alpha: 0.76),
-        ),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.76)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

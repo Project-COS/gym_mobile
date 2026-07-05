@@ -10,11 +10,13 @@ class ActivityHistorySection extends StatelessWidget {
     required this.title,
     required this.countLabel,
     required this.items,
+    this.onBookingDetailPressed,
   });
 
   final String title;
   final String countLabel;
   final List<ActivityHistoryItem> items;
+  final ValueChanged<ActivityHistoryItem>? onBookingDetailPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +68,10 @@ class ActivityHistorySection extends StatelessWidget {
               padding: EdgeInsets.only(
                 bottom: index == items.length - 1 ? 0 : 14,
               ),
-              child: ActivityHistoryCard(item: items[index]),
+              child: ActivityHistoryCard(
+                item: items[index],
+                onBookingDetailPressed: onBookingDetailPressed,
+              ),
             );
           }),
         ),

@@ -12,18 +12,6 @@ enum BookingTab {
   final IconData icon;
 }
 
-enum ClassCategory {
-  all(label: 'Semua'),
-  pilates(label: 'Pilates'),
-  zumba(label: 'Zumba'),
-  yoga(label: 'Yoga'),
-  hiit(label: 'HIIT');
-
-  const ClassCategory({required this.label});
-
-  final String label;
-}
-
 class BookingDateOption {
   const BookingDateOption({
     required this.date,
@@ -39,10 +27,29 @@ class BookingDateOption {
 }
 
 class BookingSlot {
-  const BookingSlot({required this.day, required this.time});
+  const BookingSlot({
+    required this.day,
+    required this.time,
+    this.sessionId,
+    this.startsAt,
+    this.endsAt,
+    this.branch,
+    this.location,
+    this.mapQuery,
+    this.coachName,
+    this.coachRole,
+  });
 
   final String day;
   final String time;
+  final String? sessionId;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+  final String? branch;
+  final String? location;
+  final String? mapQuery;
+  final String? coachName;
+  final String? coachRole;
 
   String get label => '$day • $time';
 }
@@ -98,66 +105,12 @@ class PersonalTrainerSession {
   String get schedule => slots.first.label;
 }
 
-class GroupClassSession {
-  const GroupClassSession({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.description,
-    required this.category,
-    required this.branch,
-    required this.duration,
-    required this.slotLabel,
-    required this.infoCategory,
-    required this.location,
-    required this.level,
-    required this.coachName,
-    required this.coachRole,
-    required this.rating,
-    required this.mapQuery,
-    required this.coverImageUrl,
-    required this.slots,
-    required this.tags,
-    required this.benefits,
-    required this.gallery,
-    this.isFeatured = false,
-  });
-
-  final String id;
-  final String title;
-  final String subtitle;
-  final String description;
-  final ClassCategory category;
-  final String branch;
-  final String duration;
-  final String slotLabel;
-  final String infoCategory;
-  final String location;
-  final String level;
-  final String coachName;
-  final String coachRole;
-  final String rating;
-  final String mapQuery;
-  final String coverImageUrl;
-  final List<BookingSlot> slots;
-  final List<String> tags;
-  final List<BookingBenefit> benefits;
-  final List<String> gallery;
-  final bool isFeatured;
-
-  String get schedule => slots.first.label;
-}
-
 List<BookingDateOption> buildUpcomingBookingDateOptions({
   DateTime? today,
   int dayCount = 6,
 }) {
   final DateTime baseDate = today ?? DateTime.now();
-  final DateTime normalizedBaseDate = DateTime(
-    baseDate.year,
-    baseDate.month,
-    baseDate.day,
-  );
+  final DateTime normalizedBaseDate = normalizeBookingCalendarDate(baseDate);
 
   return List<BookingDateOption>.generate(dayCount, (index) {
     final DateTime date = normalizedBaseDate.add(Duration(days: index));
@@ -173,6 +126,37 @@ List<BookingDateOption> buildUpcomingBookingDateOptions({
       dayName: _shortDayNames[date.weekday % 7],
     );
   }, growable: false);
+}
+
+DateTime normalizeBookingCalendarDate(DateTime date) {
+  return DateTime(date.year, date.month, date.day);
+}
+
+bool isSameBookingCalendarDate(DateTime firstDate, DateTime secondDate) {
+  return firstDate.year == secondDate.year &&
+      firstDate.month == secondDate.month &&
+      firstDate.day == secondDate.day;
+}
+
+int findBookingDateOptionIndexForDate(
+  List<BookingDateOption> options,
+  DateTime selectedDate, {
+  int fallbackIndex = 0,
+}) {
+  final normalizedSelectedDate = normalizeBookingCalendarDate(selectedDate);
+  final matchingIndex = options.indexWhere(
+    (option) => isSameBookingCalendarDate(option.date, normalizedSelectedDate),
+  );
+
+  if (matchingIndex >= 0) {
+    return matchingIndex;
+  }
+
+  if (fallbackIndex >= 0 && fallbackIndex < options.length) {
+    return fallbackIndex;
+  }
+
+  return 0;
 }
 
 String formatBookingMonthLabel(DateTime date) {

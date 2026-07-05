@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/network/api_exception.dart';
-import '../../../booking/data/repositories/booking_class_repository.dart';
-import '../../../booking/data/booking_data.dart';
+import '../../../classes/data/class_data.dart';
+import '../../../classes/data/repositories/booking_class_repository.dart';
 import '../../screen/branch_location_data.dart';
 
 enum LocationClassScheduleStatus { initial, loading, success, failure }

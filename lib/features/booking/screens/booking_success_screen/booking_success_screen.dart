@@ -12,6 +12,8 @@ class BookingSuccessScreen extends StatelessWidget {
     required this.schedule,
     required this.duration,
     required this.location,
+    this.bookingCode,
+    this.qrPayload,
   });
 
   final String typeCode;
@@ -20,8 +22,16 @@ class BookingSuccessScreen extends StatelessWidget {
   final String schedule;
   final String duration;
   final String location;
+  final String? bookingCode;
+  final String? qrPayload;
 
   String get _bookingCode {
+    final apiBookingCode = bookingCode;
+
+    if (apiBookingCode != null && apiBookingCode.trim().isNotEmpty) {
+      return apiBookingCode.trim();
+    }
+
     final String cleanId = itemId
         .replaceAll(RegExp('[^a-zA-Z0-9]'), '')
         .toUpperCase()
@@ -35,6 +45,16 @@ class BookingSuccessScreen extends StatelessWidget {
     final String number = (seed % 999).toString().padLeft(3, '0');
 
     return 'DGYM-$normalizedType-$cleanId-$number';
+  }
+
+  String get _qrPayload {
+    final apiQrPayload = qrPayload;
+
+    if (apiQrPayload != null && apiQrPayload.trim().isNotEmpty) {
+      return apiQrPayload.trim();
+    }
+
+    return '${typeCode == 'pt' ? 'pt_booking' : 'class_booking'}:$_bookingCode';
   }
 
   @override
@@ -90,7 +110,10 @@ class BookingSuccessScreen extends StatelessWidget {
                             location: location,
                           ),
                           SizedBox(height: spec.sectionGap),
-                          const BarcodeCheckInCard(),
+                          BookingQrCodeCard(
+                            code: _bookingCode,
+                            qrPayload: _qrPayload,
+                          ),
                           SizedBox(height: spec.sectionGap),
                           const BookingNoticeCard(),
                           SizedBox(height: spec.bottomGap),
@@ -141,9 +164,9 @@ class BookingSuccessLayoutSpec {
       return const BookingSuccessLayoutSpec(
         isExpanded: true,
         maxContentWidth: 640,
-        pagePadding: EdgeInsets.fromLTRB(40, 32, 40, 24),
-        sectionGap: 18,
-        bottomGap: 24,
+        pagePadding: EdgeInsets.fromLTRB(40, 32, 40, 28),
+        sectionGap: 20,
+        bottomGap: 32,
       );
     }
 
@@ -151,18 +174,18 @@ class BookingSuccessLayoutSpec {
       return const BookingSuccessLayoutSpec(
         isExpanded: false,
         maxContentWidth: 560,
-        pagePadding: EdgeInsets.fromLTRB(32, 32, 32, 24),
-        sectionGap: 16,
-        bottomGap: 24,
+        pagePadding: EdgeInsets.fromLTRB(32, 32, 32, 28),
+        sectionGap: 20,
+        bottomGap: 32,
       );
     }
 
     return const BookingSuccessLayoutSpec(
       isExpanded: false,
       maxContentWidth: 480,
-      pagePadding: EdgeInsets.fromLTRB(20, 28, 20, 24),
-      sectionGap: 16,
-      bottomGap: 24,
+      pagePadding: EdgeInsets.fromLTRB(20, 28, 20, 28),
+      sectionGap: 20,
+      bottomGap: 32,
     );
   }
 }

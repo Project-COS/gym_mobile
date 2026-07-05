@@ -2,7 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:do_gym/core/network/api_exception.dart';
 import 'package:do_gym/features/booking/data/booking_data.dart';
-import 'package:do_gym/features/booking/data/repositories/booking_class_repository.dart';
+import 'package:do_gym/features/classes/data/class_data.dart';
+import 'package:do_gym/features/classes/data/repositories/booking_class_repository.dart';
 import 'package:do_gym/features/lokasi/presentation/cubit/location_class_schedule_cubit.dart';
 
 void main() {
@@ -66,6 +67,37 @@ class _FakeBookingClassRepository implements BookingClassRepository {
   final Object? error;
 
   @override
+  Future<BookingClassCatalog> fetchClassCatalog({
+    String? locationId,
+    required DateTime startsFrom,
+    required DateTime startsTo,
+  }) async {
+    final Object? error = this.error;
+
+    if (error != null) {
+      throw error;
+    }
+
+    return BookingClassCatalog(
+      categories: const [ClassCategoryOption.all],
+      sessions: classes,
+    );
+  }
+
+  @override
+  Future<BookingClassCatalog> fetchClassCatalogForLocation({
+    required String locationId,
+    required DateTime startsFrom,
+    required DateTime startsTo,
+  }) async {
+    return fetchClassCatalog(
+      locationId: locationId,
+      startsFrom: startsFrom,
+      startsTo: startsTo,
+    );
+  }
+
+  @override
   Future<List<GroupClassSession>> fetchClassesForLocation({
     required String locationId,
     required DateTime startsFrom,
@@ -78,5 +110,28 @@ class _FakeBookingClassRepository implements BookingClassRepository {
     }
 
     return classes;
+  }
+
+  @override
+  Future<List<ClassBookingHistoryItem>> fetchClassBookings({
+    ClassBookingHistoryFilter filter = ClassBookingHistoryFilter.upcoming,
+  }) async {
+    return const [];
+  }
+
+  @override
+  Future<ClassBookingConfirmation> createClassBooking({
+    required String classSessionId,
+    String? notes,
+  }) async {
+    return const ClassBookingConfirmation(
+      id: 'class-booking-1',
+      bookingCode: 'CLB-TEST001',
+      qrPayload: 'class_booking:CLB-TEST001',
+      title: 'Yoga Flow',
+      schedule: 'Senin, 24 Jun 09:00',
+      duration: '60 Menit',
+      location: 'Denpasar',
+    );
   }
 }
