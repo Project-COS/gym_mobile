@@ -40,7 +40,7 @@ class TrainerCatalogHeader extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: Text(
-            '$count Trainer',
+            '$count trainer',
             style: const TextStyle(
               color: AppColors.gymGold,
               fontSize: 11,
@@ -70,21 +70,9 @@ class TrainerProfileCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(26),
-        border: Border.all(
-          color: trainer.rating == null
-              ? AppColors.gunmetal
-              : AppColors.gymGold.withValues(alpha: 0.42),
-        ),
-        boxShadow: trainer.rating == null
-            ? null
-            : [
-                BoxShadow(
-                  color: AppColors.gymGold.withValues(alpha: 0.05),
-                  blurRadius: 18,
-                ),
-              ],
+        color: AppColors.graphiteBlack.withValues(alpha: 0.88),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: Stack(
         children: [
@@ -95,17 +83,19 @@ class TrainerProfileCard extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
+                    AppColors.blackCore.withValues(alpha: 0.84),
+                    AppColors.blackCore.withValues(alpha: 0.66),
                     AppColors.blackCore.withValues(alpha: 0.92),
-                    AppColors.blackCore.withValues(alpha: 0.72),
-                    AppColors.blackCore.withValues(alpha: 0.90),
                   ],
                 ),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -155,7 +145,7 @@ class TrainerProfileCard extends StatelessWidget {
                   height: 42,
                   child: ElevatedButton.icon(
                     onPressed: onDetailPressed,
-                    icon: const Icon(Icons.info_rounded, size: 16),
+                    icon: const Icon(AppLucideIcons.info, size: 16),
                     label: const Text(
                       'Lihat detail',
                       maxLines: 1,
@@ -217,9 +207,9 @@ class TrainerStatusCard extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 132),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: Row(
         children: [
@@ -234,7 +224,7 @@ class TrainerStatusCard extends StatelessWidget {
             )
           else
             Icon(
-              isEmptyState ? Icons.person_search_rounded : Icons.info_rounded,
+              isEmptyState ? AppLucideIcons.person : AppLucideIcons.info,
               color: AppColors.gymGold,
               size: 22,
             ),
@@ -281,11 +271,11 @@ class _TrainerCardHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 48,
-          height: 48,
+          width: 46,
+          height: 46,
           decoration: BoxDecoration(
             color: AppColors.gymGold.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(17),
+            borderRadius: BorderRadius.circular(15),
             border: Border.all(
               color: AppColors.gymGold.withValues(alpha: 0.18),
             ),
@@ -343,7 +333,7 @@ class _NetworkCover extends StatelessWidget {
     // Gambar katalog boleh gagal tanpa merusak kartu; fallback tetap menjaga
     // kontras teks di atas gradient.
     return Opacity(
-      opacity: 0.22,
+      opacity: 0.28,
       child: Image.network(
         imageUrl,
         fit: BoxFit.cover,
@@ -362,7 +352,7 @@ class _BrokenImageFallback extends StatelessWidget {
       color: AppColors.steelBlack,
       child: Center(
         child: Icon(
-          Icons.broken_image_rounded,
+          AppLucideIcons.badgeInfo,
           color: AppColors.ironGray,
           size: 34,
         ),
@@ -389,7 +379,7 @@ class _RatingChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, color: AppColors.gymGold, size: 14),
+          const Icon(AppLucideIcons.star, color: AppColors.gymGold, size: 14),
           const SizedBox(width: 5),
           Text(
             rating,
@@ -421,9 +411,9 @@ class _MetaBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.steelBlack.withValues(alpha: 0.78),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.76)),
+        color: AppColors.blackCore.withValues(alpha: 0.30),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

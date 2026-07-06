@@ -349,7 +349,6 @@ class _BookingHistoryCard extends StatelessWidget {
                           color: AppColors.ironGray,
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 0.8,
                         ),
                       ),
                       const SizedBox(height: 4),

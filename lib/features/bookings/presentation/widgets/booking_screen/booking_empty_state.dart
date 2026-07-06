@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 
 // Empty state for class search/filter results on the booking screen.
 class BookingEmptyState extends StatelessWidget {
@@ -10,11 +11,12 @@ class BookingEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 30),
+      constraints: const BoxConstraints(minHeight: 140),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.86),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: Column(
         children: [
@@ -29,9 +31,9 @@ class BookingEmptyState extends StatelessWidget {
               ),
             ),
             child: const Icon(
-              Icons.event_busy_rounded,
+              AppLucideIcons.calendarClock,
               color: AppColors.gymGold,
-              size: 28,
+              size: 26,
             ),
           ),
           const SizedBox(height: 14),
@@ -46,7 +48,7 @@ class BookingEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Belum ada kelas untuk kategori ini. Pilih kategori lain atau cek jadwal berikutnya.',
+            'Pilih kategori lain atau cek tanggal berikutnya.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.silverGray,

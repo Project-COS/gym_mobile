@@ -12,6 +12,7 @@ import 'package:do_gym/features/classes/data/class_data.dart';
 import 'package:do_gym/features/classes/data/repositories/booking_class_repository.dart';
 import 'package:do_gym/features/locations/data/branch_location_data.dart';
 import 'package:do_gym/features/trainers/data/repositories/trainer_repository.dart';
+import 'package:do_gym/features/trainers/presentation/widgets/trainer_detail_widgets.dart';
 import 'package:do_gym/main.dart';
 
 import 'helpers/in_memory_session_storage.dart';
@@ -77,13 +78,17 @@ void main() {
     await tester.tap(find.text('Booking').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Atur Jadwal Latihanmu'), findsOneWidget);
+    expect(find.text('Atur Sesi Latihan'), findsOneWidget);
 
     await tester.tap(find.text('Kelas'));
     await tester.pumpAndSettle();
 
     final Finder firstDetailButton = find.text('Detail').first;
-    await tester.ensureVisible(firstDetailButton);
+    await tester.drag(
+      find.byType(CustomScrollView).last,
+      const Offset(0, -360),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(firstDetailButton);
     await tester.pumpAndSettle();
 
@@ -99,8 +104,36 @@ void main() {
     await tester.tap(find.text('Konfirmasi'));
     await tester.pumpAndSettle();
 
-    expect(find.text('BOOKING CONFIRMED'), findsOneWidget);
-    expect(find.text('Barcode Check-in'), findsOneWidget);
+    expect(find.text('Booking berhasil'), findsOneWidget);
+    expect(find.text('QR Check-in'), findsOneWidget);
+  });
+
+  testWidgets('trainer hero card renders inside a vertical scroll view', (
+    WidgetTester tester,
+  ) async {
+    _ignoreNetworkImageExceptionsDuringTest();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: TrainerHeroCard(
+                trainer: _testTrainerProfile,
+                isSubmittingBooking: false,
+                onBookingPressed: () {},
+                onMapPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Booking PT'), findsOneWidget);
   });
 
   testWidgets('activity attendance tab requests member attendance history', (
@@ -189,11 +222,12 @@ void main() {
 
     final Finder qrBookingButton = find.text('Lihat QR booking');
     await tester.ensureVisible(qrBookingButton);
+    await tester.pumpAndSettle();
     await tester.tap(qrBookingButton);
     await tester.pumpAndSettle();
 
     expect(find.text('PTB-SCHEDULED'), findsWidgets);
-    expect(find.text('Barcode Check-in'), findsOneWidget);
+    expect(find.text('QR Check-in'), findsOneWidget);
   });
 
   testWidgets('activity class tab requests all class booking statuses', (
@@ -232,11 +266,12 @@ void main() {
 
     final Finder qrBookingButton = find.text('Lihat QR booking');
     await tester.ensureVisible(qrBookingButton);
+    await tester.pumpAndSettle();
     await tester.tap(qrBookingButton);
     await tester.pumpAndSettle();
 
     expect(find.text('CLB-SCHEDULED'), findsWidgets);
-    expect(find.text('Barcode Check-in'), findsOneWidget);
+    expect(find.text('QR Check-in'), findsOneWidget);
   });
 
   testWidgets('profile tab loads and saves profile changes', (

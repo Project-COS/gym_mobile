@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../../data/class_data.dart';
 
 // Compact class catalog card used by the booking screen list/grid.
@@ -22,21 +23,13 @@ class GroupClassBookingCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       constraints: const BoxConstraints(minHeight: 220),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(26),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.88),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: session.isFeatured
-              ? AppColors.gymGold.withValues(alpha: 0.48)
-              : AppColors.gunmetal,
+              ? AppColors.gymGold.withValues(alpha: 0.24)
+              : AppColors.gunmetal.withValues(alpha: 0.78),
         ),
-        boxShadow: session.isFeatured
-            ? [
-                BoxShadow(
-                  color: AppColors.gymGold.withValues(alpha: 0.06),
-                  blurRadius: 18,
-                ),
-              ]
-            : null,
       ),
       child: Stack(
         children: [
@@ -47,37 +40,39 @@ class GroupClassBookingCard extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
+                    AppColors.blackCore.withValues(alpha: 0.84),
+                    AppColors.blackCore.withValues(alpha: 0.66),
                     AppColors.blackCore.withValues(alpha: 0.92),
-                    AppColors.blackCore.withValues(alpha: 0.72),
-                    AppColors.blackCore.withValues(alpha: 0.86),
                   ],
                 ),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(15),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 188),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _ClassHeader(session: session),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 18),
                   Row(
                     children: [
                       Expanded(
                         child: _MetaBox(
-                          icon: Icons.location_on_rounded,
-                          label: 'Branch',
+                          icon: AppLucideIcons.mapPin,
+                          label: 'Cabang',
                           value: session.branch,
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: _MetaBox(
-                          icon: Icons.schedule_rounded,
+                          icon: AppLucideIcons.clock,
                           label: 'Durasi',
                           value: session.duration,
                         ),
@@ -109,7 +104,7 @@ class _NetworkCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: 0.22,
+      opacity: 0.28,
       child: Image.network(
         imageUrl,
         fit: BoxFit.cover,
@@ -129,7 +124,7 @@ class _BrokenImageFallback extends StatelessWidget {
       color: AppColors.steelBlack,
       child: Center(
         child: Icon(
-          Icons.broken_image_rounded,
+          AppLucideIcons.badgeInfo,
           color: AppColors.ironGray,
           size: 34,
         ),
@@ -158,7 +153,7 @@ class _ClassHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.metallicWhite,
-                  fontSize: 19,
+                  fontSize: 18,
                   height: 1.3,
                   fontWeight: FontWeight.w800,
                 ),
@@ -241,9 +236,9 @@ class _MetaBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.blackCore.withValues(alpha: 0.34),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+        color: AppColors.blackCore.withValues(alpha: 0.30),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,7 +337,7 @@ class _ActionRow extends StatelessWidget {
         Expanded(
           child: _CardActionButton(
             label: 'Detail',
-            icon: Icons.info_rounded,
+            icon: AppLucideIcons.info,
             isPrimary: false,
             onPressed: onDetailPressed,
           ),
@@ -351,7 +346,7 @@ class _ActionRow extends StatelessWidget {
         Expanded(
           child: _CardActionButton(
             label: 'Booking',
-            icon: Icons.event_available_rounded,
+            icon: AppLucideIcons.calendarCheck,
             isPrimary: true,
             onPressed: onBookingPressed,
           ),

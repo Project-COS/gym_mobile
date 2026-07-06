@@ -20,9 +20,9 @@ class ActivityTabSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: Row(
         children: ActivityTab.values.map((tab) {
@@ -34,7 +34,7 @@ class ActivityTabSelector extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 color: isActive ? AppColors.gymGold : Colors.transparent,
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(13),
                 boxShadow: isActive
                     ? [
                         BoxShadow(
@@ -62,7 +62,7 @@ class ActivityTabSelector extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(13),
                   ),
                 ),
               ),

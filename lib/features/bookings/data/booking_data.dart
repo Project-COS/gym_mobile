@@ -4,7 +4,7 @@ import '../../../core/icons/app_lucide_icons.dart';
 
 // Booking tabs centralize labels and icons used by the main booking screen.
 enum BookingTab {
-  personalTrainer(label: 'PT Session', icon: AppLucideIcons.userPlus),
+  personalTrainer(label: 'Sesi PT', icon: AppLucideIcons.userPlus),
   classSession(label: 'Kelas', icon: AppLucideIcons.users);
 
   const BookingTab({required this.label, required this.icon});

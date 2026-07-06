@@ -18,11 +18,11 @@ class BookingTabSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.84),
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: Row(
         children: BookingTab.values.map((tab) {
@@ -31,16 +31,17 @@ class BookingTabSelector extends StatelessWidget {
           return Expanded(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              height: 44,
+              curve: Curves.easeOutCubic,
+              height: 42,
               decoration: BoxDecoration(
                 color: isActive ? AppColors.gymGold : Colors.transparent,
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(13),
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: AppColors.gymGold.withValues(alpha: 0.16),
-                          blurRadius: 22,
-                          offset: const Offset(0, 10),
+                          color: AppColors.gymGold.withValues(alpha: 0.10),
+                          blurRadius: 14,
+                          offset: const Offset(0, 6),
                         ),
                       ]
                     : null,
@@ -62,7 +63,7 @@ class BookingTabSelector extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(13),
                   ),
                 ),
               ),

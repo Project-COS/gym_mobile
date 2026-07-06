@@ -24,7 +24,7 @@ class ActivityTopBar extends StatelessWidget {
         ),
         SizedBox(height: 4),
         Text(
-          'Activity',
+          'Aktivitas',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(

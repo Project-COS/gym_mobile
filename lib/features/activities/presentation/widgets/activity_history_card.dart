@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../../data/activity_data.dart';
 
 // Reusable card for all activity types. The optional booking detail block is
@@ -20,17 +21,17 @@ class ActivityHistoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(24),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: item.isFeatured
-              ? AppColors.gymGold.withValues(alpha: 0.32)
-              : AppColors.gunmetal,
+              ? AppColors.gymGold.withValues(alpha: 0.24)
+              : AppColors.gunmetal.withValues(alpha: 0.78),
         ),
         gradient: item.isFeatured
             ? LinearGradient(
                 colors: [
-                  AppColors.gymGold.withValues(alpha: 0.08),
+                  AppColors.gymGold.withValues(alpha: 0.06),
                   Colors.transparent,
                 ],
                 stops: const [0, 0.45],
@@ -68,16 +69,16 @@ class _HistoryHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 50,
-          height: 50,
+          width: 46,
+          height: 46,
           decoration: BoxDecoration(
-            color: AppColors.gymGold.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(18),
+            color: AppColors.gymGold.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(15),
             border: Border.all(
               color: AppColors.gymGold.withValues(alpha: 0.18),
             ),
           ),
-          child: Icon(item.icon, color: AppColors.gymGold, size: 23),
+          child: Icon(item.icon, color: AppColors.gymGold, size: 21),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -177,15 +178,15 @@ class _BookingDetailPanel extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.blackCore.withValues(alpha: 0.48),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.76)),
+        color: AppColors.blackCore.withValues(alpha: 0.36),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.70)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Detail Booking',
+            'Detail booking',
             style: TextStyle(
               color: AppColors.metallicWhite,
               fontSize: 13,
@@ -215,8 +216,8 @@ class _BookingDetailPanel extends StatelessWidget {
             children: [
               Icon(
                 detail.canShowQr
-                    ? Icons.qr_code_rounded
-                    : Icons.check_circle_rounded,
+                    ? AppLucideIcons.qrCode
+                    : AppLucideIcons.circleCheck,
                 color: detail.canShowQr ? AppColors.gymGold : AppColors.success,
                 size: 17,
               ),
@@ -244,8 +245,8 @@ class _BookingDetailPanel extends StatelessWidget {
                 onPressed: onDetailPressed,
                 icon: Icon(
                   detail.canShowQr
-                      ? Icons.qr_code_rounded
-                      : Icons.open_in_new_rounded,
+                      ? AppLucideIcons.qrCode
+                      : AppLucideIcons.chevronRight,
                   size: 16,
                 ),
                 label: Text(
@@ -282,22 +283,21 @@ class _BookingDetailValue extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.steelBlack.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.7)),
+        color: AppColors.steelBlack.withValues(alpha: 0.62),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.68)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label.toUpperCase(),
+            label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.ironGray,
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              letterSpacing: 0.8,
             ),
           ),
           const SizedBox(height: 5),
@@ -358,9 +358,9 @@ class _MetaBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.steelBlack.withValues(alpha: 0.78),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.76)),
+        color: AppColors.steelBlack.withValues(alpha: 0.62),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.68)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

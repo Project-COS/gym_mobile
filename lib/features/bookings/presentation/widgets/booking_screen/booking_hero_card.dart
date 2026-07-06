@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 
 // Static booking page hero. Data loading lives below it so the top of the page
 // stays stable while PT/class lists refresh.
@@ -11,33 +12,40 @@ class BookingHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.graphiteBlack,
-            AppColors.steelBlack,
-            AppColors.darkGold,
+            AppColors.graphiteBlack.withValues(alpha: 0.94),
+            AppColors.steelBlack.withValues(alpha: 0.78),
+            AppColors.darkGold.withValues(alpha: 0.42),
           ],
-          stops: [0, 0.58, 1.5],
+          stops: const [0, 0.68, 1],
         ),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.35)),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.20)),
       ),
       child: Stack(
         children: [
           Positioned(
-            top: -48,
-            right: -38,
+            top: -54,
+            right: -48,
             child: IgnorePointer(
               child: Container(
-                width: 140,
-                height: 140,
+                width: 152,
+                height: 152,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.paleGold.withValues(alpha: 0.14),
+                  gradient: RadialGradient(
+                    colors: [
+                      AppColors.gymGold.withValues(alpha: 0.16),
+                      AppColors.gymGold.withValues(alpha: 0.05),
+                      AppColors.gymGold.withValues(alpha: 0),
+                    ],
+                    stops: const [0, 0.55, 1],
+                  ),
                 ),
               ),
             ),
@@ -46,58 +54,90 @@ class BookingHeroCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 52,
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                height: 34,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.steelBlack.withValues(alpha: 0.82),
+                  color: AppColors.blackCore.withValues(alpha: 0.34),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
-                    color: AppColors.gymGold.withValues(alpha: 0.55),
+                    color: AppColors.gymGold.withValues(alpha: 0.18),
                   ),
                 ),
                 child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.calendar_month_rounded,
+                      AppLucideIcons.calendarCheck,
                       color: AppColors.gymGold,
-                      size: 18,
+                      size: 16,
                     ),
-                    SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        'BOOKING SESSION',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.gymGold,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.6,
-                        ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Jadwal latihan',
+                      style: TextStyle(
+                        color: AppColors.gymGold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Atur Jadwal Latihanmu',
-                style: TextStyle(
-                  color: AppColors.metallicWhite,
-                  fontSize: 26,
-                  height: 1.2,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Booking sesi personal trainer atau kelas favorit seperti Pilates, Zumba, Yoga, dan HIIT di cabang DO GYM pilihanmu.',
-                style: TextStyle(
-                  color: AppColors.silverGray,
-                  fontSize: 13,
-                  height: 1.7,
-                ),
+              const SizedBox(height: 18),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final bool showIcon = constraints.maxWidth >= 320;
+
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Atur Sesi Latihan',
+                              style: TextStyle(
+                                color: AppColors.metallicWhite,
+                                fontSize: 23,
+                                height: 1.16,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            SizedBox(height: 9),
+                            Text(
+                              'Pilih sesi PT atau kelas yang tersedia di cabang DO GYM.',
+                              style: TextStyle(
+                                color: AppColors.silverGray,
+                                fontSize: 13,
+                                height: 1.52,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (showIcon) ...[
+                        const SizedBox(width: 18),
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: AppColors.gymGold.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.gymGold.withValues(alpha: 0.18),
+                            ),
+                          ),
+                          child: const Icon(
+                            AppLucideIcons.calendarPlus,
+                            color: AppColors.gymGold,
+                            size: 30,
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
             ],
           ),

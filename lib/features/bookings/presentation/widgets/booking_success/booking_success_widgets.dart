@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 
 // Presentational pieces for BookingSuccessScreen. Keeping them here makes the
 // screen read as a simple ordered list of confirmation sections.
@@ -13,78 +14,88 @@ class BookingSuccessHero extends StatelessWidget {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
-      constraints: const BoxConstraints(minHeight: 174),
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+      constraints: const BoxConstraints(minHeight: 146),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.graphiteBlack.withValues(alpha: 0.98),
-            AppColors.steelBlack.withValues(alpha: 0.86),
-            AppColors.success.withValues(alpha: 0.32),
+            AppColors.graphiteBlack.withValues(alpha: 0.94),
+            AppColors.steelBlack.withValues(alpha: 0.82),
+            AppColors.success.withValues(alpha: 0.18),
           ],
-          stops: const [0, 0.62, 1.26],
+          stops: const [0, 0.68, 1],
         ),
-        borderRadius: BorderRadius.circular(34),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.35)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.success.withValues(alpha: 0.08),
-            blurRadius: 40,
-            offset: const Offset(0, 18),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.success.withValues(alpha: 0.24)),
       ),
       child: Stack(
-        alignment: Alignment.center,
         children: [
           Positioned(
-            top: -70,
-            right: -42,
+            top: -58,
+            right: -48,
             child: Container(
-              width: 146,
-              height: 146,
+              width: 150,
+              height: 150,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.success.withValues(alpha: 0.16),
+                gradient: RadialGradient(
+                  colors: [
+                    AppColors.success.withValues(alpha: 0.16),
+                    AppColors.success.withValues(alpha: 0.05),
+                    AppColors.success.withValues(alpha: 0),
+                  ],
+                  stops: const [0, 0.55, 1],
+                ),
               ),
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 92,
-                height: 92,
+                width: 62,
+                height: 62,
                 decoration: BoxDecoration(
                   color: AppColors.success.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(32),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppColors.success.withValues(alpha: 0.34),
+                    color: AppColors.success.withValues(alpha: 0.26),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.success.withValues(alpha: 0.13),
-                      blurRadius: 42,
-                      offset: const Offset(0, 20),
-                    ),
-                  ],
                 ),
                 child: const Icon(
-                  Icons.verified_rounded,
+                  AppLucideIcons.badgeCheck,
                   color: AppColors.success,
-                  size: 42,
+                  size: 30,
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text(
-                'BOOKING CONFIRMED',
-                style: TextStyle(
-                  color: AppColors.paleGold,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.8,
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Booking berhasil',
+                      style: TextStyle(
+                        color: AppColors.metallicWhite,
+                        fontSize: 22,
+                        height: 1.16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'QR check-in sudah siap untuk ditunjukkan saat tiba di lokasi.',
+                      style: TextStyle(
+                        color: AppColors.silverGray,
+                        fontSize: 12,
+                        height: 1.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -107,37 +118,30 @@ class BookingCodeCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
       decoration: BoxDecoration(
         color: AppColors.gymGold.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.28)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.gymGold.withValues(alpha: 0.07),
-            blurRadius: 28,
-            offset: const Offset(0, 16),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.24)),
       ),
       child: Column(
         children: [
           const Text(
-            'BOOKING CODE',
+            'Kode booking',
             style: TextStyle(
               color: AppColors.silverGray,
               fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1,
+              fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             code,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.gymGold,
-              fontSize: 27,
+              fontSize: 24,
               height: 1.1,
               fontWeight: FontWeight.w900,
-              letterSpacing: 1,
             ),
           ),
         ],
@@ -166,21 +170,25 @@ class BookingSuccessDetailCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionTitle('Detail Booking'),
+          const _SectionTitle('Detail booking'),
           const SizedBox(height: 16),
-          _DetailRow(icon: Icons.verified_rounded, label: 'Sesi', value: title),
           _DetailRow(
-            icon: Icons.schedule_rounded,
+            icon: AppLucideIcons.badgeCheck,
+            label: 'Sesi',
+            value: title,
+          ),
+          _DetailRow(
+            icon: AppLucideIcons.calendarClock,
             label: 'Jadwal',
             value: schedule,
           ),
           _DetailRow(
-            icon: Icons.timer_rounded,
+            icon: AppLucideIcons.timer,
             label: 'Durasi',
             value: duration,
           ),
           _DetailRow(
-            icon: Icons.location_on_rounded,
+            icon: AppLucideIcons.mapPin,
             label: 'Lokasi',
             value: location,
             isLast: true,
@@ -203,6 +211,8 @@ class BookingQrCodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double qrSize = MediaQuery.sizeOf(context).width < 380 ? 184 : 208;
+
     // qr_flutter renders the payload locally; the API-provided payload is used
     // unchanged so staff scanners can validate the booking.
     return _SuccessCard(
@@ -210,12 +220,12 @@ class BookingQrCodeCard extends StatelessWidget {
         children: [
           const Align(
             alignment: Alignment.center,
-            child: _SectionTitle('Barcode Check-in'),
+            child: _SectionTitle('QR Check-in'),
           ),
           const SizedBox(height: 18),
           Container(
-            width: 214,
-            height: 168,
+            width: qrSize,
+            height: qrSize,
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.metallicWhite,
@@ -232,6 +242,7 @@ class BookingQrCodeCard extends StatelessWidget {
               child: QrImageView(
                 data: qrPayload,
                 version: QrVersions.auto,
+                size: qrSize - 28,
                 backgroundColor: AppColors.metallicWhite,
                 eyeStyle: const QrEyeStyle(
                   eyeShape: QrEyeShape.square,
@@ -263,7 +274,7 @@ class BookingQrCodeCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           const Text(
-            'Tunjukkan barcode ini ke staff DO GYM saat tiba di lokasi.',
+            'Tunjukkan QR ini ke staff DO GYM saat tiba di lokasi.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.silverGray,
@@ -287,17 +298,17 @@ class BookingNoticeCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.gymGold.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.18)),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_rounded, color: AppColors.paleGold, size: 20),
+          Icon(AppLucideIcons.info, color: AppColors.paleGold, size: 20),
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Pastikan hadir minimal 10 menit sebelum sesi dimulai. Jadwal ini akan muncul di halaman Lihat Semua.',
+              'Hadir minimal 10 menit sebelum sesi dimulai. Simpan QR ini sampai check-in selesai.',
               style: TextStyle(
                 color: AppColors.paleGold,
                 fontSize: 12,
@@ -336,8 +347,8 @@ class BookingSuccessBottomActions extends StatelessWidget {
           children: [
             Expanded(
               child: _BottomActionButton(
-                label: 'Lihat Jadwal',
-                icon: Icons.event_available_rounded,
+                label: 'Jadwal',
+                icon: AppLucideIcons.calendarCheck,
                 isPrimary: false,
                 onPressed: onSchedulePressed,
               ),
@@ -345,8 +356,8 @@ class BookingSuccessBottomActions extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _BottomActionButton(
-                label: 'Home',
-                icon: Icons.home_rounded,
+                label: 'Beranda',
+                icon: AppLucideIcons.home,
                 isPrimary: true,
                 onPressed: onHomePressed,
               ),
@@ -369,9 +380,9 @@ class _SuccessCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.86),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: child,
     );
@@ -389,7 +400,7 @@ class _SectionTitle extends StatelessWidget {
       text,
       style: const TextStyle(
         color: AppColors.metallicWhite,
-        fontSize: 20,
+        fontSize: 18,
         height: 1.2,
         fontWeight: FontWeight.w900,
       ),
@@ -445,12 +456,11 @@ class _DetailRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  label.toUpperCase(),
+                  label,
                   style: const TextStyle(
                     color: AppColors.ironGray,
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 1,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -488,14 +498,16 @@ class _BottomActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 60,
+      height: 56,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon, size: 24),
+        icon: Icon(icon, size: 19),
         label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: isPrimary ? AppColors.gymGold : AppColors.steelBlack,
+          backgroundColor: isPrimary
+              ? AppColors.gymGold
+              : AppColors.steelBlack.withValues(alpha: 0.82),
           foregroundColor: isPrimary
               ? AppColors.blackCore
               : AppColors.metallicWhite,
@@ -503,10 +515,10 @@ class _BottomActionButton extends StatelessWidget {
             color: isPrimary ? AppColors.gymGold : AppColors.gunmetal,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
           ),
           iconColor: isPrimary ? AppColors.blackCore : AppColors.metallicWhite,
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
         ),
       ),
     );

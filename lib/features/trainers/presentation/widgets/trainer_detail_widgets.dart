@@ -60,19 +60,16 @@ class TrainerDetailView extends StatelessWidget {
           onSharePressed: onSharePressed,
         ),
         SizedBox(height: sectionGap),
-        TrainerHeroCard(trainer: trainer, onMapPressed: onMapPressed),
+        TrainerHeroCard(
+          trainer: trainer,
+          isSubmittingBooking: isSubmittingBooking,
+          onBookingPressed: onBookingPressed,
+          onMapPressed: onMapPressed,
+        ),
         SizedBox(height: sectionGap),
         TrainerQuickGrid(trainer: trainer),
         SizedBox(height: sectionGap),
         TrainerInfoSection(trainer: trainer),
-        SizedBox(height: sectionGap),
-        TrainerRatingSection(
-          trainer: trainer,
-          selectedRating: selectedRating,
-          isSubmitting: isSubmittingRating,
-          onRatingChanged: onRatingChanged,
-          onSubmitPressed: onRatingSubmitted,
-        ),
         SizedBox(height: sectionGap),
         TrainerScheduleSection(schedules: trainer.schedules),
         SizedBox(height: sectionGap),
@@ -81,6 +78,14 @@ class TrainerDetailView extends StatelessWidget {
         TrainerBookingActionCard(
           isSubmitting: isSubmittingBooking,
           onBookingPressed: onBookingPressed,
+        ),
+        SizedBox(height: sectionGap),
+        TrainerRatingSection(
+          trainer: trainer,
+          selectedRating: selectedRating,
+          isSubmitting: isSubmittingRating,
+          onRatingChanged: onRatingChanged,
+          onSubmitPressed: onRatingSubmitted,
         ),
         SizedBox(height: sectionGap),
         TrainerBenefitSection(benefits: trainer.benefits),
@@ -106,16 +111,18 @@ class TrainerDetailView extends StatelessWidget {
               width: 390,
               child: Column(
                 children: [
-                  TrainerHeroCard(trainer: trainer, onMapPressed: onMapPressed),
+                  TrainerHeroCard(
+                    trainer: trainer,
+                    isSubmittingBooking: isSubmittingBooking,
+                    onBookingPressed: onBookingPressed,
+                    onMapPressed: onMapPressed,
+                  ),
                   SizedBox(height: sectionGap),
                   TrainerQuickGrid(trainer: trainer),
                   SizedBox(height: sectionGap),
-                  TrainerRatingSection(
-                    trainer: trainer,
-                    selectedRating: selectedRating,
-                    isSubmitting: isSubmittingRating,
-                    onRatingChanged: onRatingChanged,
-                    onSubmitPressed: onRatingSubmitted,
+                  TrainerBookingActionCard(
+                    isSubmitting: isSubmittingBooking,
+                    onBookingPressed: onBookingPressed,
                   ),
                 ],
               ),
@@ -130,9 +137,12 @@ class TrainerDetailView extends StatelessWidget {
                   SizedBox(height: sectionGap),
                   TrainerProgramSection(programs: trainer.programs),
                   SizedBox(height: sectionGap),
-                  TrainerBookingActionCard(
-                    isSubmitting: isSubmittingBooking,
-                    onBookingPressed: onBookingPressed,
+                  TrainerRatingSection(
+                    trainer: trainer,
+                    selectedRating: selectedRating,
+                    isSubmitting: isSubmittingRating,
+                    onRatingChanged: onRatingChanged,
+                    onSubmitPressed: onRatingSubmitted,
                   ),
                   SizedBox(height: sectionGap),
                   TrainerBenefitSection(benefits: trainer.benefits),
@@ -166,7 +176,7 @@ class TrainerBookingActionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Pilih jadwal personal training, lalu QR booking akan muncul setelah booking berhasil.',
+            'Pilih program dan jadwal yang tersedia untuk membuat QR booking.',
             style: TextStyle(
               color: AppColors.silverGray,
               fontSize: 12,
@@ -191,7 +201,7 @@ class TrainerBookingActionCard extends StatelessWidget {
                     )
                   : const Icon(AppLucideIcons.calendarClock, size: 16),
               label: Text(
-                isSubmitting ? 'Membuat booking...' : 'Booking sesi PT',
+                isSubmitting ? 'Membuat booking...' : 'Pilih jadwal PT',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -236,7 +246,7 @@ class TrainerDetailTopBar extends StatelessWidget {
           child: Row(
             children: [
               _IconActionButton(
-                icon: Icons.chevron_left_rounded,
+                icon: AppLucideIcons.chevronLeft,
                 label: 'Kembali',
                 isPrimary: false,
                 onPressed: onBackPressed,
@@ -247,7 +257,7 @@ class TrainerDetailTopBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Detail personal trainer',
+                      'Detail trainer',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -276,7 +286,7 @@ class TrainerDetailTopBar extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         _IconActionButton(
-          icon: Icons.share_rounded,
+          icon: AppLucideIcons.share,
           label: 'Bagikan',
           isPrimary: true,
           onPressed: onSharePressed,
@@ -290,22 +300,26 @@ class TrainerHeroCard extends StatelessWidget {
   const TrainerHeroCard({
     super.key,
     required this.trainer,
+    required this.isSubmittingBooking,
+    required this.onBookingPressed,
     required this.onMapPressed,
   });
 
   final TrainerProfile trainer;
+  final bool isSubmittingBooking;
+  final VoidCallback onBookingPressed;
   final VoidCallback onMapPressed;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 340,
+      height: 318,
       clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.45)),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.88),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.24)),
       ),
       child: Stack(
         children: [
@@ -317,11 +331,11 @@ class TrainerHeroCard extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.blackCore.withValues(alpha: 0.18),
-                    AppColors.blackCore.withValues(alpha: 0.76),
+                    AppColors.blackCore.withValues(alpha: 0.08),
+                    AppColors.blackCore.withValues(alpha: 0.58),
                     AppColors.blackCore.withValues(alpha: 0.94),
                   ],
-                  stops: const [0, 0.56, 1],
+                  stops: const [0, 0.52, 1],
                 ),
               ),
             ),
@@ -333,21 +347,11 @@ class TrainerHeroCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const _BrandLogo(),
+                  const _HeroLabel(),
                   _RatingChip(rating: trainer.ratingLabel),
                 ],
               ),
               const Spacer(),
-              const Text(
-                'PERSONAL TRAINER',
-                style: TextStyle(
-                  color: AppColors.paleGold,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.8,
-                ),
-              ),
-              const SizedBox(height: 8),
               Text(
                 trainer.name,
                 maxLines: 2,
@@ -359,10 +363,10 @@ class TrainerHeroCard extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               Text(
                 trainer.description,
-                maxLines: 3,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: AppColors.metallicWhite.withValues(alpha: 0.86),
@@ -370,32 +374,83 @@ class TrainerHeroCard extends StatelessWidget {
                   height: 1.7,
                 ),
               ),
-              const SizedBox(height: 18),
-              SizedBox(
-                height: 48,
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: onMapPressed,
-                  icon: const Icon(Icons.navigation_rounded, size: 16),
-                  label: const Text(
-                    'Buka Maps',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: AppColors.gymGold,
-                    foregroundColor: AppColors.blackCore,
-                    side: const BorderSide(color: AppColors.gymGold),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: SizedBox(
+                      height: 46,
+                      child: ElevatedButton.icon(
+                        onPressed: isSubmittingBooking
+                            ? null
+                            : onBookingPressed,
+                        icon: isSubmittingBooking
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.blackCore,
+                                ),
+                              )
+                            : const Icon(
+                                AppLucideIcons.calendarClock,
+                                size: 16,
+                              ),
+                        label: Text(
+                          isSubmittingBooking ? 'Membuat...' : 'Booking PT',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: AppColors.gymGold,
+                          foregroundColor: AppColors.blackCore,
+                          disabledBackgroundColor: AppColors.darkGold,
+                          disabledForegroundColor: AppColors.blackCore,
+                          side: const BorderSide(color: AppColors.gymGold),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 3,
+                    child: SizedBox(
+                      height: 46,
+                      child: OutlinedButton.icon(
+                        onPressed: onMapPressed,
+                        icon: const Icon(AppLucideIcons.navigation, size: 16),
+                        label: const Text(
+                          'Maps',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.metallicWhite,
+                          side: BorderSide(
+                            color: AppColors.gunmetal.withValues(alpha: 0.84),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -412,29 +467,141 @@ class TrainerQuickGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final items = [
+      _QuickInfoItem(
+        icon: AppLucideIcons.clock,
+        label: 'Jadwal',
+        value: trainer.scheduleLabel,
+      ),
+      _QuickInfoItem(
+        icon: AppLucideIcons.timer,
+        label: 'Durasi',
+        value: trainer.duration,
+      ),
+      _QuickInfoItem(
+        icon: AppLucideIcons.mapPin,
+        label: 'Cabang',
+        value: trainer.branch,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 420) {
+          return _QuickInfoPanel(items: items);
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: _QuickCard(
+                icon: items[0].icon,
+                label: items[0].label,
+                value: items[0].value,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _QuickCard(
+                icon: items[1].icon,
+                label: items[1].label,
+                value: items[1].value,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _QuickCard(
+                icon: items[2].icon,
+                label: items[2].label,
+                value: items[2].value,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _QuickInfoItem {
+  const _QuickInfoItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+}
+
+class _QuickInfoPanel extends StatelessWidget {
+  const _QuickInfoPanel({required this.items});
+
+  final List<_QuickInfoItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
+      ),
+      child: Column(
+        children: List.generate(items.length, (index) {
+          final item = items[index];
+          final isLast = index == items.length - 1;
+
+          return Padding(
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+            child: _QuickInfoRow(item: item),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _QuickInfoRow extends StatelessWidget {
+  const _QuickInfoRow({required this.item});
+
+  final _QuickInfoItem item;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
+        _IconBadge(icon: item.icon, size: 34, iconSize: 16),
+        const SizedBox(width: 12),
         Expanded(
-          child: _QuickCard(
-            icon: AppLucideIcons.clock,
-            label: 'Jadwal',
-            value: trainer.scheduleLabel,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _QuickCard(
-            icon: AppLucideIcons.timer,
-            label: 'Durasi',
-            value: trainer.duration,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _QuickCard(
-            icon: AppLucideIcons.mapPin,
-            label: 'Cabang',
-            value: trainer.branch,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.silverGray,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                item.value,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.metallicWhite,
+                  fontSize: 13,
+                  height: 1.35,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -501,7 +668,7 @@ class TrainerRatingSection extends StatelessWidget {
           Row(
             children: [
               const Icon(
-                Icons.star_rounded,
+                AppLucideIcons.star,
                 color: AppColors.gymGold,
                 size: 24,
               ),
@@ -555,7 +722,7 @@ class TrainerRatingSection extends StatelessWidget {
                           color: AppColors.blackCore,
                         ),
                       )
-                    : const Icon(Icons.star_rounded, size: 16),
+                    : const Icon(AppLucideIcons.star, size: 16),
                 label: Text(isSubmitting ? 'Mengirim...' : 'Kirim rating'),
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
@@ -589,19 +756,28 @@ class TrainerScheduleSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SectionCard(
       title: 'Jadwal Tersedia',
-      child: Column(
-        children: List.generate(schedules.length, (index) {
-          final schedule = schedules[index];
-          final isLast = index == schedules.length - 1;
+      child: schedules.isEmpty
+          ? const Text(
+              'Jadwal trainer belum tersedia.',
+              style: TextStyle(
+                color: AppColors.silverGray,
+                fontSize: 12,
+                height: 1.6,
+              ),
+            )
+          : Column(
+              children: List.generate(schedules.length, (index) {
+                final schedule = schedules[index];
+                final isLast = index == schedules.length - 1;
 
-          return _InfoRow(
-            icon: AppLucideIcons.calendarClock,
-            label: schedule.locationName ?? 'Cabang',
-            value: schedule.label,
-            isLast: isLast,
-          );
-        }),
-      ),
+                return _InfoRow(
+                  icon: AppLucideIcons.calendarClock,
+                  label: schedule.locationName ?? 'Cabang',
+                  value: schedule.label,
+                  isLast: isLast,
+                );
+              }),
+            ),
     );
   }
 }
@@ -646,52 +822,70 @@ class TrainerBenefitSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (benefits.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return _SectionCard(
       title: 'Yang Kamu Dapat',
-      child: GridView.builder(
-        // Grid berada di dalam scroll parent milik screen, jadi scroll lokal
-        // dimatikan agar gesture tidak saling berebut.
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: benefits.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.42,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemBuilder: (context, index) {
-          final benefit = benefits[index];
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 420 ? 2 : 1;
+          final tileWidth = columns == 1
+              ? constraints.maxWidth
+              : (constraints.maxWidth - 10) / 2;
 
-          return Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.steelBlack.withValues(alpha: 0.72),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.gunmetal.withValues(alpha: 0.72),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(benefit.icon, color: AppColors.gymGold, size: 20),
-                const Spacer(),
-                Text(
-                  benefit.label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.metallicWhite,
-                    fontSize: 12,
-                    height: 1.4,
-                    fontWeight: FontWeight.w800,
+          return Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: benefits
+                .map(
+                  (benefit) => SizedBox(
+                    width: tileWidth,
+                    child: _BenefitTile(benefit: benefit),
                   ),
-                ),
-              ],
-            ),
+                )
+                .toList(growable: false),
           );
         },
+      ),
+    );
+  }
+}
+
+class _BenefitTile extends StatelessWidget {
+  const _BenefitTile({required this.benefit});
+
+  final TrainerBenefit benefit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 92),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.steelBlack.withValues(alpha: 0.60),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.70)),
+      ),
+      child: Row(
+        children: [
+          _IconBadge(icon: benefit.icon, size: 36, iconSize: 17),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              benefit.label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppColors.metallicWhite,
+                fontSize: 13,
+                height: 1.35,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -713,7 +907,7 @@ class TrainerGallerySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Gallery',
+          'Galeri',
           style: TextStyle(
             color: AppColors.metallicWhite,
             fontSize: 17,
@@ -758,8 +952,8 @@ class _RatingStars extends StatelessWidget {
           tooltip: '$ratingValue bintang',
           onPressed: () => onRatingChanged(ratingValue),
           icon: Icon(
-            isSelected ? Icons.star_rounded : Icons.star_border_rounded,
-            color: AppColors.gymGold,
+            AppLucideIcons.star,
+            color: isSelected ? AppColors.gymGold : AppColors.ironGray,
             size: 34,
           ),
         );
@@ -785,19 +979,7 @@ class _ProgramTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.gymGold.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              AppLucideIcons.dumbbell,
-              color: AppColors.gymGold,
-              size: 18,
-            ),
-          ),
+          const _IconBadge(icon: AppLucideIcons.dumbbell),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -917,30 +1099,42 @@ class _BrokenImageFallback extends StatelessWidget {
     return const ColoredBox(
       color: AppColors.steelBlack,
       child: Center(
-        child: Icon(
-          Icons.broken_image_rounded,
-          color: AppColors.ironGray,
-          size: 36,
-        ),
+        child: Icon(AppLucideIcons.info, color: AppColors.ironGray, size: 36),
       ),
     );
   }
 }
 
-class _BrandLogo extends StatelessWidget {
-  const _BrandLogo();
+class _HeroLabel extends StatelessWidget {
+  const _HeroLabel();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 52,
-      height: 52,
-      clipBehavior: Clip.antiAlias,
+      height: 30,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.28)),
+        color: AppColors.blackCore.withValues(alpha: 0.34),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.16)),
       ),
-      child: Image.asset('lib/assets/logo-1.jpeg', fit: BoxFit.cover),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(AppLucideIcons.userPlus, color: AppColors.gymGold, size: 14),
+          SizedBox(width: 7),
+          Text(
+            'Trainer personal',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: AppColors.gymGold,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -963,7 +1157,7 @@ class _RatingChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, color: AppColors.gymGold, size: 14),
+          const Icon(AppLucideIcons.star, color: AppColors.gymGold, size: 14),
           const SizedBox(width: 6),
           Text(
             rating,
@@ -995,25 +1189,14 @@ class _QuickCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack,
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.gunmetal),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: AppColors.gymGold.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.gymGold.withValues(alpha: 0.18),
-              ),
-            ),
-            child: Icon(icon, color: AppColors.gymGold, size: 17),
-          ),
+          _IconBadge(icon: icon, size: 34, iconSize: 17),
           const SizedBox(height: 10),
           Text(
             label,
@@ -1039,6 +1222,28 @@ class _QuickCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _IconBadge extends StatelessWidget {
+  const _IconBadge({required this.icon, this.size = 38, this.iconSize = 18});
+
+  final IconData icon;
+  final double size;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.gymGold.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(size >= 38 ? 14 : 12),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.18)),
+      ),
+      child: Icon(icon, color: AppColors.gymGold, size: iconSize),
     );
   }
 }
@@ -1069,9 +1274,11 @@ class _SectionCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.graphiteBlack.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.gunmetal),
+            color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppColors.gunmetal.withValues(alpha: 0.78),
+            ),
           ),
           child: child,
         ),
@@ -1110,30 +1317,18 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.gymGold.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: AppColors.gymGold.withValues(alpha: 0.18),
-              ),
-            ),
-            child: Icon(icon, color: AppColors.gymGold, size: 18),
-          ),
+          _IconBadge(icon: icon),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  label.toUpperCase(),
+                  label,
                   style: const TextStyle(
                     color: AppColors.ironGray,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1168,8 +1363,8 @@ class _ActivityImage extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.graphiteBlack,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.18)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.72)),
       ),
       child: Image.network(
         imageUrl,

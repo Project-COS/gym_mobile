@@ -77,21 +77,21 @@ class BookingSuccessScreen extends StatelessWidget {
             return Stack(
               children: [
                 Positioned(
-                  top: spec.isExpanded ? -176 : -112,
-                  right: spec.isExpanded ? -120 : -96,
+                  top: spec.isExpanded ? -148 : -104,
+                  right: spec.isExpanded ? -148 : -124,
                   child: _GlowOrb(
-                    size: spec.isExpanded ? 420 : 320,
+                    size: spec.isExpanded ? 420 : 310,
                     color: AppColors.gymGold,
-                    opacity: spec.isExpanded ? 0.16 : 0.18,
+                    opacity: spec.isExpanded ? 0.11 : 0.13,
                   ),
                 ),
                 Positioned(
-                  bottom: spec.isExpanded ? -152 : -104,
-                  left: spec.isExpanded ? -132 : -96,
+                  bottom: spec.isExpanded ? -160 : -116,
+                  left: spec.isExpanded ? -140 : -116,
                   child: _GlowOrb(
-                    size: spec.isExpanded ? 360 : 288,
+                    size: spec.isExpanded ? 360 : 280,
                     color: AppColors.success,
-                    opacity: spec.isExpanded ? 0.10 : 0.12,
+                    opacity: spec.isExpanded ? 0.07 : 0.08,
                   ),
                 ),
                 SingleChildScrollView(
@@ -135,7 +135,7 @@ class BookingSuccessScreen extends StatelessWidget {
       ),
       bottomNavigationBar: BookingSuccessBottomActions(
         onSchedulePressed: () =>
-            _showMessage(context, 'Jadwal belum tersedia di versi ini.'),
+            _showMessage(context, 'Jadwal tersimpan di riwayat aktivitas.'),
         onHomePressed: () {
           Navigator.of(context).popUntil((route) => route.isFirst);
         },
@@ -212,18 +212,21 @@ class _GlowOrb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: opacity),
-              blurRadius: 70,
-              spreadRadius: 42,
+      child: RepaintBoundary(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                color.withValues(alpha: opacity),
+                color.withValues(alpha: opacity * 0.34),
+                color.withValues(alpha: 0),
+              ],
+              stops: const [0, 0.46, 1],
             ),
-          ],
+          ),
         ),
       ),
     );

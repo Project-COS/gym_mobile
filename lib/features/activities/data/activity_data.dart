@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/icons/app_lucide_icons.dart';
+
 // Tabs define both navigation labels and the default copy used by each activity
 // section, keeping the screen from duplicating tab-specific UI metadata.
 enum ActivityTab {
@@ -7,19 +9,19 @@ enum ActivityTab {
     label: 'Hadir',
     sectionTitle: 'Riwayat Kedatangan',
     countLabel: '0 Data',
-    icon: Icons.door_front_door_rounded,
+    icon: AppLucideIcons.door,
   ),
   personalTrainer(
     label: 'PT',
     sectionTitle: 'Riwayat PT',
     countLabel: '0 Session',
-    icon: Icons.how_to_reg_rounded,
+    icon: AppLucideIcons.userPlus,
   ),
   classSession(
     label: 'Kelas',
     sectionTitle: 'Riwayat Kelas',
     countLabel: '0 Kelas',
-    icon: Icons.groups_rounded,
+    icon: AppLucideIcons.users,
   );
 
   const ActivityTab({

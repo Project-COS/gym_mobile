@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../../data/booking_data.dart';
 import 'personal_training_booking_history_screen.dart';
 import '../../../classes/data/class_data.dart';
@@ -252,12 +253,7 @@ class _BookingScreenState extends State<BookingScreen>
     final bookingClassCubit = _bookingClassCubit;
 
     if (trainerListCubit == null || bookingClassCubit == null) {
-      return const ColoredBox(
-        color: AppColors.blackCore,
-        child: Center(
-          child: CircularProgressIndicator(color: AppColors.gymGold),
-        ),
-      );
+      return const _BookingBootLoadingScreen();
     }
 
     return Container(
@@ -277,44 +273,34 @@ class _BookingScreenState extends State<BookingScreen>
               return Stack(
                 children: [
                   Positioned(
-                    top: spec.isExpanded ? -176 : -112,
-                    right: spec.isExpanded ? -120 : -96,
+                    top: spec.isExpanded ? -148 : -104,
+                    right: spec.isExpanded ? -148 : -124,
                     child: _GlowOrb(
-                      size: spec.isExpanded ? 420 : 320,
+                      size: spec.isExpanded ? 420 : 310,
                       color: AppColors.gymGold,
-                      opacity: spec.isExpanded ? 0.16 : 0.18,
+                      opacity: spec.isExpanded ? 0.11 : 0.13,
                     ),
                   ),
                   Positioned(
-                    bottom: spec.isExpanded ? -152 : -104,
-                    left: spec.isExpanded ? -132 : -96,
+                    bottom: spec.isExpanded ? -160 : -116,
+                    left: spec.isExpanded ? -140 : -116,
                     child: _GlowOrb(
-                      size: spec.isExpanded ? 360 : 288,
+                      size: spec.isExpanded ? 360 : 280,
                       color: AppColors.darkGold,
-                      opacity: spec.isExpanded ? 0.10 : 0.12,
+                      opacity: spec.isExpanded ? 0.06 : 0.08,
                     ),
                   ),
                   RefreshIndicator(
                     color: AppColors.gymGold,
                     backgroundColor: AppColors.graphiteBlack,
                     onRefresh: _refreshActiveTab,
-                    child: SingleChildScrollView(
+                    child: CustomScrollView(
                       // Required so pull-to-refresh still works for empty or
                       // short booking lists.
                       physics: const AlwaysScrollableScrollPhysics(),
                       keyboardDismissBehavior:
                           ScrollViewKeyboardDismissBehavior.onDrag,
-                      padding: spec.pagePadding,
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: spec.maxContentWidth,
-                          ),
-                          child: spec.isExpanded
-                              ? _buildExpandedBookingContent(spec)
-                              : _buildStackedBookingContent(spec),
-                        ),
-                      ),
+                      slivers: _buildBookingSlivers(spec),
                     ),
                   ),
                 ],
@@ -326,7 +312,37 @@ class _BookingScreenState extends State<BookingScreen>
     );
   }
 
-  Widget _buildStackedBookingContent(BookingLayoutSpec spec) {
+  List<Widget> _buildBookingSlivers(BookingLayoutSpec spec) {
+    return [
+      SliverPadding(
+        padding: EdgeInsets.fromLTRB(
+          spec.pagePadding.left,
+          spec.pagePadding.top,
+          spec.pagePadding.right,
+          0,
+        ),
+        sliver: SliverList(
+          delegate: SliverChildListDelegate.fixed([
+            _CenteredBookingContent(
+              spec: spec,
+              child: _buildBookingIntro(spec),
+            ),
+            SizedBox(height: spec.sectionGap),
+          ]),
+        ),
+      ),
+      _buildActiveTabContent(spec),
+      SliverToBoxAdapter(child: SizedBox(height: spec.pagePadding.bottom)),
+    ];
+  }
+
+  Widget _buildBookingIntro(BookingLayoutSpec spec) {
+    return spec.isExpanded
+        ? _buildExpandedBookingIntro(spec)
+        : _buildStackedBookingIntro(spec);
+  }
+
+  Widget _buildStackedBookingIntro(BookingLayoutSpec spec) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -338,36 +354,30 @@ class _BookingScreenState extends State<BookingScreen>
           activeTab: _activeTab,
           onTabChanged: _changeActiveTab,
         ),
-        SizedBox(height: spec.sectionGap),
-        _buildActiveTabContent(spec),
       ],
     );
   }
 
-  Widget _buildExpandedBookingContent(BookingLayoutSpec spec) {
-    return Row(
+  Widget _buildExpandedBookingIntro(BookingLayoutSpec spec) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 360,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _BookingHeader(
-                onHistoryPressed: _openPersonalTrainingBookingHistory,
-              ),
-              SizedBox(height: spec.sectionGap),
-              const BookingHeroCard(),
-              SizedBox(height: spec.sectionGap),
-              BookingTabSelector(
+        _BookingHeader(onHistoryPressed: _openPersonalTrainingBookingHistory),
+        SizedBox(height: spec.sectionGap),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Expanded(flex: 7, child: BookingHeroCard()),
+            SizedBox(width: spec.columnGap),
+            Expanded(
+              flex: 4,
+              child: BookingTabSelector(
                 activeTab: _activeTab,
                 onTabChanged: _changeActiveTab,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        SizedBox(width: spec.columnGap),
-        Expanded(child: _buildActiveTabContent(spec)),
       ],
     );
   }
@@ -380,31 +390,61 @@ class _BookingScreenState extends State<BookingScreen>
   }
 
   Widget _buildPersonalTrainerContent(BookingLayoutSpec spec) {
-    return BlocBuilder<TrainerListCubit, TrainerListState>(
-      builder: (context, state) {
-        final trainers = state.trainers;
+    return SliverPadding(
+      padding: _horizontalPagePadding(spec.pagePadding),
+      sliver: BlocBuilder<TrainerListCubit, TrainerListState>(
+        builder: (context, state) {
+          final trainers = state.trainers;
+          final Widget header = TrainerCatalogHeader(count: trainers.length);
+          final Widget? statusCard = _buildTrainerStatusCard(state);
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TrainerCatalogHeader(count: trainers.length),
-            const SizedBox(height: 14),
-            _buildTrainerResult(state),
-          ],
-        );
-      },
+          if (statusCard != null) {
+            return SliverList(
+              delegate: SliverChildListDelegate.fixed([
+                _centeredSliverChild(spec, header, bottom: 14),
+                _centeredSliverChild(spec, statusCard),
+              ]),
+            );
+          }
+
+          return SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (index == 0) {
+                return _centeredSliverChild(spec, header, bottom: 14);
+              }
+
+              final int trainerIndex = index - 1;
+              final TrainerProfile trainer = trainers[trainerIndex];
+
+              return _centeredSliverChild(
+                spec,
+                TrainerProfileCard(
+                  trainer: trainer,
+                  onDetailPressed: () => _openTrainerDetail(trainer),
+                ),
+                bottom: trainerIndex == trainers.length - 1 ? 0 : 14,
+              );
+            }, childCount: trainers.length + 1),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildTrainerResult(TrainerListState state) {
+  Widget? _buildTrainerStatusCard(TrainerListState state) {
     if (state.status == TrainerListLoadStatus.loading &&
         state.trainers.isEmpty) {
-      return const TrainerStatusCard.loading();
+      return const _BookingStatusCard.loading(
+        title: 'Menyiapkan trainer',
+        message: 'Mengambil trainer dan slot personal training.',
+        icon: AppLucideIcons.userPlus,
+      );
     }
 
     if (state.status == TrainerListLoadStatus.failure &&
         state.trainers.isEmpty) {
-      return TrainerStatusCard.failure(
+      return _BookingStatusCard.failure(
+        title: 'Trainer belum bisa dimuat',
         message:
             state.errorMessage ??
             'Trainer belum bisa dimuat. Silakan coba kembali.',
@@ -414,66 +454,140 @@ class _BookingScreenState extends State<BookingScreen>
     }
 
     if (state.trainers.isEmpty) {
-      return const TrainerStatusCard.empty();
+      return const _BookingStatusCard.empty(
+        title: 'Trainer belum tersedia',
+        message: 'Belum ada trainer aktif yang bisa dibooking saat ini.',
+        icon: AppLucideIcons.userPlus,
+      );
     }
 
-    return _BookingList(
-      children: state.trainers.map((trainer) {
-        return TrainerProfileCard(
-          trainer: trainer,
-          onDetailPressed: () => _openTrainerDetail(trainer),
-        );
-      }).toList(),
-    );
+    return null;
   }
 
   Widget _buildClassContent(BookingLayoutSpec spec) {
-    return BlocBuilder<BookingClassCubit, BookingClassState>(
-      builder: (context, state) {
-        // Category filtering is local to the selected date result.
-        final List<GroupClassSession> visibleClasses = _visibleClasses(state);
+    return SliverPadding(
+      padding: _horizontalPagePadding(spec.pagePadding),
+      sliver: BlocBuilder<BookingClassCubit, BookingClassState>(
+        builder: (context, state) {
+          // Category filtering is local to the selected date result.
+          final List<GroupClassSession> visibleClasses = _visibleClasses(state);
+          final Widget? statusCard = _buildClassStatusCard(
+            state,
+            visibleClasses,
+          );
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BookingDateStrip(
-              title: 'Pilih Tanggal Kelas',
-              dates: _dateOptions,
-              selectedIndex: _selectedClassDateIndex,
-              onDateSelected: _changeSelectedClassDateIndex,
-            ),
-            SizedBox(height: spec.sectionGap),
-            ClassCategoryFilter(
-              categories: state.categories,
-              activeCategoryId: _activeCategoryId,
-              onCategoryChanged: _changeActiveCategory,
-            ),
-            SizedBox(height: spec.sectionGap),
-            _SectionHeader(
-              title: state.locationName == null
-                  ? 'Kelas Semua Cabang'
-                  : 'Kelas di ${state.locationName}',
-              countLabel: '${visibleClasses.length} Kelas',
-            ),
-            const SizedBox(height: 14),
-            _buildClassResult(state, visibleClasses),
-          ],
-        );
-      },
+          if (statusCard != null) {
+            return SliverList(
+              delegate: SliverChildListDelegate.fixed([
+                _centeredSliverChild(
+                  spec,
+                  BookingDateStrip(
+                    title: 'Pilih tanggal kelas',
+                    dates: _dateOptions,
+                    selectedIndex: _selectedClassDateIndex,
+                    onDateSelected: _changeSelectedClassDateIndex,
+                  ),
+                  bottom: spec.sectionGap,
+                ),
+                _centeredSliverChild(
+                  spec,
+                  ClassCategoryFilter(
+                    categories: state.categories,
+                    activeCategoryId: _activeCategoryId,
+                    onCategoryChanged: _changeActiveCategory,
+                  ),
+                  bottom: spec.sectionGap,
+                ),
+                _centeredSliverChild(
+                  spec,
+                  _SectionHeader(
+                    title: state.locationName == null
+                        ? 'Kelas semua cabang'
+                        : 'Kelas di ${state.locationName}',
+                    countLabel: '${visibleClasses.length} kelas',
+                  ),
+                  bottom: 14,
+                ),
+                _centeredSliverChild(spec, statusCard),
+              ]),
+            );
+          }
+
+          return SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (index == 0) {
+                return _centeredSliverChild(
+                  spec,
+                  BookingDateStrip(
+                    title: 'Pilih tanggal kelas',
+                    dates: _dateOptions,
+                    selectedIndex: _selectedClassDateIndex,
+                    onDateSelected: _changeSelectedClassDateIndex,
+                  ),
+                  bottom: spec.sectionGap,
+                );
+              }
+
+              if (index == 1) {
+                return _centeredSliverChild(
+                  spec,
+                  ClassCategoryFilter(
+                    categories: state.categories,
+                    activeCategoryId: _activeCategoryId,
+                    onCategoryChanged: _changeActiveCategory,
+                  ),
+                  bottom: spec.sectionGap,
+                );
+              }
+
+              if (index == 2) {
+                return _centeredSliverChild(
+                  spec,
+                  _SectionHeader(
+                    title: state.locationName == null
+                        ? 'Kelas semua cabang'
+                        : 'Kelas di ${state.locationName}',
+                    countLabel: '${visibleClasses.length} kelas',
+                  ),
+                  bottom: 14,
+                );
+              }
+
+              final int sessionIndex = index - 3;
+              final GroupClassSession session = visibleClasses[sessionIndex];
+
+              return _centeredSliverChild(
+                spec,
+                GroupClassBookingCard(
+                  session: session,
+                  onDetailPressed: () => _openClassDetail(session),
+                  onBookingPressed: () => _openClassDetail(session),
+                ),
+                bottom: sessionIndex == visibleClasses.length - 1 ? 0 : 14,
+              );
+            }, childCount: visibleClasses.length + 3),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildClassResult(
+  Widget? _buildClassStatusCard(
     BookingClassState state,
     List<GroupClassSession> visibleClasses,
   ) {
     if (state.status == BookingClassLoadStatus.loading ||
         state.status == BookingClassLoadStatus.initial) {
-      return const _BookingStatusCard.loading();
+      return const _BookingStatusCard.loading(
+        title: 'Menyiapkan kelas',
+        message: 'Mengambil kelas tersedia untuk tanggal pilihan.',
+        icon: AppLucideIcons.calendarClock,
+      );
     }
 
     if (state.status == BookingClassLoadStatus.failure) {
       return _BookingStatusCard.failure(
+        title: 'Kelas belum bisa dimuat',
         message:
             state.errorMessage ??
             'Kelas belum bisa dimuat. Silakan coba kembali.',
@@ -485,14 +599,72 @@ class _BookingScreenState extends State<BookingScreen>
       return const BookingEmptyState();
     }
 
-    return _BookingList(
-      children: visibleClasses.map((session) {
-        return GroupClassBookingCard(
-          session: session,
-          onDetailPressed: () => _openClassDetail(session),
-          onBookingPressed: () => _openClassDetail(session),
-        );
-      }).toList(),
+    return null;
+  }
+
+  EdgeInsets _horizontalPagePadding(EdgeInsets padding) {
+    return EdgeInsets.fromLTRB(padding.left, 0, padding.right, 0);
+  }
+
+  Widget _centeredSliverChild(
+    BookingLayoutSpec spec,
+    Widget child, {
+    double bottom = 0,
+  }) {
+    return _CenteredBookingContent(
+      spec: spec,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottom),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _BookingBootLoadingScreen extends StatelessWidget {
+  const _BookingBootLoadingScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: AppColors.blackCore,
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Positioned(
+              top: -104,
+              right: -124,
+              child: _GlowOrb(
+                size: 310,
+                color: AppColors.gymGold,
+                opacity: 0.13,
+              ),
+            ),
+            Positioned(
+              bottom: -116,
+              left: -116,
+              child: _GlowOrb(
+                size: 280,
+                color: AppColors.darkGold,
+                opacity: 0.08,
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 420),
+                  child: _BookingStatusCard.loading(
+                    title: 'Menyiapkan booking',
+                    message: 'Menyusun data trainer dan kelas latihan.',
+                    icon: AppLucideIcons.calendarClock,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -504,22 +676,24 @@ class _BookingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool compact = MediaQuery.sizeOf(context).width < 390;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Expanded(child: BookingTopBar()),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         OutlinedButton.icon(
           onPressed: onHistoryPressed,
-          icon: const Icon(Icons.history_rounded, size: 16),
-          label: const Text('History PT'),
+          icon: const Icon(AppLucideIcons.history, size: 16),
+          label: Text(compact ? 'Riwayat' : 'Riwayat PT'),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.gymGold,
-            side: BorderSide(color: AppColors.gymGold.withValues(alpha: 0.44)),
+            side: BorderSide(color: AppColors.gymGold.withValues(alpha: 0.28)),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(13),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
             textStyle: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -532,16 +706,31 @@ class _BookingHeader extends StatelessWidget {
 }
 
 class _BookingStatusCard extends StatelessWidget {
-  const _BookingStatusCard.loading()
-    : message = 'Memuat kelas tersedia...',
-      onRetryPressed = null;
+  const _BookingStatusCard.loading({
+    required this.title,
+    required this.message,
+    required this.icon,
+  }) : isLoading = true,
+       onRetryPressed = null;
 
   const _BookingStatusCard.failure({
+    required this.title,
     required this.message,
     required this.onRetryPressed,
-  });
+  }) : icon = AppLucideIcons.info,
+       isLoading = false;
 
+  const _BookingStatusCard.empty({
+    required this.title,
+    required this.message,
+    required this.icon,
+  }) : isLoading = false,
+       onRetryPressed = null;
+
+  final String title;
   final String message;
+  final IconData icon;
+  final bool isLoading;
   final VoidCallback? onRetryPressed;
 
   @override
@@ -550,52 +739,120 @@ class _BookingStatusCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      constraints: const BoxConstraints(minHeight: 148),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
-      child: Row(
-        children: [
-          if (retryAction == null)
-            const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.4,
-                color: AppColors.gymGold,
-              ),
-            )
-          else
-            const Icon(Icons.info_rounded, color: AppColors.gymGold, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(
-                color: AppColors.silverGray,
-                fontSize: 12,
-                height: 1.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          if (retryAction != null) ...[
-            const SizedBox(width: 12),
-            TextButton(
-              onPressed: retryAction,
-              child: const Text(
-                'Coba lagi',
-                style: TextStyle(
-                  color: AppColors.gymGold,
-                  fontSize: 12,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 330),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _BookingStatusGlyph(isLoading: isLoading, icon: icon),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.metallicWhite,
+                  fontSize: 17,
+                  height: 1.25,
                   fontWeight: FontWeight.w800,
                 ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.silverGray,
+                  fontSize: 12,
+                  height: 1.6,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (retryAction != null) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 42,
+                  child: OutlinedButton.icon(
+                    onPressed: retryAction,
+                    icon: const Icon(AppLucideIcons.history, size: 16),
+                    label: const Text('Coba lagi'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.gymGold,
+                      side: BorderSide(
+                        color: AppColors.gymGold.withValues(alpha: 0.32),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BookingStatusGlyph extends StatelessWidget {
+  const _BookingStatusGlyph({required this.isLoading, required this.icon});
+
+  final bool isLoading;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: AppColors.gymGold.withValues(alpha: 0.11),
+        borderRadius: BorderRadius.circular(19),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.18)),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (isLoading)
+            CircularProgressIndicator(
+              strokeWidth: 2.4,
+              strokeCap: StrokeCap.round,
+              color: AppColors.gymGold,
+              backgroundColor: AppColors.gymGold.withValues(alpha: 0.10),
+              semanticsLabel: 'Memuat data booking',
             ),
-          ],
+          Icon(icon, color: AppColors.gymGold, size: 21),
         ],
+      ),
+    );
+  }
+}
+
+class _CenteredBookingContent extends StatelessWidget {
+  const _CenteredBookingContent({required this.spec, required this.child});
+
+  final BookingLayoutSpec spec;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
+        child: child,
       ),
     );
   }
@@ -698,26 +955,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _BookingList extends StatelessWidget {
-  const _BookingList({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(children.length, (index) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: index == children.length - 1 ? 0 : 14,
-          ),
-          child: children[index],
-        );
-      }),
-    );
-  }
-}
-
 class _GlowOrb extends StatelessWidget {
   const _GlowOrb({
     required this.size,
@@ -732,18 +969,21 @@ class _GlowOrb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: opacity),
-              blurRadius: 70,
-              spreadRadius: 42,
+      child: RepaintBoundary(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                color.withValues(alpha: opacity),
+                color.withValues(alpha: opacity * 0.34),
+                color.withValues(alpha: 0),
+              ],
+              stops: const [0, 0.46, 1],
             ),
-          ],
+          ),
         ),
       ),
     );

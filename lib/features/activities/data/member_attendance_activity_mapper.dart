@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-
+import '../../../core/icons/app_lucide_icons.dart';
 import 'activity_data.dart';
 import 'repositories/member_attendance_activity_repository.dart';
 
@@ -14,28 +13,28 @@ ActivityHistoryItem mapMemberAttendanceToActivityHistoryItem(
     title: attendance.locationName,
     subtitle: '${_formatDate(attendance.checkedInAt)} - Check-in member',
     status: attendance.isOpen ? 'Berlangsung' : 'Hadir',
-    icon: Icons.door_front_door_rounded,
+    icon: AppLucideIcons.door,
     isFeatured: isFeatured,
     metas: [
       ActivityHistoryMeta(
-        icon: Icons.location_on_rounded,
-        label: 'Branch',
+        icon: AppLucideIcons.mapPin,
+        label: 'Cabang',
         value: attendance.locationArea ?? attendance.locationName,
       ),
       ActivityHistoryMeta(
-        icon: Icons.login_rounded,
+        icon: AppLucideIcons.logIn,
         label: 'Check-in',
         value: _formatTime(attendance.checkedInAt),
       ),
       ActivityHistoryMeta(
-        icon: Icons.logout_rounded,
+        icon: AppLucideIcons.logOut,
         label: 'Check-out',
         value: attendance.checkedOutAt == null
             ? 'Belum check-out'
             : _formatTime(attendance.checkedOutAt!),
       ),
       ActivityHistoryMeta(
-        icon: Icons.timer_rounded,
+        icon: AppLucideIcons.timer,
         label: 'Durasi',
         value: attendance.durationMinutes == null
             ? 'Berlangsung'

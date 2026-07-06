@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-
 import '../../bookings/data/repositories/personal_training_booking_repository.dart';
+import '../../../core/icons/app_lucide_icons.dart';
 import 'activity_data.dart';
 
 // PT booking history keeps its source/status terminology in the bookings
@@ -14,7 +13,7 @@ ActivityHistoryItem mapPersonalTrainingBookingToActivityHistoryItem(
     title: booking.title,
     subtitle: 'Coach ${booking.trainerName} - ${booking.schedule}',
     status: _formatBookingStatus(booking.status),
-    icon: Icons.how_to_reg_rounded,
+    icon: AppLucideIcons.userPlus,
     isFeatured: isFeatured,
     bookingDetail: ActivityBookingDetail(
       itemId: booking.id,
@@ -30,23 +29,23 @@ ActivityHistoryItem mapPersonalTrainingBookingToActivityHistoryItem(
     ),
     metas: [
       ActivityHistoryMeta(
-        icon: Icons.calendar_month_rounded,
+        icon: AppLucideIcons.calendar,
         label: 'Jadwal',
         value: booking.schedule,
       ),
       ActivityHistoryMeta(
-        icon: Icons.timer_rounded,
+        icon: AppLucideIcons.timer,
         label: 'Durasi',
         value: booking.duration,
       ),
       ActivityHistoryMeta(
-        icon: Icons.person_rounded,
+        icon: AppLucideIcons.person,
         label: 'Trainer',
         value: booking.trainerName,
       ),
       ActivityHistoryMeta(
-        icon: Icons.location_on_rounded,
-        label: 'Branch',
+        icon: AppLucideIcons.mapPin,
+        label: 'Cabang',
         value: booking.location,
       ),
     ],

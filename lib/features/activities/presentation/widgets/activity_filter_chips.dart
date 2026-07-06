@@ -31,10 +31,14 @@ class ActivityFilterChips extends StatelessWidget {
           return AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             decoration: BoxDecoration(
-              color: isActive ? AppColors.gymGold : AppColors.graphiteBlack,
+              color: isActive
+                  ? AppColors.gymGold
+                  : AppColors.graphiteBlack.withValues(alpha: 0.82),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: isActive ? AppColors.gymGold : AppColors.gunmetal,
+                color: isActive
+                    ? AppColors.gymGold
+                    : AppColors.gunmetal.withValues(alpha: 0.78),
               ),
               boxShadow: isActive
                   ? [

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../../../bookings/data/repositories/personal_training_booking_repository.dart';
 import '../../../bookings/presentation/screens/booking_success_screen.dart';
 import '../../data/repositories/trainer_repository.dart';
@@ -155,25 +156,29 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                   final spec = TrainerDetailLayoutSpec.fromWidth(
                     constraints.maxWidth,
                   );
+                  final scrollMinHeight =
+                      constraints.maxHeight > spec.pagePadding.vertical
+                      ? constraints.maxHeight - spec.pagePadding.vertical
+                      : 0.0;
 
                   return Stack(
                     children: [
                       Positioned(
-                        top: spec.isExpanded ? -176 : -112,
-                        right: spec.isExpanded ? -120 : -96,
+                        top: spec.isExpanded ? -148 : -104,
+                        right: spec.isExpanded ? -148 : -124,
                         child: _GlowOrb(
-                          size: spec.isExpanded ? 420 : 320,
+                          size: spec.isExpanded ? 420 : 310,
                           color: AppColors.gymGold,
-                          opacity: spec.isExpanded ? 0.16 : 0.18,
+                          opacity: spec.isExpanded ? 0.11 : 0.13,
                         ),
                       ),
                       Positioned(
-                        bottom: spec.isExpanded ? -152 : -104,
-                        left: spec.isExpanded ? -132 : -96,
+                        bottom: spec.isExpanded ? -160 : -116,
+                        left: spec.isExpanded ? -140 : -116,
                         child: _GlowOrb(
-                          size: spec.isExpanded ? 360 : 288,
+                          size: spec.isExpanded ? 360 : 280,
                           color: AppColors.darkGold,
-                          opacity: spec.isExpanded ? 0.10 : 0.12,
+                          opacity: spec.isExpanded ? 0.06 : 0.08,
                         ),
                       ),
                       RefreshIndicator(
@@ -187,12 +192,21 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                           keyboardDismissBehavior:
                               ScrollViewKeyboardDismissBehavior.onDrag,
                           padding: spec.pagePadding,
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: spec.maxContentWidth,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: scrollMinHeight,
+                            ),
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: spec.maxContentWidth,
+                                ),
+                                child: _buildDetailContent(
+                                  context,
+                                  state,
+                                  spec,
+                                ),
                               ),
-                              child: _buildDetailContent(context, state, spec),
                             ),
                           ),
                         ),
@@ -271,56 +285,90 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      showDragHandle: true,
+      backgroundColor: AppColors.graphiteBlack,
+      barrierColor: AppColors.blackCore.withValues(alpha: 0.72),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (sheetContext) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
+            final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
             return SafeArea(
               top: false,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-                decoration: const BoxDecoration(
-                  color: AppColors.graphiteBlack,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-                  border: Border(top: BorderSide(color: AppColors.gunmetal)),
-                ),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(20, 0, 20, 22 + bottomInset),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Center(
-                      child: Container(
-                        width: 44,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: AppColors.ironGray,
-                          borderRadius: BorderRadius.circular(999),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.gymGold.withValues(alpha: 0.13),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.gymGold.withValues(alpha: 0.18),
+                            ),
+                          ),
+                          child: const Icon(
+                            AppLucideIcons.calendarClock,
+                            color: AppColors.gymGold,
+                            size: 20,
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    const Text(
-                      'Booking Sesi PT',
-                      style: TextStyle(
-                        color: AppColors.metallicWhite,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      trainer.name,
-                      style: const TextStyle(
-                        color: AppColors.silverGray,
-                        fontSize: 13,
-                        height: 1.5,
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Booking sesi PT',
+                                style: TextStyle(
+                                  color: AppColors.metallicWhite,
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                trainer.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.silverGray,
+                                  fontSize: 12,
+                                  height: 1.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 18),
                     DropdownButtonFormField<String?>(
                       value: selectedProgram?.id,
+                      isExpanded: true,
                       dropdownColor: AppColors.steelBlack,
-                      decoration: _bookingSheetInputDecoration('Program'),
+                      iconEnabledColor: AppColors.gymGold,
+                      style: const TextStyle(
+                        color: AppColors.metallicWhite,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      decoration: _bookingSheetInputDecoration(
+                        'Program',
+                        AppLucideIcons.dumbbell,
+                      ),
                       items: trainer.programs.isEmpty
                           ? const [
                               DropdownMenuItem<String?>(
@@ -355,8 +403,18 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                     const SizedBox(height: 14),
                     DropdownButtonFormField<int>(
                       value: slots.indexOf(selectedSlot),
+                      isExpanded: true,
                       dropdownColor: AppColors.steelBlack,
-                      decoration: _bookingSheetInputDecoration('Jadwal'),
+                      iconEnabledColor: AppColors.gymGold,
+                      style: const TextStyle(
+                        color: AppColors.metallicWhite,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      decoration: _bookingSheetInputDecoration(
+                        'Jadwal',
+                        AppLucideIcons.calendarCheck,
+                      ),
                       items: List<DropdownMenuItem<int>>.generate(
                         slots.length,
                         (index) => DropdownMenuItem<int>(
@@ -395,14 +453,14 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                                 _defaultTrainerLocationId(trainer),
                           );
                         },
-                        icon: const Icon(Icons.qr_code_2_rounded, size: 18),
+                        icon: const Icon(AppLucideIcons.qrCode, size: 18),
                         label: const Text('Konfirmasi booking'),
                         style: ElevatedButton.styleFrom(
                           elevation: 0,
                           backgroundColor: AppColors.gymGold,
                           foregroundColor: AppColors.blackCore,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           textStyle: const TextStyle(
                             fontSize: 13,
@@ -421,18 +479,22 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
     );
   }
 
-  InputDecoration _bookingSheetInputDecoration(String label) {
+  InputDecoration _bookingSheetInputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(color: AppColors.silverGray),
       filled: true,
-      fillColor: AppColors.steelBlack,
+      fillColor: AppColors.steelBlack.withValues(alpha: 0.82),
+      prefixIcon: Icon(icon, color: AppColors.gymGold, size: 18),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: AppColors.gunmetal),
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(
+          color: AppColors.gunmetal.withValues(alpha: 0.78),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(15),
         borderSide: const BorderSide(color: AppColors.gymGold),
       ),
     );
@@ -669,15 +731,18 @@ class TrainerDetailLayoutSpec {
 
 class TrainerDetailStatusCard extends StatelessWidget {
   const TrainerDetailStatusCard.loading({super.key})
-    : message = 'Memuat detail trainer...',
+    : title = 'Menyiapkan detail trainer',
+      message = 'Mengambil jadwal, program, dan rating trainer.',
       onRetryPressed = null;
 
   const TrainerDetailStatusCard.failure({
     super.key,
+    this.title = 'Detail belum siap',
     required this.message,
     required this.onRetryPressed,
   });
 
+  final String title;
   final String message;
   final VoidCallback? onRetryPressed;
 
@@ -687,58 +752,109 @@ class TrainerDetailStatusCard extends StatelessWidget {
 
     return Container(
       constraints: const BoxConstraints(minHeight: 420),
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
       child: Center(
-        child: Row(
-          children: [
-            if (retryAction == null)
-              const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.4,
-                  color: AppColors.gymGold,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 320),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _TrainerDetailStatusGlyph(isLoading: retryAction == null),
+              const SizedBox(height: 18),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.metallicWhite,
+                  fontSize: 18,
+                  height: 1.25,
+                  fontWeight: FontWeight.w800,
                 ),
-              )
-            else
-              const Icon(
-                Icons.info_rounded,
-                color: AppColors.gymGold,
-                size: 24,
               ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
+              const SizedBox(height: 8),
+              Text(
                 message,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.silverGray,
                   fontSize: 12,
-                  height: 1.5,
+                  height: 1.6,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-            if (retryAction != null) ...[
-              const SizedBox(width: 12),
-              TextButton(
-                onPressed: retryAction,
-                child: const Text(
-                  'Coba lagi',
-                  style: TextStyle(
-                    color: AppColors.gymGold,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+              if (retryAction != null) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 42,
+                  child: OutlinedButton.icon(
+                    onPressed: retryAction,
+                    icon: const Icon(AppLucideIcons.history, size: 16),
+                    label: const Text('Coba lagi'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.gymGold,
+                      side: BorderSide(
+                        color: AppColors.gymGold.withValues(alpha: 0.32),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _TrainerDetailStatusGlyph extends StatelessWidget {
+  const _TrainerDetailStatusGlyph({required this.isLoading});
+
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 58,
+      height: 58,
+      decoration: BoxDecoration(
+        color: AppColors.gymGold.withValues(alpha: 0.11),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.18)),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (isLoading)
+            CircularProgressIndicator(
+              strokeWidth: 2.4,
+              strokeCap: StrokeCap.round,
+              color: AppColors.gymGold,
+              backgroundColor: AppColors.gymGold.withValues(alpha: 0.10),
+              semanticsLabel: 'Memuat detail trainer',
+            )
+          else
+            const Icon(AppLucideIcons.info, color: AppColors.gymGold, size: 24),
+          if (isLoading)
+            const Icon(
+              AppLucideIcons.userPlus,
+              color: AppColors.gymGold,
+              size: 20,
+            ),
+        ],
       ),
     );
   }
@@ -758,18 +874,21 @@ class _GlowOrb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: opacity),
-              blurRadius: 70,
-              spreadRadius: 42,
+      child: RepaintBoundary(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                color.withValues(alpha: opacity),
+                color.withValues(alpha: opacity * 0.34),
+                color.withValues(alpha: 0),
+              ],
+              stops: const [0, 0.46, 1],
             ),
-          ],
+          ),
         ),
       ),
     );

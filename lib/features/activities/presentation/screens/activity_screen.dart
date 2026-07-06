@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../../data/member_attendance_activity_mapper.dart';
 import '../../data/repositories/member_attendance_activity_repository.dart';
 import '../cubit/member_attendance_activity_cubit.dart';
@@ -260,50 +261,58 @@ class _ActivityScreenState extends State<ActivityScreen> {
             return Stack(
               children: [
                 Positioned(
-                  top: spec.isExpanded ? -176 : -112,
-                  right: spec.isExpanded ? -120 : -96,
+                  top: spec.isExpanded ? -148 : -104,
+                  right: spec.isExpanded ? -148 : -124,
                   child: _GlowOrb(
-                    size: spec.isExpanded ? 420 : 320,
+                    size: spec.isExpanded ? 420 : 310,
                     color: AppColors.gymGold,
-                    opacity: spec.isExpanded ? 0.16 : 0.18,
+                    opacity: spec.isExpanded ? 0.11 : 0.13,
                   ),
                 ),
                 Positioned(
-                  bottom: spec.isExpanded ? -152 : -104,
-                  left: spec.isExpanded ? -132 : -96,
+                  bottom: spec.isExpanded ? -160 : -116,
+                  left: spec.isExpanded ? -140 : -116,
                   child: _GlowOrb(
-                    size: spec.isExpanded ? 360 : 288,
+                    size: spec.isExpanded ? 360 : 280,
                     color: AppColors.darkGold,
-                    opacity: spec.isExpanded ? 0.10 : 0.12,
+                    opacity: spec.isExpanded ? 0.06 : 0.08,
                   ),
                 ),
                 RefreshIndicator(
                   color: AppColors.gymGold,
                   backgroundColor: AppColors.graphiteBlack,
                   onRefresh: _refreshActiveTab,
-                  child: SingleChildScrollView(
+                  child: CustomScrollView(
                     // Required so pull-to-refresh still works when the active
                     // tab is empty, loading, or shorter than the viewport.
                     physics: const AlwaysScrollableScrollPhysics(),
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: spec.pagePadding,
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: spec.maxContentWidth,
-                        ),
-                        child: spec.isExpanded
-                            ? _buildExpandedActivityContent(spec)
-                            : _buildStackedActivityContent(spec),
-                      ),
-                    ),
+                    slivers: [_buildActivityContentSliver(spec)],
                   ),
                 ),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildActivityContentSliver(ActivityLayoutSpec spec) {
+    return SliverPadding(
+      padding: spec.pagePadding,
+      sliver: SliverList(
+        delegate: SliverChildListDelegate.fixed([
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
+              child: spec.isExpanded
+                  ? _buildExpandedActivityContent(spec)
+                  : _buildStackedActivityContent(spec),
+            ),
+          ),
+        ]),
       ),
     );
   }
@@ -463,7 +472,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
     return [
       ActivitySummaryStat(value: attendanceCount, label: 'Kedatangan'),
-      ActivitySummaryStat(value: ptSessionCount, label: 'PT Session'),
+      ActivitySummaryStat(value: ptSessionCount, label: 'Sesi PT'),
       ActivitySummaryStat(value: classSessionCount, label: 'Kelas'),
     ];
   }
@@ -764,21 +773,21 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
 class _ActivityStatusCard extends StatelessWidget {
   const _ActivityStatusCard.loading({required this.message})
-    : title = 'Memuat data',
+    : title = 'Menyiapkan riwayat',
       onRetryPressed = null,
-      icon = Icons.history_rounded,
+      icon = AppLucideIcons.history,
       showProgress = true;
 
   const _ActivityStatusCard.failure({
     required this.message,
     required this.onRetryPressed,
   }) : title = 'Data belum bisa dimuat',
-       icon = Icons.info_rounded,
+       icon = AppLucideIcons.info,
        showProgress = false;
 
   const _ActivityStatusCard.empty({required this.title, required this.message})
     : onRetryPressed = null,
-      icon = Icons.how_to_reg_rounded,
+      icon = AppLucideIcons.userPlus,
       showProgress = false;
 
   final String title;
@@ -793,63 +802,102 @@ class _ActivityStatusCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 220),
-      padding: const EdgeInsets.all(22),
+      constraints: const BoxConstraints(minHeight: 216),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.gunmetal),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.78)),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: AppColors.gymGold, size: 34),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.metallicWhite,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.silverGray,
-              fontSize: 12,
-              height: 1.7,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (showProgress) ...[
-            const SizedBox(height: 16),
-            const SizedBox(
-              width: 34,
-              height: 34,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.6,
-                color: AppColors.gymGold,
-              ),
-            ),
-          ],
-          if (retryAction != null) ...[
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: retryAction,
-              child: const Text(
-                'Coba lagi',
-                style: TextStyle(
-                  color: AppColors.gymGold,
-                  fontSize: 12,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 330),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ActivityStatusGlyph(icon: icon, showProgress: showProgress),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.metallicWhite,
+                  fontSize: 17,
+                  height: 1.25,
                   fontWeight: FontWeight.w800,
                 ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.silverGray,
+                  fontSize: 12,
+                  height: 1.6,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (retryAction != null) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 42,
+                  child: OutlinedButton.icon(
+                    onPressed: retryAction,
+                    icon: const Icon(AppLucideIcons.history, size: 16),
+                    label: const Text('Coba lagi'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.gymGold,
+                      side: BorderSide(
+                        color: AppColors.gymGold.withValues(alpha: 0.32),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivityStatusGlyph extends StatelessWidget {
+  const _ActivityStatusGlyph({required this.icon, required this.showProgress});
+
+  final IconData icon;
+  final bool showProgress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 58,
+      height: 58,
+      decoration: BoxDecoration(
+        color: AppColors.gymGold.withValues(alpha: 0.11),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.18)),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (showProgress)
+            CircularProgressIndicator(
+              strokeWidth: 2.4,
+              strokeCap: StrokeCap.round,
+              color: AppColors.gymGold,
+              backgroundColor: AppColors.gymGold.withValues(alpha: 0.10),
+              semanticsLabel: 'Memuat riwayat aktivitas',
             ),
-          ],
+          Icon(icon, color: AppColors.gymGold, size: 22),
         ],
       ),
     );
@@ -918,18 +966,21 @@ class _GlowOrb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: opacity),
-              blurRadius: 70,
-              spreadRadius: 42,
+      child: RepaintBoundary(
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                color.withValues(alpha: opacity),
+                color.withValues(alpha: opacity * 0.34),
+                color.withValues(alpha: 0),
+              ],
+              stops: const [0, 0.46, 1],
             ),
-          ],
+          ),
         ),
       ),
     );
