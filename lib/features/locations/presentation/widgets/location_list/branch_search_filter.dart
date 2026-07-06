@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 import '../../../data/branch_location_data.dart';
 
 // Search field and filter chips for the branch list.
@@ -9,11 +10,13 @@ class BranchSearchFilter extends StatelessWidget {
     super.key,
     required this.searchController,
     required this.activeFilter,
+    required this.filters,
     required this.onFilterChanged,
   });
 
   final TextEditingController searchController;
   final BranchFilter activeFilter;
+  final List<BranchFilter> filters;
   final ValueChanged<BranchFilter> onFilterChanged;
 
   @override
@@ -22,25 +25,28 @@ class BranchSearchFilter extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _BranchSearchField(searchController: searchController),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 36,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: BranchFilter.values.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final BranchFilter filter = BranchFilter.values[index];
-              final bool isActive = filter == activeFilter;
+        if (filters.length > 1) ...[
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 34,
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
+              scrollDirection: Axis.horizontal,
+              itemCount: filters.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final BranchFilter filter = filters[index];
+                final bool isActive = filter == activeFilter;
 
-              return _FilterChipButton(
-                label: filter.label,
-                isActive: isActive,
-                onPressed: () => onFilterChanged(filter),
-              );
-            },
+                return _FilterChipButton(
+                  label: filter.label,
+                  isActive: isActive,
+                  onPressed: () => onFilterChanged(filter),
+                );
+              },
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -54,7 +60,7 @@ class _BranchSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 64,
+      height: 58,
       child: TextField(
         controller: searchController,
         cursorColor: AppColors.gymGold,
@@ -75,13 +81,35 @@ class _BranchSearchField extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
           prefixIcon: const Icon(
-            Icons.search_rounded,
+            AppLucideIcons.search,
             color: AppColors.gymGold,
-            size: 24,
+            size: 21,
           ),
           prefixIconConstraints: const BoxConstraints(
-            minWidth: 58,
-            minHeight: 64,
+            minWidth: 54,
+            minHeight: 58,
+          ),
+          suffixIcon: ValueListenableBuilder<TextEditingValue>(
+            valueListenable: searchController,
+            builder: (context, value, _) {
+              if (value.text.isEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              return IconButton(
+                onPressed: searchController.clear,
+                icon: const Icon(
+                  Icons.close_rounded,
+                  color: AppColors.silverGray,
+                  size: 18,
+                ),
+                tooltip: 'Bersihkan pencarian',
+              );
+            },
+          ),
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 44,
+            minHeight: 44,
           ),
           contentPadding: const EdgeInsets.only(right: 18),
           border: _searchBorder(AppColors.gunmetal),
@@ -94,7 +122,7 @@ class _BranchSearchField extends StatelessWidget {
 
   static OutlineInputBorder _searchBorder(Color color) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(18),
       borderSide: BorderSide(color: color, width: 1),
     );
   }
@@ -114,40 +142,37 @@ class _FilterChipButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // AnimatedContainer gives lightweight feedback when the active filter changes.
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      decoration: BoxDecoration(
-        color: isActive ? AppColors.gymGold : AppColors.graphiteBlack,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: isActive ? AppColors.gymGold : AppColors.gunmetal,
-        ),
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: AppColors.gymGold.withValues(alpha: 0.16),
-                  blurRadius: 26,
-                  offset: const Offset(0, 14),
-                ),
-              ]
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
+    return Semantics(
+      selected: isActive,
+      button: true,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.gymGold : AppColors.graphiteBlack,
           borderRadius: BorderRadius.circular(999),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Center(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: isActive ? AppColors.blackCore : AppColors.silverGray,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+          border: Border.all(
+            color: isActive ? AppColors.gymGold : AppColors.gunmetal,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(999),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Center(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isActive
+                        ? AppColors.blackCore
+                        : AppColors.silverGray,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ),

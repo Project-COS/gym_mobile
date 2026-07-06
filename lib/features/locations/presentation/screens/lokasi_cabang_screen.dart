@@ -6,6 +6,7 @@ import '../../../../core/colors.dart';
 import '../../data/branch_location_data.dart';
 import '../../data/repositories/location_repository.dart';
 import '../cubit/location_cubit.dart';
+import '../widgets/location_list/branch_card.dart';
 import '../widgets/location_list/branch_empty_state.dart';
 import '../widgets/location_list/branch_list_section.dart';
 import '../widgets/location_list/branch_search_filter.dart';
@@ -61,12 +62,34 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
     super.dispose();
   }
 
-  List<BranchLocation> _filterVisibleBranches(List<BranchLocation> branches) {
+  List<BranchLocation> _filterVisibleBranches(
+    List<BranchLocation> branches,
+    BranchFilter activeFilter,
+  ) {
     // Keyword and filter are applied client-side to the current API result.
     return branches.where((branch) {
       return branch.matchesKeyword(_searchController.text) &&
-          branch.matchesFilter(_activeFilter);
+          branch.matchesFilter(activeFilter);
     }).toList();
+  }
+
+  List<BranchFilter> _availableFilters(List<BranchLocation> branches) {
+    return [
+      BranchFilter.all,
+      if (branches.any((branch) => branch.isNearest)) BranchFilter.nearest,
+      if (branches.any((branch) => branch.hasKnownOpenStatus))
+        BranchFilter.open,
+      if (branches.any((branch) => branch.isTwentyFourHours))
+        BranchFilter.twentyFourHours,
+    ];
+  }
+
+  BranchFilter _effectiveActiveFilter(List<BranchFilter> availableFilters) {
+    if (availableFilters.contains(_activeFilter)) {
+      return _activeFilter;
+    }
+
+    return BranchFilter.all;
   }
 
   void _refreshBranchVisibility() {
@@ -90,12 +113,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
   }
 
   Future<void> _openMaps(BranchLocation branch) async {
-    final Uri mapsUri =
-        Uri.tryParse(branch.mapUrl ?? '') ??
-        Uri.https('www.google.com', '/maps/search/', {
-          'api': '1',
-          'query': branch.mapQuery,
-        });
+    final Uri mapsUri = _mapsUriForBranch(branch);
 
     // Prefer backend map URL, then fall back to a Google Maps search query.
     try {
@@ -114,6 +132,23 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
     }
   }
 
+  Uri _mapsUriForBranch(BranchLocation branch) {
+    final rawMapUrl = branch.mapUrl?.trim();
+
+    if (rawMapUrl != null && rawMapUrl.isNotEmpty) {
+      final parsedMapUrl = Uri.tryParse(rawMapUrl);
+
+      if (parsedMapUrl != null && parsedMapUrl.hasScheme) {
+        return parsedMapUrl;
+      }
+    }
+
+    return Uri.https('www.google.com', '/maps/search/', {
+      'api': '1',
+      'query': branch.mapQuery,
+    });
+  }
+
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -124,7 +159,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
   Widget build(BuildContext context) {
     return BlocBuilder<LocationCubit, LocationState>(
       builder: (context, locationState) {
-        return Container(
+        return ColoredBox(
           color: AppColors.blackCore,
           child: SafeArea(
             child: LayoutBuilder(
@@ -132,54 +167,35 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
                 final LocationLayoutSpec spec = LocationLayoutSpec.fromWidth(
                   constraints.maxWidth,
                 );
+                final List<BranchFilter> availableFilters = _availableFilters(
+                  locationState.locations,
+                );
+                final BranchFilter effectiveActiveFilter =
+                    _effectiveActiveFilter(availableFilters);
                 final List<BranchLocation> visibleBranches =
-                    _filterVisibleBranches(locationState.locations);
+                    _filterVisibleBranches(
+                      locationState.locations,
+                      effectiveActiveFilter,
+                    );
 
-                // Stack keeps decorative background separate from scrollable content.
-                return Stack(
-                  children: [
-                    Positioned(
-                      top: spec.isExpanded ? -176 : -112,
-                      right: spec.isExpanded ? -120 : -96,
-                      child: _GlowOrb(
-                        size: spec.isExpanded ? 420 : 320,
-                        color: AppColors.gymGold,
-                        opacity: spec.isExpanded ? 0.16 : 0.18,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: spec.isExpanded ? -152 : -104,
-                      left: spec.isExpanded ? -132 : -96,
-                      child: _GlowOrb(
-                        size: spec.isExpanded ? 360 : 288,
-                        color: AppColors.darkGold,
-                        opacity: spec.isExpanded ? 0.10 : 0.12,
-                      ),
-                    ),
-                    SingleChildScrollView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      padding: spec.pagePadding,
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: spec.maxContentWidth,
-                          ),
-                          child: spec.isExpanded
-                              ? _buildExpandedLocationContent(
-                                  spec,
-                                  locationState,
-                                  visibleBranches,
-                                )
-                              : _buildStackedLocationContent(
-                                  spec,
-                                  locationState,
-                                  visibleBranches,
-                                ),
+                return CustomScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  slivers: spec.isExpanded
+                      ? _buildExpandedLocationSlivers(
+                          spec,
+                          locationState,
+                          visibleBranches,
+                          availableFilters,
+                          effectiveActiveFilter,
+                        )
+                      : _buildStackedLocationSlivers(
+                          spec,
+                          locationState,
+                          visibleBranches,
+                          availableFilters,
+                          effectiveActiveFilter,
                         ),
-                      ),
-                    ),
-                  ],
                 );
               },
             ),
@@ -189,63 +205,116 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
     );
   }
 
-  Widget _buildStackedLocationContent(
+  List<Widget> _buildStackedLocationSlivers(
     LocationLayoutSpec spec,
     LocationState locationState,
     List<BranchLocation> visibleBranches,
+    List<BranchFilter> availableFilters,
+    BranchFilter activeFilter,
   ) {
     // Mobile and tablet keep search controls above the result list.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const LocationTopBar(),
-        SizedBox(height: spec.sectionGap),
-        const LocationHeroCard(),
-        SizedBox(height: spec.sectionGap),
-        BranchSearchFilter(
-          searchController: _searchController,
-          activeFilter: _activeFilter,
-          onFilterChanged: _changeActiveBranchFilter,
+    return [
+      _buildContentSliver(
+        spec,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const LocationTopBar(),
+            SizedBox(height: spec.sectionGap),
+            const LocationHeroCard(),
+            SizedBox(height: spec.sectionGap),
+            BranchSearchFilter(
+              searchController: _searchController,
+              activeFilter: activeFilter,
+              filters: availableFilters,
+              onFilterChanged: _changeActiveBranchFilter,
+            ),
+          ],
         ),
-        SizedBox(height: spec.sectionGap),
-        _buildBranchResult(locationState, visibleBranches),
-      ],
-    );
+        top: spec.pagePadding.top,
+        bottom: spec.sectionGap,
+      ),
+      ..._buildBranchResultSlivers(spec, locationState, visibleBranches),
+    ];
   }
 
-  Widget _buildExpandedLocationContent(
+  List<Widget> _buildExpandedLocationSlivers(
+    LocationLayoutSpec spec,
+    LocationState locationState,
+    List<BranchLocation> visibleBranches,
+    List<BranchFilter> availableFilters,
+    BranchFilter activeFilter,
+  ) {
+    final bool hasBranchList = _hasBranchList(locationState, visibleBranches);
+
+    // Wide screens keep discovery controls on the left and results on the right.
+    return [
+      _buildContentSliver(
+        spec,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: spec.sidePanelWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const LocationTopBar(),
+                  SizedBox(height: spec.sectionGap),
+                  const LocationHeroCard(),
+                  SizedBox(height: spec.sectionGap),
+                  BranchSearchFilter(
+                    searchController: _searchController,
+                    activeFilter: activeFilter,
+                    filters: availableFilters,
+                    onFilterChanged: _changeActiveBranchFilter,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: spec.columnGap),
+            Expanded(
+              child: _buildBranchResultTop(locationState, visibleBranches),
+            ),
+          ],
+        ),
+        top: spec.pagePadding.top,
+        bottom: hasBranchList ? 0 : spec.pagePadding.bottom,
+      ),
+      if (hasBranchList)
+        _buildBranchCardListSliver(
+          spec,
+          visibleBranches,
+          alignWithExpandedResults: true,
+        ),
+    ];
+  }
+
+  List<Widget> _buildBranchResultSlivers(
     LocationLayoutSpec spec,
     LocationState locationState,
     List<BranchLocation> visibleBranches,
   ) {
-    // Wide screens keep discovery controls on the left and results on the right.
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 360,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const LocationTopBar(),
-              SizedBox(height: spec.sectionGap),
-              const LocationHeroCard(),
-              SizedBox(height: spec.sectionGap),
-              BranchSearchFilter(
-                searchController: _searchController,
-                activeFilter: _activeFilter,
-                onFilterChanged: _changeActiveBranchFilter,
-              ),
-            ],
-          ),
+    if (!_hasBranchList(locationState, visibleBranches)) {
+      return [
+        _buildContentSliver(
+          spec,
+          _buildBranchResultTop(locationState, visibleBranches),
+          bottom: spec.pagePadding.bottom,
         ),
-        SizedBox(width: spec.columnGap),
-        Expanded(child: _buildBranchResult(locationState, visibleBranches)),
-      ],
-    );
+      ];
+    }
+
+    return [
+      _buildContentSliver(
+        spec,
+        BranchListHeader(branchCount: visibleBranches.length),
+      ),
+      _buildBranchCardListSliver(spec, visibleBranches),
+    ];
   }
 
-  Widget _buildBranchResult(
+  Widget _buildBranchResultTop(
     LocationState locationState,
     List<BranchLocation> visibleBranches,
   ) {
@@ -267,10 +336,82 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
       return const BranchEmptyState();
     }
 
-    return BranchListSection(
-      branches: visibleBranches,
-      onDetailPressed: _openBranchDetail,
-      onMapPressed: _openMaps,
+    return BranchListHeader(branchCount: visibleBranches.length);
+  }
+
+  bool _hasBranchList(
+    LocationState locationState,
+    List<BranchLocation> visibleBranches,
+  ) {
+    return locationState.status == LocationLoadStatus.success &&
+        visibleBranches.isNotEmpty;
+  }
+
+  Widget _buildContentSliver(
+    LocationLayoutSpec spec,
+    Widget child, {
+    double top = 0,
+    double bottom = 0,
+  }) {
+    return SliverPadding(
+      padding: EdgeInsets.fromLTRB(
+        spec.pagePadding.left,
+        top,
+        spec.pagePadding.right,
+        bottom,
+      ),
+      sliver: SliverToBoxAdapter(child: _buildConstrainedContent(spec, child)),
+    );
+  }
+
+  Widget _buildBranchCardListSliver(
+    LocationLayoutSpec spec,
+    List<BranchLocation> branches, {
+    bool alignWithExpandedResults = false,
+  }) {
+    return SliverPadding(
+      padding: EdgeInsets.fromLTRB(
+        spec.pagePadding.left,
+        0,
+        spec.pagePadding.right,
+        spec.pagePadding.bottom,
+      ),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final BranchLocation branch = branches[index];
+          final Widget branchCard = BranchCard(
+            branch: branch,
+            onDetailPressed: () => _openBranchDetail(branch),
+            onMapPressed: () => _openMaps(branch),
+          );
+
+          return Padding(
+            padding: EdgeInsets.only(top: index == 0 ? 12 : 14),
+            child: _buildConstrainedContent(
+              spec,
+              alignWithExpandedResults
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(width: spec.sidePanelWidth),
+                        SizedBox(width: spec.columnGap),
+                        Expanded(child: branchCard),
+                      ],
+                    )
+                  : branchCard,
+            ),
+          );
+        }, childCount: branches.length),
+      ),
+    );
+  }
+
+  Widget _buildConstrainedContent(LocationLayoutSpec spec, Widget child) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: spec.maxContentWidth),
+        child: child,
+      ),
     );
   }
 }
@@ -282,6 +423,7 @@ class LocationLayoutSpec {
     required this.pagePadding,
     required this.sectionGap,
     required this.columnGap,
+    required this.sidePanelWidth,
   });
 
   final bool isExpanded;
@@ -289,6 +431,7 @@ class LocationLayoutSpec {
   final EdgeInsets pagePadding;
   final double sectionGap;
   final double columnGap;
+  final double sidePanelWidth;
 
   factory LocationLayoutSpec.fromWidth(double width) {
     // Mirrors the shared breakpoints from AGENTS.md.
@@ -299,6 +442,7 @@ class LocationLayoutSpec {
         pagePadding: EdgeInsets.fromLTRB(40, 32, 40, 32),
         sectionGap: 20,
         columnGap: 24,
+        sidePanelWidth: 348,
       );
     }
 
@@ -309,6 +453,7 @@ class LocationLayoutSpec {
         pagePadding: EdgeInsets.fromLTRB(32, 32, 32, 32),
         sectionGap: 20,
         columnGap: 0,
+        sidePanelWidth: 0,
       );
     }
 
@@ -318,38 +463,7 @@ class LocationLayoutSpec {
       pagePadding: EdgeInsets.fromLTRB(20, 28, 20, 24),
       sectionGap: 18,
       columnGap: 0,
-    );
-  }
-}
-
-class _GlowOrb extends StatelessWidget {
-  const _GlowOrb({
-    required this.size,
-    required this.color,
-    required this.opacity,
-  });
-
-  final double size;
-  final Color color;
-  final double opacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: opacity),
-              blurRadius: 70,
-              spreadRadius: 42,
-            ),
-          ],
-        ),
-      ),
+      sidePanelWidth: 0,
     );
   }
 }

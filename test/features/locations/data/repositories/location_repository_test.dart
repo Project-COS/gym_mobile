@@ -8,6 +8,7 @@ import 'package:do_gym/features/locations/data/services/location_api_service.dar
 void main() {
   test('maps location DTOs into branch locations', () async {
     final repository = RemoteLocationRepository(
+      now: () => DateTime(2026, 7, 6, 7),
       apiService: _FakeLocationApiService(
         response: MobileLocationsResponseDto(
           locations: [
@@ -62,6 +63,9 @@ void main() {
     expect(locations, hasLength(1));
     expect(locations.first.name, 'DO GYM Denpasar');
     expect(locations.first.hours, '06:00 - 22:00');
+    expect(locations.first.hasKnownOpenStatus, isTrue);
+    expect(locations.first.isOpen, isTrue);
+    expect(locations.first.openStatusLabel, 'Buka');
     expect(locations.first.mapUrl, 'https://nav.example/location-1');
     expect(locations.first.imageUrl, 'https://cdn.example/location.jpg');
     expect(locations.first.galleryImages, hasLength(2));

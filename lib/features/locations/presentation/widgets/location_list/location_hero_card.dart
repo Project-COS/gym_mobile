@@ -10,32 +10,27 @@ class LocationHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.35)),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.graphiteBlack,
-            AppColors.steelBlack,
-            Color(0xFF4A3315),
-          ],
-        ),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.20)),
       ),
       child: Stack(
         children: [
           Positioned(
-            top: -44,
-            right: -36,
+            top: 0,
+            right: 0,
             child: IgnorePointer(
               child: Container(
-                width: 132,
-                height: 132,
+                width: 84,
+                height: 84,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.paleGold.withValues(alpha: 0.14),
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(22),
+                    bottomLeft: Radius.circular(56),
+                  ),
+                  color: AppColors.gymGold.withValues(alpha: 0.08),
                 ),
               ),
             ),
@@ -43,59 +38,46 @@ class LocationHeroCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: double.infinity,
-                height: 52,
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                decoration: BoxDecoration(
-                  color: AppColors.steelBlack.withValues(alpha: 0.82),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: AppColors.gymGold.withValues(alpha: 0.55),
+              const Row(
+                children: [
+                  Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.gymGold,
+                    size: 18,
                   ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.location_on_rounded,
-                      color: AppColors.gymGold,
-                      size: 18,
-                    ),
-                    SizedBox(width: 10),
-                    Flexible(
-                      child: Text(
-                        'DO GYM BRANCH',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColors.gymGold,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.6,
-                        ),
+                  SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'DO GYM CABANG',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColors.gymGold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               const Text(
-                'Akses Semua Cabang Premium',
+                'Semua cabang dalam satu akses',
                 style: TextStyle(
                   color: AppColors.metallicWhite,
-                  fontSize: 26,
-                  height: 1.2,
+                  fontSize: 23,
+                  height: 1.18,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               const Text(
-                'Pilih lokasi latihan favorit kamu. Semua cabang dilengkapi area workout, shower room, dan trainer profesional.',
+                'Cari lokasi, cek jam operasional, lalu buka rute langsung dari daftar cabang.',
                 style: TextStyle(
                   color: AppColors.silverGray,
                   fontSize: 13,
-                  height: 1.7,
+                  height: 1.6,
                   fontWeight: FontWeight.w400,
                 ),
               ),

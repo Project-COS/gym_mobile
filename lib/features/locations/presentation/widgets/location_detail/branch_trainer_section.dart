@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 import '../../../data/branch_location_data.dart';
 
 // Trainer section is ready for branch-level trainer data when backend exposes it.
@@ -11,8 +12,12 @@ class BranchTrainerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (trainers.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return _DetailSection(
-      title: 'Trainer Available',
+      title: 'Trainer Tersedia',
       child: Column(
         children: trainers.map((trainer) {
           final bool isLast = trainer == trainers.last;
@@ -64,7 +69,7 @@ class _TrainerCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.gunmetal),
       ),
       child: Row(
@@ -74,13 +79,13 @@ class _TrainerCard extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               color: AppColors.gymGold.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: AppColors.gymGold.withValues(alpha: 0.18),
               ),
             ),
             child: const Icon(
-              Icons.person_pin_rounded,
+              AppLucideIcons.person,
               color: AppColors.gymGold,
               size: 22,
             ),
@@ -129,7 +134,7 @@ class _TrainerCard extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(
-                  Icons.star_rounded,
+                  AppLucideIcons.star,
                   color: AppColors.gymGold,
                   size: 13,
                 ),

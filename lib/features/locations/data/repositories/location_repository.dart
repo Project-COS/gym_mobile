@@ -9,10 +9,14 @@ abstract interface class LocationRepository {
 }
 
 class RemoteLocationRepository implements LocationRepository {
-  const RemoteLocationRepository({required LocationApiService apiService})
-    : _apiService = apiService;
+  RemoteLocationRepository({
+    required LocationApiService apiService,
+    DateTime Function()? now,
+  }) : _apiService = apiService,
+       _now = now ?? DateTime.now;
 
   final LocationApiService _apiService;
+  final DateTime Function() _now;
 
   @override
   Future<List<BranchLocation>> fetchLocations() async {
@@ -24,6 +28,7 @@ class RemoteLocationRepository implements LocationRepository {
 
   BranchLocation _mapLocation(MobileLocationDto location) {
     final schedules = _mapSchedules(location.schedules);
+    final openingStatus = _resolveOpeningStatus(location.schedules, _now());
 
     // Provide user-facing defaults so partially configured branches still render.
     return BranchLocation(
@@ -44,7 +49,8 @@ class RemoteLocationRepository implements LocationRepository {
       mapUrl: location.mapUrls.googleNavigation ?? location.mapUrls.googleMaps,
       isFeatured: location.images.any((image) => image.isPrimary),
       isNearest: false,
-      isOpen: true,
+      hasKnownOpenStatus: openingStatus.isKnown,
+      isOpen: openingStatus.isOpen,
       isTwentyFourHours: _isTwentyFourHours(location.schedules),
     );
   }
@@ -120,7 +126,7 @@ class RemoteLocationRepository implements LocationRepository {
           time: 'Ready',
           title: 'Open Gym Access',
           meta: 'Jam operasional belum tersedia',
-          status: 'Open',
+          status: 'Jadwal',
         ),
       ];
     }
@@ -133,7 +139,7 @@ class RemoteLocationRepository implements LocationRepository {
             time: _formatScheduleStartTime(schedule),
             title: _formatScheduleDay(schedule.dayOfWeek),
             meta: _formatScheduleMeta(schedule),
-            status: 'Open',
+            status: 'Jadwal',
           ),
         )
         .toList(growable: false);
@@ -161,11 +167,102 @@ class RemoteLocationRepository implements LocationRepository {
 
   bool _isTwentyFourHours(List<MobileLocationScheduleDto> schedules) {
     return schedules.any((schedule) {
-      final startTime = schedule.startTime?.trim();
-      final endTime = schedule.endTime?.trim();
+      final startTime = _parseTimeMinutes(schedule.startTime);
+      final endTime = _parseTimeMinutes(schedule.endTime);
 
-      return startTime == '00:00' && (endTime == '23:59' || endTime == '24:00');
+      return startTime == 0 && (endTime == 1439 || endTime == 1440);
     });
+  }
+
+  _OpeningStatus _resolveOpeningStatus(
+    List<MobileLocationScheduleDto> schedules,
+    DateTime now,
+  ) {
+    if (schedules.isEmpty) {
+      return const _OpeningStatus.unknown();
+    }
+
+    final nowMinutes = (now.hour * 60) + now.minute;
+    final today = now.weekday % 7;
+    final yesterday = (today + 6) % 7;
+    var hasConfiguredSchedule = false;
+
+    for (final schedule in schedules) {
+      final startMinutes = _parseTimeMinutes(schedule.startTime);
+      final endMinutes = _parseTimeMinutes(schedule.endTime);
+
+      if (startMinutes == null || endMinutes == null) {
+        continue;
+      }
+
+      hasConfiguredSchedule = true;
+
+      final dayOfWeek = schedule.dayOfWeek;
+      final appliesEveryDay = dayOfWeek == null;
+      final appliesToday = appliesEveryDay || dayOfWeek == today;
+      final appliesFromYesterday = !appliesEveryDay && dayOfWeek == yesterday;
+
+      if (startMinutes == 0 &&
+          (endMinutes == 0 || endMinutes == 1439 || endMinutes == 1440) &&
+          appliesToday) {
+        return const _OpeningStatus.open();
+      }
+
+      if (endMinutes > startMinutes) {
+        if (appliesToday &&
+            nowMinutes >= startMinutes &&
+            nowMinutes < endMinutes) {
+          return const _OpeningStatus.open();
+        }
+        continue;
+      }
+
+      if (endMinutes < startMinutes) {
+        if (appliesToday && nowMinutes >= startMinutes) {
+          return const _OpeningStatus.open();
+        }
+
+        if ((appliesEveryDay || appliesFromYesterday) &&
+            nowMinutes < endMinutes) {
+          return const _OpeningStatus.open();
+        }
+      }
+    }
+
+    if (!hasConfiguredSchedule) {
+      return const _OpeningStatus.unknown();
+    }
+
+    return const _OpeningStatus.closed();
+  }
+
+  int? _parseTimeMinutes(String? value) {
+    final normalized = value?.trim();
+
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+
+    final parts = normalized.split(':');
+
+    if (parts.length < 2) {
+      return null;
+    }
+
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+
+    if (hour == null ||
+        minute == null ||
+        hour < 0 ||
+        hour > 24 ||
+        minute < 0 ||
+        minute > 59 ||
+        (hour == 24 && minute != 0)) {
+      return null;
+    }
+
+    return (hour * 60) + minute;
   }
 
   String _formatDistance(MobileLocationDto location) {
@@ -187,7 +284,7 @@ class RemoteLocationRepository implements LocationRepository {
       return '24H';
     }
 
-    return schedule.startTime ?? 'Open';
+    return schedule.startTime ?? 'Ready';
   }
 
   String _formatScheduleDay(int? dayOfWeek) {
@@ -208,7 +305,7 @@ class RemoteLocationRepository implements LocationRepository {
     final endTime = schedule.endTime;
 
     if (startTime == null || endTime == null) {
-      return 'Open gym access';
+      return 'Akses open gym';
     }
 
     return '$startTime - $endTime WITA';
@@ -217,3 +314,16 @@ class RemoteLocationRepository implements LocationRepository {
 
 const String _fallbackLocationImageUrl =
     'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1200&auto=format&fit=crop';
+
+class _OpeningStatus {
+  const _OpeningStatus._({required this.isKnown, required this.isOpen});
+
+  const _OpeningStatus.open() : this._(isKnown: true, isOpen: true);
+
+  const _OpeningStatus.closed() : this._(isKnown: true, isOpen: false);
+
+  const _OpeningStatus.unknown() : this._(isKnown: false, isOpen: false);
+
+  final bool isKnown;
+  final bool isOpen;
+}

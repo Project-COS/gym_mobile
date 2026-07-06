@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 import '../../../data/branch_location_data.dart';
 
 // Branch detail CTA. Current callbacks are injected so future check-in/booking
@@ -23,77 +24,50 @@ class BranchCtaCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        color: AppColors.graphiteBlack.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.24)),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.graphiteBlack,
-            AppColors.steelBlack,
-            AppColors.gymGold.withValues(alpha: 0.22),
-          ],
-          stops: const [0, 0.45, 1],
-        ),
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            top: -28,
-            right: -40,
-            child: IgnorePointer(
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.gymGold.withValues(alpha: 0.14),
-                  shape: BoxShape.circle,
-                ),
-              ),
+          const Text(
+            'Siap latihan di cabang ini?',
+            style: TextStyle(
+              color: AppColors.metallicWhite,
+              fontSize: 18,
+              height: 1.3,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 8),
+          Text(
+            'Datang langsung ke ${branch.name} atau booking kelas supaya slot latihan kamu lebih aman.',
+            style: const TextStyle(
+              color: AppColors.silverGray,
+              fontSize: 12,
+              height: 1.7,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
             children: [
-              const Text(
-                'Siap latihan di branch ini?',
-                style: TextStyle(
-                  color: AppColors.metallicWhite,
-                  fontSize: 18,
-                  height: 1.3,
-                  fontWeight: FontWeight.w800,
+              Expanded(
+                child: _CtaButton(
+                  label: 'Check-in',
+                  icon: AppLucideIcons.qrScanner,
+                  isPrimary: false,
+                  onPressed: onCheckInPressed,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Datang langsung ke ${branch.name} atau booking kelas supaya slot latihan kamu lebih aman.',
-                style: const TextStyle(
-                  color: AppColors.silverGray,
-                  fontSize: 12,
-                  height: 1.7,
+              const SizedBox(width: 10),
+              Expanded(
+                child: _CtaButton(
+                  label: 'Booking',
+                  icon: AppLucideIcons.calendar,
+                  isPrimary: true,
+                  onPressed: onBookingPressed,
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _CtaButton(
-                      label: 'Check-in',
-                      icon: Icons.qr_code_scanner_rounded,
-                      isPrimary: false,
-                      onPressed: onCheckInPressed,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _CtaButton(
-                      label: 'Booking',
-                      icon: Icons.calendar_month_rounded,
-                      isPrimary: true,
-                      onPressed: onBookingPressed,
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
@@ -134,7 +108,7 @@ class _CtaButton extends StatelessWidget {
             color: isPrimary ? AppColors.gymGold : AppColors.gunmetal,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(13),
           ),
           textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
         ),

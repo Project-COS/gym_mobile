@@ -57,17 +57,29 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   }
 
   Future<void> _openMaps() async {
-    final Uri mapsUri =
-        Uri.tryParse(widget.branch.mapUrl ?? '') ??
-        Uri.https('www.google.com', '/maps/search/', {
-          'api': '1',
-          'query': widget.branch.mapQuery,
-        });
+    final Uri mapsUri = _mapsUriForBranch(widget.branch);
 
     await _launchExternalUri(
       mapsUri,
       fallbackMessage: 'Maps belum bisa dibuka dari perangkat ini.',
     );
+  }
+
+  Uri _mapsUriForBranch(BranchLocation branch) {
+    final rawMapUrl = branch.mapUrl?.trim();
+
+    if (rawMapUrl != null && rawMapUrl.isNotEmpty) {
+      final parsedMapUrl = Uri.tryParse(rawMapUrl);
+
+      if (parsedMapUrl != null && parsedMapUrl.hasScheme) {
+        return parsedMapUrl;
+      }
+    }
+
+    return Uri.https('www.google.com', '/maps/search/', {
+      'api': '1',
+      'query': branch.mapQuery,
+    });
   }
 
   Future<void> _callBranch() async {
@@ -110,8 +122,12 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
     await Clipboard.setData(ClipboardData(text: shareText));
 
     if (mounted) {
-      _showMessage('Informasi branch disalin.');
+      _showMessage('Informasi cabang disalin.');
     }
+  }
+
+  Future<void> _refreshBranchDetailSchedules() {
+    return _scheduleCubit.fetchSchedulesForLocation(widget.branch.id);
   }
 
   void _showComingSoonMessage(String featureName) {
@@ -138,43 +154,26 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
               final DetailLocationLayoutSpec spec =
                   DetailLocationLayoutSpec.fromWidth(constraints.maxWidth);
 
-              // Stack layers decorative background behind the scrollable detail content.
-              return Stack(
-                children: [
-                  Positioned(
-                    top: spec.isExpanded ? -176 : -112,
-                    right: spec.isExpanded ? -120 : -96,
-                    child: _GlowOrb(
-                      size: spec.isExpanded ? 420 : 320,
-                      color: AppColors.gymGold,
-                      opacity: spec.isExpanded ? 0.16 : 0.18,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: spec.isExpanded ? -152 : -104,
-                    left: spec.isExpanded ? -132 : -96,
-                    child: _GlowOrb(
-                      size: spec.isExpanded ? 360 : 288,
-                      color: AppColors.darkGold,
-                      opacity: spec.isExpanded ? 0.10 : 0.12,
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: spec.pagePadding,
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: spec.maxContentWidth,
-                        ),
-                        child: spec.isExpanded
-                            ? _buildExpandedDetailContent(spec, branch)
-                            : _buildStackedDetailContent(spec, branch),
+              return RefreshIndicator(
+                color: AppColors.gymGold,
+                backgroundColor: AppColors.graphiteBlack,
+                onRefresh: _refreshBranchDetailSchedules,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: spec.pagePadding,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: spec.maxContentWidth,
                       ),
+                      child: spec.isExpanded
+                          ? _buildExpandedDetailContent(spec, branch)
+                          : _buildStackedDetailContent(spec, branch),
                     ),
                   ),
-                ],
+                ),
               );
             },
           ),
@@ -213,8 +212,10 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
         BranchFacilitySection(facilities: branch.facilities),
         SizedBox(height: spec.sectionGap),
         _buildBranchClassScheduleSection(),
-        SizedBox(height: spec.sectionGap),
-        BranchTrainerSection(trainers: branch.trainers),
+        if (branch.trainers.isNotEmpty) ...[
+          SizedBox(height: spec.sectionGap),
+          BranchTrainerSection(trainers: branch.trainers),
+        ],
         SizedBox(height: spec.sectionGap),
         BranchCtaCard(
           branch: branch,
@@ -274,8 +275,10 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
                   BranchFacilitySection(facilities: branch.facilities),
                   SizedBox(height: spec.sectionGap),
                   _buildBranchClassScheduleSection(),
-                  SizedBox(height: spec.sectionGap),
-                  BranchTrainerSection(trainers: branch.trainers),
+                  if (branch.trainers.isNotEmpty) ...[
+                    SizedBox(height: spec.sectionGap),
+                    BranchTrainerSection(trainers: branch.trainers),
+                  ],
                 ],
               ),
             ),
@@ -368,38 +371,6 @@ class DetailLocationLayoutSpec {
   }
 }
 
-class _GlowOrb extends StatelessWidget {
-  const _GlowOrb({
-    required this.size,
-    required this.color,
-    required this.opacity,
-  });
-
-  final double size;
-  final Color color;
-  final double opacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: opacity),
-              blurRadius: 70,
-              spreadRadius: 42,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _BranchScheduleStatusCard extends StatelessWidget {
   const _BranchScheduleStatusCard.loading()
     : message = 'Memuat jadwal kelas...',
@@ -429,7 +400,7 @@ class _BranchScheduleStatusCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Jadwal Hari Ini',
+          'Jadwal Kelas',
           style: TextStyle(
             color: AppColors.metallicWhite,
             fontSize: 17,
@@ -442,7 +413,7 @@ class _BranchScheduleStatusCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppColors.gunmetal),
           ),
           child: Row(

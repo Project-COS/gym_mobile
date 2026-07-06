@@ -107,6 +107,21 @@ foundation.
    Changes to DTOs, services, repositories, ViewModels, sessions, and navigation
    must include relevant tests.
 
+## Code Comments Rule
+
+When creating or editing code, add concise developer-facing comments where they
+clarify intent, screen flow, state ownership, API mapping, or non-obvious mobile
+behavior.
+
+Prefer comments for authentication/session handling, repository/data-source
+boundaries, DTO/model mapping, screen/provider/controller responsibilities,
+navigation assumptions, booking/activity/attendance flows, QR handling, image
+URL handling, and fallback/error states.
+
+Avoid comments that only restate the code. Keep comments short, accurate, and
+close to the relevant class, function, widget, provider, or important branch.
+Update or remove stale comments when behavior changes.
+
 ## Feature-First Folder Structure
 
 Use this structure for each feature:

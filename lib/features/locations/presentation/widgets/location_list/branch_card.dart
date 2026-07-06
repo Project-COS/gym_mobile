@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 import '../../../data/branch_location_data.dart';
 
 // Branch card used in the location list; actions are provided by the screen.
@@ -22,10 +23,10 @@ class BranchCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.graphiteBlack.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: branch.isFeatured
-              ? AppColors.gymGold.withValues(alpha: 0.46)
+              ? AppColors.gymGold.withValues(alpha: 0.34)
               : AppColors.gunmetal,
         ),
         boxShadow: branch.isFeatured
@@ -42,21 +43,25 @@ class BranchCard extends StatelessWidget {
         children: [
           _BranchCover(imageUrl: branch.imageUrl, semanticLabel: branch.name),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               children: [
                 _BranchHeader(branch: branch),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
                 _BranchMetaGrid(branch: branch),
-                const SizedBox(height: 14),
-                _FacilityChips(facilities: branch.facilities.take(3).toList()),
-                const SizedBox(height: 14),
+                if (branch.facilities.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _FacilityChips(
+                    facilities: branch.facilities.take(3).toList(),
+                  ),
+                ],
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
                       child: _BranchActionButton(
                         label: 'Detail',
-                        icon: Icons.info_rounded,
+                        icon: AppLucideIcons.info,
                         isPrimary: false,
                         onPressed: onDetailPressed,
                       ),
@@ -65,7 +70,7 @@ class BranchCard extends StatelessWidget {
                     Expanded(
                       child: _BranchActionButton(
                         label: 'Maps',
-                        icon: Icons.location_on_rounded,
+                        icon: AppLucideIcons.navigation,
                         isPrimary: true,
                         onPressed: onMapPressed,
                       ),
@@ -90,7 +95,7 @@ class _BranchCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 148,
+      height: 136,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -163,15 +168,15 @@ class _BranchHeader extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: AppColors.gymGold.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(17),
+            borderRadius: BorderRadius.circular(15),
             border: Border.all(
               color: AppColors.gymGold.withValues(alpha: 0.18),
             ),
           ),
           child: const Icon(
-            Icons.apartment_rounded,
+            AppLucideIcons.building,
             color: AppColors.gymGold,
-            size: 22,
+            size: 21,
           ),
         ),
         const SizedBox(width: 12),
@@ -205,39 +210,58 @@ class _BranchHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        const _OpenStatusChip(),
+        _BranchStatusChip(branch: branch),
       ],
     );
   }
 }
 
-class _OpenStatusChip extends StatelessWidget {
-  const _OpenStatusChip();
+class _BranchStatusChip extends StatelessWidget {
+  const _BranchStatusChip({required this.branch});
+
+  final BranchLocation branch;
+
+  Color get _statusColor {
+    if (!branch.hasKnownOpenStatus) {
+      return AppColors.warning;
+    }
+
+    return branch.isOpen ? AppColors.success : AppColors.error;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 28,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.18)),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(radius: 3.5, backgroundColor: AppColors.success),
-          SizedBox(width: 6),
-          Text(
-            'Open',
-            style: TextStyle(
-              color: AppColors.success,
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
+    final statusColor = _statusColor;
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 104),
+      child: Container(
+        height: 28,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: statusColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: statusColor.withValues(alpha: 0.18)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(radius: 3.5, backgroundColor: statusColor),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                branch.openStatusLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: statusColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -254,9 +278,17 @@ class _BranchMetaGrid extends StatelessWidget {
       children: [
         Expanded(
           child: _MetaBox(
-            icon: Icons.schedule_rounded,
-            label: 'Jam Buka',
+            icon: AppLucideIcons.clock,
+            label: 'Jam',
             value: branch.hours,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _MetaBox(
+            icon: AppLucideIcons.mapPin,
+            label: 'Area',
+            value: branch.area,
           ),
         ),
       ],
@@ -348,12 +380,17 @@ class _FacilityChips extends StatelessWidget {
               children: [
                 Icon(facility.icon, color: AppColors.gymGold, size: 13),
                 const SizedBox(width: 6),
-                Text(
-                  facility.name,
-                  style: const TextStyle(
-                    color: AppColors.silverGray,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 128),
+                  child: Text(
+                    facility.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.silverGray,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -381,7 +418,7 @@ class _BranchActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 42,
+      height: 40,
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: Icon(icon, size: 16),
@@ -398,7 +435,7 @@ class _BranchActionButton extends StatelessWidget {
             color: isPrimary ? AppColors.gymGold : AppColors.gunmetal,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(13),
           ),
           textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
         ),

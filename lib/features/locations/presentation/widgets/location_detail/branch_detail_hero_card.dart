@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 import '../../../data/branch_location_data.dart';
 
 // Hero card for the selected branch. Call and map actions are owned by the screen.
@@ -20,18 +21,12 @@ class BranchDetailHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       clipBehavior: Clip.antiAlias,
-      height: 320,
-      padding: const EdgeInsets.all(20),
+      height: 300,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.graphiteBlack,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.48)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.gymGold.withValues(alpha: 0.08),
-            blurRadius: 18,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.30)),
       ),
       child: Stack(
         children: [
@@ -74,12 +69,12 @@ class BranchDetailHeroCard extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  const _OpenNowChip(),
+                  _BranchOpenStatusChip(branch: branch),
                 ],
               ),
               const Spacer(),
               const Text(
-                'DO GYM BRANCH',
+                'DO GYM CABANG',
                 style: TextStyle(
                   color: AppColors.paleGold,
                   fontSize: 11,
@@ -116,7 +111,7 @@ class BranchDetailHeroCard extends StatelessWidget {
                   Expanded(
                     child: _HeroActionButton(
                       label: 'Telepon',
-                      icon: Icons.phone_rounded,
+                      icon: AppLucideIcons.phone,
                       isPrimary: false,
                       onPressed: onCallPressed,
                     ),
@@ -124,8 +119,8 @@ class BranchDetailHeroCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _HeroActionButton(
-                      label: 'Buka Maps',
-                      icon: Icons.navigation_rounded,
+                      label: 'Maps',
+                      icon: AppLucideIcons.navigation,
                       isPrimary: true,
                       onPressed: onMapPressed,
                     ),
@@ -162,31 +157,42 @@ class _HeroCover extends StatelessWidget {
   }
 }
 
-class _OpenNowChip extends StatelessWidget {
-  const _OpenNowChip();
+class _BranchOpenStatusChip extends StatelessWidget {
+  const _BranchOpenStatusChip({required this.branch});
+
+  final BranchLocation branch;
+
+  Color get _statusColor {
+    if (!branch.hasKnownOpenStatus) {
+      return AppColors.warning;
+    }
+
+    return branch.isOpen ? AppColors.success : AppColors.error;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = _statusColor;
+
     return Container(
       height: 32,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.14),
+        color: statusColor.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.24)),
+        border: Border.all(color: statusColor.withValues(alpha: 0.24)),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircleAvatar(radius: 3.5, backgroundColor: AppColors.success),
-          SizedBox(width: 7),
+          CircleAvatar(radius: 3.5, backgroundColor: statusColor),
+          const SizedBox(width: 7),
           Text(
-            'Open Now',
+            branch.openStatusLabel,
             style: TextStyle(
-              color: AppColors.success,
+              color: statusColor,
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              letterSpacing: 0.6,
             ),
           ),
         ],

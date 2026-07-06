@@ -11,35 +11,35 @@ class BranchFacilitySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (facilities.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return _DetailSection(
       title: 'Fasilitas',
-      actionLabel: 'Lengkap',
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: _sectionCardDecoration(),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final bool isWide = constraints.maxWidth >= 520;
+      actionLabel: '${facilities.length} fasilitas',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isWide = constraints.maxWidth >= 520;
 
-            return GridView.builder(
-              // Parent detail screen owns vertical scrolling.
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: facilities.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isWide ? 3 : 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: isWide ? 2.6 : 1.85,
-              ),
-              itemBuilder: (context, index) {
-                final BranchFacility facility = facilities[index];
+          return GridView.builder(
+            // Parent detail screen owns vertical scrolling.
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: facilities.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isWide ? 3 : 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: isWide ? 2.8 : 1.75,
+            ),
+            itemBuilder: (context, index) {
+              final BranchFacility facility = facilities[index];
 
-                return _FacilityItem(facility: facility);
-              },
-            );
-          },
-        ),
+              return _FacilityItem(facility: facility);
+            },
+          );
+        },
       ),
     );
   }
@@ -104,7 +104,7 @@ class _FacilityItem extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.steelBlack.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.gunmetal.withValues(alpha: 0.72)),
       ),
       child: Column(
@@ -128,12 +128,4 @@ class _FacilityItem extends StatelessWidget {
       ),
     );
   }
-}
-
-BoxDecoration _sectionCardDecoration() {
-  return BoxDecoration(
-    color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-    borderRadius: BorderRadius.circular(24),
-    border: Border.all(color: AppColors.gunmetal),
-  );
 }

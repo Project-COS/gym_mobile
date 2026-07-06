@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 import '../../../data/branch_location_data.dart';
 
 // Static branch contact and membership-access details.
@@ -12,14 +13,14 @@ class BranchInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _DetailSection(
-      title: 'Informasi Branch',
+      title: 'Informasi Cabang',
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: _sectionCardDecoration(),
         child: Column(
           children: [
             _InfoRow(
-              icon: Icons.location_on_rounded,
+              icon: AppLucideIcons.mapPin,
               label: 'Alamat Lengkap',
               value: branch.address,
             ),
@@ -28,7 +29,7 @@ class BranchInfoSection extends StatelessWidget {
               color: AppColors.gunmetal.withValues(alpha: 0.72),
             ),
             _InfoRow(
-              icon: Icons.phone_rounded,
+              icon: AppLucideIcons.phone,
               label: 'Kontak',
               value: branch.phone,
             ),
@@ -37,7 +38,7 @@ class BranchInfoSection extends StatelessWidget {
               color: AppColors.gunmetal.withValues(alpha: 0.72),
             ),
             _InfoRow(
-              icon: Icons.verified_rounded,
+              icon: AppLucideIcons.badgeCheck,
               label: 'Akses Membership',
               value: branch.access,
             ),
@@ -95,7 +96,7 @@ class _InfoRow extends StatelessWidget {
           height: 38,
           decoration: BoxDecoration(
             color: AppColors.gymGold.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: AppColors.gymGold.withValues(alpha: 0.18),
             ),
@@ -137,7 +138,7 @@ class _InfoRow extends StatelessWidget {
 BoxDecoration _sectionCardDecoration() {
   return BoxDecoration(
     color: AppColors.graphiteBlack.withValues(alpha: 0.94),
-    borderRadius: BorderRadius.circular(24),
+    borderRadius: BorderRadius.circular(18),
     border: Border.all(color: AppColors.gunmetal),
   );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 import '../../../data/branch_location_data.dart';
 
 // Compact operational summary below the branch hero.
@@ -15,15 +16,15 @@ class BranchQuickStatsGrid extends StatelessWidget {
       children: [
         Expanded(
           child: _QuickStatCard(
-            icon: Icons.schedule_rounded,
-            label: 'Jam Buka',
+            icon: AppLucideIcons.clock,
+            label: 'Jam',
             value: branch.hours,
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: _QuickStatCard(
-            icon: Icons.groups_rounded,
+            icon: AppLucideIcons.users,
             label: 'Kapasitas',
             value: branch.capacity,
           ),
@@ -50,7 +51,7 @@ class _QuickStatCard extends StatelessWidget {
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: AppColors.graphiteBlack,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.gunmetal),
       ),
       child: Column(
@@ -61,7 +62,7 @@ class _QuickStatCard extends StatelessWidget {
             height: 34,
             decoration: BoxDecoration(
               color: AppColors.gymGold.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(
                 color: AppColors.gymGold.withValues(alpha: 0.18),
               ),

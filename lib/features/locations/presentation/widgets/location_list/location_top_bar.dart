@@ -12,7 +12,7 @@ class LocationTopBar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Temukan cabang terdekat',
+          'Pilih cabang latihan',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -23,7 +23,7 @@ class LocationTopBar extends StatelessWidget {
         ),
         SizedBox(height: 4),
         Text(
-          'Lokasi Branch',
+          'Lokasi Cabang',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(

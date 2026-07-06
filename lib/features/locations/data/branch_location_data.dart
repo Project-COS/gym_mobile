@@ -32,7 +32,8 @@ class BranchLocation {
     this.mapUrl,
     this.isFeatured = false,
     this.isNearest = false,
-    this.isOpen = true,
+    this.hasKnownOpenStatus = false,
+    this.isOpen = false,
     this.isTwentyFourHours = false,
   });
 
@@ -53,8 +54,17 @@ class BranchLocation {
   final String? mapUrl;
   final bool isFeatured;
   final bool isNearest;
+  final bool hasKnownOpenStatus;
   final bool isOpen;
   final bool isTwentyFourHours;
+
+  String get openStatusLabel {
+    if (!hasKnownOpenStatus) {
+      return 'Belum pasti';
+    }
+
+    return isOpen ? 'Buka' : 'Tutup';
+  }
 
   // Used when opening maps if the API does not provide a direct map URL.
   String get mapQuery => '$name $address';
@@ -78,7 +88,7 @@ class BranchLocation {
     return switch (filter) {
       BranchFilter.all => true,
       BranchFilter.nearest => isNearest,
-      BranchFilter.open => isOpen,
+      BranchFilter.open => hasKnownOpenStatus && isOpen,
       BranchFilter.twentyFourHours => isTwentyFourHours,
     };
   }
@@ -120,7 +130,7 @@ class BranchSchedule {
   final String status;
 
   // 24-hour schedule uses a compact visual suffix in schedule cards.
-  String get timeSuffix => time == '24H' ? 'Open' : 'WITA';
+  String get timeSuffix => time == '24H' ? 'Buka' : 'WITA';
 }
 
 // Placeholder-ready trainer display model for future location trainer data.

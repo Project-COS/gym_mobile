@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
+import '../../../../../core/icons/app_lucide_icons.dart';
 
 // Top actions for the branch detail route.
 class BranchDetailTopBar extends StatelessWidget {
@@ -21,7 +22,7 @@ class BranchDetailTopBar extends StatelessWidget {
           child: Row(
             children: [
               _TopBarActionButton(
-                icon: Icons.chevron_left_rounded,
+                icon: AppLucideIcons.chevronLeft,
                 tooltip: 'Kembali',
                 foregroundColor: AppColors.metallicWhite,
                 backgroundColor: AppColors.graphiteBlack,
@@ -45,7 +46,7 @@ class BranchDetailTopBar extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'Branch Detail',
+                      'Detail Cabang',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -63,8 +64,8 @@ class BranchDetailTopBar extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         _TopBarActionButton(
-          icon: Icons.share_rounded,
-          tooltip: 'Bagikan branch',
+          icon: AppLucideIcons.share,
+          tooltip: 'Bagikan cabang',
           foregroundColor: AppColors.blackCore,
           backgroundColor: AppColors.gymGold,
           borderColor: AppColors.gymGold,
@@ -106,15 +107,6 @@ class _TopBarActionButton extends StatelessWidget {
             color: backgroundColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: borderColor),
-            boxShadow: backgroundColor == AppColors.gymGold
-                ? [
-                    BoxShadow(
-                      color: AppColors.gymGold.withValues(alpha: 0.16),
-                      blurRadius: 30,
-                      offset: const Offset(0, 14),
-                    ),
-                  ]
-                : null,
           ),
           child: Icon(icon, color: foregroundColor, size: 22),
         ),
