@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Branch card used in the location list; actions are provided by the screen.
 class BranchCard extends StatelessWidget {
   const BranchCard({
     super.key,
@@ -97,6 +98,7 @@ class _BranchCover extends StatelessWidget {
             imageUrl,
             fit: BoxFit.cover,
             semanticLabel: semanticLabel,
+            // Remote branch images can be slow, so keep the card height stable while loading.
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) {
                 return child;
@@ -116,6 +118,7 @@ class _BranchCover extends StatelessWidget {
                 ),
               );
             },
+            // Broken media should not break the branch list.
             errorBuilder: (_, _, _) => const ColoredBox(
               color: AppColors.steelBlack,
               child: Center(
@@ -326,6 +329,7 @@ class _FacilityChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The card preview intentionally shows only a few facilities.
     return Align(
       alignment: Alignment.centerLeft,
       child: Wrap(

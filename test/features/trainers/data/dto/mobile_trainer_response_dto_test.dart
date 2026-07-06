@@ -64,7 +64,7 @@ void main() {
               'locationName': 'DO GYM Denpasar',
               'coverImageUrl': 'https://cdn.example/program.jpg',
               'benefits': [
-                {'label': 'Technique check', 'iconKey': 'badge-check'},
+                {'label': 'Technique check'},
               ],
             },
           ],

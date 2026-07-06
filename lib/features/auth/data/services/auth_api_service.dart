@@ -4,6 +4,8 @@ import '../../../../core/network/api_exception.dart';
 import '../dto/login_request_dto.dart';
 import '../dto/login_response_dto.dart';
 
+// Auth HTTP boundary. It calls ApiClient only and leaves session persistence to
+// LoginCubit/AuthSessionCubit after the repository returns a successful result.
 class AuthApiService {
   const AuthApiService({required ApiClient apiClient}) : _apiClient = apiClient;
 
@@ -13,6 +15,7 @@ class AuthApiService {
     final response = await _apiClient.post(
       ApiEndpoints.login,
       body: request.toJson(),
+      // Login must not attach a stale Bearer token.
       authenticated: false,
     );
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:do_gym/core/colors.dart';
 
+// Marketing copy block for the login screen. Font sizing is supplied by the
+// parent layout so the same widget works in mobile and expanded layouts.
 class HeroCopy extends StatelessWidget {
   const HeroCopy({
     super.key,

@@ -1,3 +1,4 @@
+// Request body for PATCH current member profile.
 class UpdateMemberProfileRequestDto {
   const UpdateMemberProfileRequestDto({
     required this.name,

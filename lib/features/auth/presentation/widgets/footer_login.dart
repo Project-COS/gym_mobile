@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:do_gym/core/colors.dart';
 
+// Static footer copy for secondary login actions and policy acknowledgement.
 class FooterLogin extends StatelessWidget {
   const FooterLogin({super.key});
 

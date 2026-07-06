@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
 
+// Header copy for the branch discovery screen.
 class LocationTopBar extends StatelessWidget {
   const LocationTopBar({super.key});
 

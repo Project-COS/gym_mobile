@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Compact operational summary below the branch hero.
 class BranchQuickStatsGrid extends StatelessWidget {
   const BranchQuickStatsGrid({super.key, required this.branch});
 

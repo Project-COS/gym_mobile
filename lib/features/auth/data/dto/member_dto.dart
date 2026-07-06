@@ -1,3 +1,5 @@
+// Minimal company context returned with a member login. It lets the app know
+// which gym tenant the authenticated member belongs to.
 class MemberCompanyDto {
   const MemberCompanyDto({required this.id, required this.name});
 
@@ -14,6 +16,8 @@ class MemberCompanyDto {
   final String name;
 }
 
+// Member identity returned by login. Keep this DTO limited to API response data;
+// richer profile presentation belongs to the profile feature.
 class MemberDto {
   const MemberDto({
     required this.id,
@@ -53,6 +57,8 @@ Map<String, Object?> _requireJsonObject(Object? value, String fieldName) {
   return value;
 }
 
+// These helpers intentionally validate fields strictly so bad backend contracts
+// fail at the DTO boundary instead of leaking nulls into the UI.
 String _requireString(Map<String, Object?> data, String key, String fieldName) {
   final value = data[key];
 

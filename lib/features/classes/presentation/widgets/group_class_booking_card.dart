@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../../data/class_data.dart';
 
+// Compact class catalog card used by the booking screen list/grid.
 class GroupClassBookingCard extends StatelessWidget {
   const GroupClassBookingCard({
     super.key,
@@ -112,6 +113,7 @@ class _NetworkCover extends StatelessWidget {
       child: Image.network(
         imageUrl,
         fit: BoxFit.cover,
+        // Broken CMS images should degrade into a stable card background.
         errorBuilder: (_, _, _) => const _BrokenImageFallback(),
       ),
     );
@@ -333,6 +335,8 @@ class _ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Detail and booking actions are separated because booking can be started
+    // directly from the catalog without opening the full detail screen.
     return Row(
       children: [
         Expanded(

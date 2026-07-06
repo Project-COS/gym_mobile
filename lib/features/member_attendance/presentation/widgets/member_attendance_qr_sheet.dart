@@ -5,6 +5,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../core/colors.dart';
 import '../cubit/member_attendance_qr_cubit.dart';
 
+// Bottom sheet for member check-in/check-out barcode. The Cubit is provided by
+// the caller so this widget only renders QR state and refresh actions.
 class MemberAttendanceQrSheet extends StatelessWidget {
   const MemberAttendanceQrSheet({super.key});
 
@@ -17,6 +19,7 @@ class MemberAttendanceQrSheet extends StatelessWidget {
           return SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: ConstrainedBox(
+              // Keep short states visually anchored to the sheet height.
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
@@ -77,10 +80,12 @@ class MemberAttendanceQrSheet extends StatelessWidget {
   Widget _buildContent(BuildContext context, MemberAttendanceQrState state) {
     final qr = state.qr;
 
+    // First load has no fallback QR yet, so show a dedicated loading state.
     if (state.status == MemberAttendanceQrLoadStatus.loading && qr == null) {
       return const _MemberAttendanceQrLoadingState();
     }
 
+    // Initial failure needs a full error state because there is nothing to scan.
     if (state.status == MemberAttendanceQrLoadStatus.failure && qr == null) {
       return _MemberAttendanceQrErrorState(
         message: state.errorMessage ?? 'Barcode member belum bisa dibuat.',
@@ -104,6 +109,7 @@ class MemberAttendanceQrSheet extends StatelessWidget {
           ),
           child: Center(
             child: QrImageView(
+              // qrPayload is the scanner contract; never replace it with member code.
               data: qr.qrPayload,
               version: QrVersions.auto,
               size: 220,
@@ -128,6 +134,7 @@ class MemberAttendanceQrSheet extends StatelessWidget {
         ),
         if (state.status == MemberAttendanceQrLoadStatus.failure) ...[
           const SizedBox(height: 12),
+          // Refresh failures keep the previous QR visible and show the issue inline.
           Text(
             state.errorMessage ?? 'Barcode member belum bisa diperbarui.',
             textAlign: TextAlign.center,
@@ -140,6 +147,7 @@ class MemberAttendanceQrSheet extends StatelessWidget {
         ],
         const SizedBox(height: 18),
         FilledButton.icon(
+          // Manual refresh requests a new short-lived payload from the backend.
           onPressed: state.isLoading
               ? null
               : () => context.read<MemberAttendanceQrCubit>().createQr(
@@ -196,6 +204,7 @@ class _MemberAttendanceQrErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Used only when no QR has been created yet.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -262,6 +271,7 @@ class _MemberAttendanceQrInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Human-readable member and membership data supports staff verification.
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

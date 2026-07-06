@@ -4,6 +4,10 @@ import '../../../../core/colors.dart';
 import '../../../../core/icons/app_lucide_icons.dart';
 import '../../data/repositories/trainer_repository.dart';
 
+/// Komposisi utama detail trainer.
+///
+/// File ini hanya merakit section UI dari TrainerProfile. Aksi seperti fetch,
+/// rating, booking, Maps, dan share dikirim sebagai callback dari screen.
 class TrainerDetailView extends StatelessWidget {
   const TrainerDetailView({
     super.key,
@@ -38,6 +42,8 @@ class TrainerDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Detail memakai dua komposisi agar tablet/desktop tidak hanya menjadi
+    // versi mobile yang melebar.
     if (isExpanded) {
       return _buildExpandedContent();
     }
@@ -643,6 +649,8 @@ class TrainerBenefitSection extends StatelessWidget {
     return _SectionCard(
       title: 'Yang Kamu Dapat',
       child: GridView.builder(
+        // Grid berada di dalam scroll parent milik screen, jadi scroll lokal
+        // dimatikan agar gesture tidak saling berebut.
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: benefits.length,
@@ -697,6 +705,7 @@ class TrainerGallerySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (gallery.isEmpty) {
+      // Gallery adalah konten tambahan, bukan empty state utama detail trainer.
       return const SizedBox.shrink();
     }
 
@@ -888,6 +897,7 @@ class _HeroCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hero cover sengaja redup karena teks utama ditempatkan di atas gambar.
     return Opacity(
       opacity: 0.28,
       child: Image.network(

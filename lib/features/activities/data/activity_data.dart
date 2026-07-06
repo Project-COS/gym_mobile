@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// Tabs define both navigation labels and the default copy used by each activity
+// section, keeping the screen from duplicating tab-specific UI metadata.
 enum ActivityTab {
   attendance(
     label: 'Hadir',
@@ -33,6 +35,9 @@ enum ActivityTab {
   final IconData icon;
 }
 
+// Lightweight UI models shared by attendance, personal training, and class
+// history cards. Repositories keep domain-specific records; mappers convert
+// those records into these display-ready shapes.
 class ActivitySummaryStat {
   const ActivitySummaryStat({required this.value, required this.label});
 
@@ -106,4 +111,6 @@ const Map<ActivityTab, List<String>> activityFilters = {
   ActivityTab.classSession: ['Semua', 'Selesai'],
 };
 
+// The activity screen is API-backed. Keep this list empty so old static demo
+// rows cannot accidentally appear when a repository has no data.
 const List<ActivityHistoryItem> activityHistoryItems = [];

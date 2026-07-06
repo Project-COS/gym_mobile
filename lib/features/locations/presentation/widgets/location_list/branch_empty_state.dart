@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
 
+// Empty state for search/filter combinations with no matching branches.
 class BranchEmptyState extends StatelessWidget {
   const BranchEmptyState({super.key});
 

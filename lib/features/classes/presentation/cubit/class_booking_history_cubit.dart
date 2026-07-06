@@ -5,6 +5,7 @@ import '../../data/repositories/booking_class_repository.dart';
 
 enum ClassBookingHistoryLoadStatus { initial, loading, success, failure }
 
+// State for class booking history tabs: Requested, History, and All.
 class ClassBookingHistoryState {
   const ClassBookingHistoryState({
     this.status = ClassBookingHistoryLoadStatus.initial,
@@ -52,6 +53,7 @@ class ClassBookingHistoryCubit extends Cubit<ClassBookingHistoryState> {
   }) async {
     final nextFilter = filter ?? state.filter;
 
+    // Let manual refresh bypass this guard while blocking accidental duplicate loads.
     if (state.isLoading && !forceRefresh) {
       return;
     }
@@ -59,6 +61,7 @@ class ClassBookingHistoryCubit extends Cubit<ClassBookingHistoryState> {
     emit(
       ClassBookingHistoryState.loading(
         filter: nextFilter,
+        // Preserve the current list when refreshing the same tab to avoid UI flicker.
         bookings: state.filter == nextFilter ? state.bookings : const [],
       ),
     );

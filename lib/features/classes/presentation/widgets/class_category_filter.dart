@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../../data/class_data.dart';
 
+// Horizontal category selector; activeCategoryId is null for "Semua".
 class ClassCategoryFilter extends StatelessWidget {
   const ClassCategoryFilter({
     super.key,
@@ -27,6 +28,7 @@ class ClassCategoryFilter extends StatelessWidget {
           final ClassCategoryOption category = categories[index];
           final bool isActive = activeCategoryId == category.id;
 
+          // AnimatedContainer gives lightweight visual feedback when filters change.
           return AnimatedContainer(
             duration: const Duration(milliseconds: 180),
             decoration: BoxDecoration(

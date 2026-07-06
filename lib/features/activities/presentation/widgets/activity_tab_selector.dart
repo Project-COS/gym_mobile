@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../../data/activity_data.dart';
 
+// Segmented control for the three activity sources. Labels and icons come from
+// ActivityTab to keep tab metadata centralized.
 class ActivityTabSelector extends StatelessWidget {
   const ActivityTabSelector({
     super.key,

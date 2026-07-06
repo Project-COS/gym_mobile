@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
 
+// Static marketing card for the branch discovery screen.
 class LocationHeroCard extends StatelessWidget {
   const LocationHeroCard({super.key});
 

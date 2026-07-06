@@ -5,6 +5,7 @@ import 'auth_session_repository.dart';
 
 enum AuthSessionStatus { initializing, authenticated, unauthenticated }
 
+// Root authentication state consumed by MaterialApp to choose Login or Home.
 class AuthSessionState {
   const AuthSessionState({required this.status, this.session});
 
@@ -26,6 +27,8 @@ class AuthSessionState {
   String? get accessToken => session?.accessToken;
 }
 
+// Owns only session lifecycle state. Feature cubits should depend on
+// repositories and read auth through ApiClient, not duplicate token storage.
 class AuthSessionCubit extends Cubit<AuthSessionState> {
   AuthSessionCubit({required AuthSessionRepository repository})
     : _repository = repository,
@@ -45,10 +48,13 @@ class AuthSessionCubit extends Cubit<AuthSessionState> {
     try {
       restoredSession = await _repository.restoreSession();
     } on Object {
+      // A storage or parsing failure should not keep the app stuck on startup.
       restoredSession = null;
     }
 
     if (isClosed) {
+      // Bootstrap can finish after the root widget is disposed in tests or hot
+      // reload scenarios; avoid emitting into a closed cubit.
       return;
     }
 
@@ -83,6 +89,8 @@ class AuthSessionCubit extends Cubit<AuthSessionState> {
         expiresAt: session.expiresAt,
       );
     } else {
+      // Remember Me disabled: keep the session in memory, but remove any older
+      // persisted session so the next app launch starts unauthenticated.
       await _repository.clearSession();
     }
 

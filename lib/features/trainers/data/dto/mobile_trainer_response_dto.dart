@@ -1,3 +1,7 @@
+/// Response daftar trainer dari endpoint mobile.
+///
+/// DTO hanya merepresentasikan bentuk JSON backend. Normalisasi untuk UI
+/// dilakukan di repository agar kontrak API tidak bocor ke widget.
 class MobileTrainersResponseDto {
   const MobileTrainersResponseDto({required this.trainers});
 
@@ -15,6 +19,7 @@ class MobileTrainersResponseDto {
   }
 }
 
+/// Response detail memakai struktur trainer yang sama dengan daftar.
 class MobileTrainerDetailResponseDto {
   const MobileTrainerDetailResponseDto({required this.trainer});
 
@@ -29,6 +34,7 @@ class MobileTrainerDetailResponseDto {
   }
 }
 
+/// Response rating hanya membawa data yang berubah setelah member memberi nilai.
 class MobileTrainerRatingResponseDto {
   const MobileTrainerRatingResponseDto({required this.trainer});
 
@@ -59,6 +65,8 @@ class MobileTrainerRatingDto {
   }
 }
 
+/// Bentuk mentah data trainer dari backend, termasuk relasi lokasi, jadwal,
+/// gambar, dan program yang masih perlu dipilih/diformat oleh repository.
 class MobileTrainerDto {
   const MobileTrainerDto({
     required this.id,
@@ -123,6 +131,7 @@ class MobileTrainerDto {
   }
 }
 
+/// Lokasi trainer yang dapat dipakai untuk label cabang dan tujuan Maps.
 class MobileTrainerLocationDto {
   const MobileTrainerLocationDto({
     required this.id,
@@ -169,6 +178,7 @@ class MobileTrainerLocationDto {
   }
 }
 
+/// URL peta dipisah agar mobile bisa memilih target terbaik untuk perangkat.
 class MobileTrainerMapUrlsDto {
   const MobileTrainerMapUrlsDto({
     required this.openStreetMap,
@@ -191,6 +201,8 @@ class MobileTrainerMapUrlsDto {
   }
 }
 
+/// Jadwal trainer dari backend. Nilai waktu disimpan sebagai string API dan
+/// baru diparse saat fitur booking perlu membentuk DateTime.
 class MobileTrainerScheduleDto {
   const MobileTrainerScheduleDto({
     required this.dayOfWeek,
@@ -219,6 +231,7 @@ class MobileTrainerScheduleDto {
   }
 }
 
+/// Gambar trainer. Repository akan menyaring gambar nonaktif dan duplikat.
 class MobileTrainerImageDto {
   const MobileTrainerImageDto({
     required this.url,
@@ -241,6 +254,7 @@ class MobileTrainerImageDto {
   }
 }
 
+/// Program PT yang ditawarkan trainer, termasuk benefit mentah dari backend.
 class MobileTrainerProgramDto {
   const MobileTrainerProgramDto({
     required this.id,
@@ -291,24 +305,21 @@ class MobileTrainerProgramDto {
 }
 
 class MobileTrainerProgramBenefitDto {
-  const MobileTrainerProgramBenefitDto({
-    required this.label,
-    required this.iconKey,
-  });
+  const MobileTrainerProgramBenefitDto({required this.label});
 
   final String label;
-  final String? iconKey;
 
   factory MobileTrainerProgramBenefitDto.fromJson(Object? json) {
     final data = _readJsonMap(json, 'trainer program benefit');
 
     return MobileTrainerProgramBenefitDto(
       label: _readRequiredString(data, 'label'),
-      iconKey: _readOptionalString(data, 'iconKey'),
     );
   }
 }
 
+// Helper parsing dibuat ketat supaya payload rusak langsung dipetakan sebagai
+// invalid response oleh service, bukan menghasilkan UI dengan data setengah.
 Map<String, Object?> _readJsonMap(Object? json, String label) {
   if (json is Map<String, Object?>) {
     return json;

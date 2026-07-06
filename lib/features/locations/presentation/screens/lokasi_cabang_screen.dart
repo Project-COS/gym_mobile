@@ -13,6 +13,7 @@ import '../widgets/location_list/location_hero_card.dart';
 import '../widgets/location_list/location_top_bar.dart';
 import 'detail_lokasi_cabang_screen.dart';
 
+// API-backed branch list screen used by the Home navigation tab.
 class LokasiCabangScreen extends StatefulWidget {
   const LokasiCabangScreen({super.key});
 
@@ -24,6 +25,7 @@ class _LokasiCabangScreenState extends State<LokasiCabangScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LocationCubit>(
+      // The Cubit is route-scoped because this screen owns the branch list load.
       create: (context) =>
           LocationCubit(repository: context.read<LocationRepository>())
             ..fetchLocations(),
@@ -47,6 +49,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
   @override
   void initState() {
     super.initState();
+    // Search only affects local visibility after the branch list is loaded.
     _searchController.addListener(_refreshBranchVisibility);
   }
 
@@ -59,6 +62,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
   }
 
   List<BranchLocation> _filterVisibleBranches(List<BranchLocation> branches) {
+    // Keyword and filter are applied client-side to the current API result.
     return branches.where((branch) {
       return branch.matchesKeyword(_searchController.text) &&
           branch.matchesFilter(_activeFilter);
@@ -93,6 +97,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
           'query': branch.mapQuery,
         });
 
+    // Prefer backend map URL, then fall back to a Google Maps search query.
     try {
       final bool isLaunched = await launchUrl(
         mapsUri,
@@ -130,6 +135,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
                 final List<BranchLocation> visibleBranches =
                     _filterVisibleBranches(locationState.locations);
 
+                // Stack keeps decorative background separate from scrollable content.
                 return Stack(
                   children: [
                     Positioned(
@@ -188,6 +194,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
     LocationState locationState,
     List<BranchLocation> visibleBranches,
   ) {
+    // Mobile and tablet keep search controls above the result list.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -211,6 +218,7 @@ class _LokasiCabangViewState extends State<_LokasiCabangView> {
     LocationState locationState,
     List<BranchLocation> visibleBranches,
   ) {
+    // Wide screens keep discovery controls on the left and results on the right.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -283,6 +291,7 @@ class LocationLayoutSpec {
   final double columnGap;
 
   factory LocationLayoutSpec.fromWidth(double width) {
+    // Mirrors the shared breakpoints from AGENTS.md.
     if (width >= 840) {
       return const LocationLayoutSpec(
         isExpanded: true,

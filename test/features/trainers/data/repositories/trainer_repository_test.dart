@@ -167,12 +167,7 @@ MobileTrainerDto _trainerDto({required bool canRate}) {
         locationId: 'location-1',
         locationName: 'DO GYM Denpasar',
         coverImageUrl: 'https://cdn.example/program.jpg',
-        benefits: [
-          MobileTrainerProgramBenefitDto(
-            label: 'Technique check',
-            iconKey: 'badge-check',
-          ),
-        ],
+        benefits: [MobileTrainerProgramBenefitDto(label: 'Technique check')],
       ),
     ],
     canRate: canRate,

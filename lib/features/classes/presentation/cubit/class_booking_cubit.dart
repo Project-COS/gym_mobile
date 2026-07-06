@@ -4,6 +4,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../bookings/data/booking_data.dart';
 import '../../data/repositories/booking_class_repository.dart';
 
+// Transient state for the confirmation bottom sheet.
 class ClassBookingState {
   const ClassBookingState({
     this.isSubmitting = false,
@@ -24,6 +25,7 @@ class ClassBookingCubit extends Cubit<ClassBookingState> {
   final BookingClassRepository _repository;
 
   Future<void> createClassBooking({required BookingSlot slot}) async {
+    // Prevent double submit while the user waits for backend confirmation.
     if (state.isSubmitting) {
       return;
     }
@@ -31,6 +33,7 @@ class ClassBookingCubit extends Cubit<ClassBookingState> {
     final sessionId = slot.sessionId;
 
     if (sessionId == null || sessionId.trim().isEmpty) {
+      // A class card must book a concrete class session, not just a display slot.
       emit(
         const ClassBookingState(
           errorMessage:

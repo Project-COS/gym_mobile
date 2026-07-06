@@ -1,3 +1,5 @@
+// DTOs mirror the mobile attendance history response. Keep parsing strict here
+// so repository and UI code can work with trusted typed values.
 class MemberAttendanceHistoryResponseDto {
   const MemberAttendanceHistoryResponseDto({
     required this.attendances,
@@ -10,6 +12,8 @@ class MemberAttendanceHistoryResponseDto {
   factory MemberAttendanceHistoryResponseDto.fromJson(Object? json) {
     final response = _readMap(json);
 
+    // The endpoint wraps data in success; false or missing success means the
+    // response is not safe to render as activity history.
     if (response['success'] != true) {
       throw const FormatException('Attendance response was not successful.');
     }
@@ -215,6 +219,8 @@ DateTime _readRequiredDate(Map<String, Object?> data, String key) {
     throw FormatException('Expected $key to be an ISO date.');
   }
 
+  // Convert once at the DTO boundary so downstream formatting code can assume
+  // member-local DateTime values.
   return date.toLocal();
 }
 

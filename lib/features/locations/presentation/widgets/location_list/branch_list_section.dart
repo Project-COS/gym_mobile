@@ -4,6 +4,7 @@ import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 import 'branch_card.dart';
 
+// Result section for visible branches after local search/filter is applied.
 class BranchListSection extends StatelessWidget {
   const BranchListSection({
     super.key,
@@ -60,6 +61,7 @@ class BranchListSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         ListView.separated(
+          // Parent screen owns vertical scrolling.
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: branches.length,

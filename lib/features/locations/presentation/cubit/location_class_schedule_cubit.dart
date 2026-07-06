@@ -7,6 +7,7 @@ import '../../data/branch_location_data.dart';
 
 enum LocationClassScheduleStatus { initial, loading, success, failure }
 
+// State for class schedule preview shown inside a branch detail page.
 class LocationClassScheduleState {
   const LocationClassScheduleState({
     this.status = LocationClassScheduleStatus.initial,
@@ -42,6 +43,7 @@ class LocationClassScheduleCubit extends Cubit<LocationClassScheduleState> {
   final BookingClassRepository _repository;
 
   Future<void> fetchSchedulesForLocation(String locationId) async {
+    // Only one schedule load should run for a branch detail route at a time.
     if (state.isLoading) {
       return;
     }
@@ -50,6 +52,7 @@ class LocationClassScheduleCubit extends Cubit<LocationClassScheduleState> {
 
     final now = DateTime.now();
     final startsFrom = DateTime(now.year, now.month, now.day);
+    // Detail page only needs a short preview, not the whole class catalog.
     final startsTo = startsFrom.add(const Duration(days: 14));
 
     try {
@@ -74,6 +77,7 @@ class LocationClassScheduleCubit extends Cubit<LocationClassScheduleState> {
   }
 
   BranchSchedule _mapClassSessionToBranchSchedule(GroupClassSession session) {
+    // GroupClassSession already carries mapped slots from the classes repository.
     final slot = session.slots.first;
 
     return BranchSchedule(

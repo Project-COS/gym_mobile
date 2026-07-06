@@ -6,6 +6,8 @@ import '../../../../core/icons/app_lucide_icons.dart';
 import '../../data/profile_data.dart';
 import '../cubit/profile_cubit.dart';
 
+// Edit profile route. It receives the ProfileCubit from ProfileScreen so update
+// results can be reflected in the tab without an extra fetch.
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key, required this.profile});
 
@@ -24,6 +26,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+    // Controllers are initialized from the current profile snapshot.
     _nameController = TextEditingController(text: widget.profile.name);
     _emailController = TextEditingController(text: widget.profile.email);
     _phoneController = TextEditingController(text: widget.profile.phone);
@@ -40,6 +43,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _submitProfile() async {
     final formState = _formKey.currentState;
 
+    // Form-level validation gives immediate feedback before the Cubit calls API.
     if (formState == null || !formState.validate()) {
       return;
     }
@@ -55,6 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     if (success) {
+      // ProfileCubit already emitted the updated profile before this route closes.
       Navigator.of(context).pop();
       return;
     }
@@ -175,6 +180,7 @@ class _EditProfilePreviewCardState extends State<_EditProfilePreviewCard> {
   @override
   void initState() {
     super.initState();
+    // Preview initials/name should update as the member edits the name field.
     widget.nameController.addListener(_handleNameChanged);
   }
 
@@ -289,6 +295,7 @@ class _EditProfileFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // This card stays presentational; all submit behavior is passed in.
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -435,6 +442,7 @@ class _EditProfileFormCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
+                    // Disable submit while the Cubit is waiting for the PATCH response.
                     onPressed: isSubmitting ? null : onSubmit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.gymGold,
@@ -515,6 +523,7 @@ class _EditProfileLayoutSpec {
   final double sectionGap;
 
   factory _EditProfileLayoutSpec.fromWidth(double width) {
+    // Edit form stays centered on tablet and desktop for easier scanning.
     if (width >= 600) {
       return const _EditProfileLayoutSpec(
         maxContentWidth: 560,
@@ -532,6 +541,7 @@ class _EditProfileLayoutSpec {
 }
 
 String _profileInitials(String name) {
+  // Keep the preview deterministic without needing an uploaded profile image.
   final parts = name
       .trim()
       .split(RegExp(r'\s+'))

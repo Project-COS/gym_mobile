@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/colors.dart';
 
+// Horizontal filter control reused by all activity tabs. The screen decides
+// whether a filter is server-backed or applied locally.
 class ActivityFilterChips extends StatelessWidget {
   const ActivityFilterChips({
     super.key,

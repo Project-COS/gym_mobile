@@ -1,5 +1,6 @@
 import '../services/member_attendance_api_service.dart';
 
+// Repository exposes app-ready QR data and hides the API DTO shape.
 abstract interface class MemberAttendanceRepository {
   Future<MemberAttendanceQr> createMemberAttendanceQr();
 }
@@ -16,6 +17,7 @@ class RemoteMemberAttendanceRepository implements MemberAttendanceRepository {
     final response = await _apiService.createMemberAttendanceQr();
     final data = response.data;
 
+    // Prepare labels here so the QR sheet stays focused on rendering state.
     return MemberAttendanceQr(
       qrPayload: data.qrPayload,
       expiresAt: data.expiresAt,
@@ -44,6 +46,7 @@ class RemoteMemberAttendanceRepository implements MemberAttendanceRepository {
   }
 }
 
+// App-ready model for the short-lived member attendance barcode.
 class MemberAttendanceQr {
   const MemberAttendanceQr({
     required this.qrPayload,
@@ -65,6 +68,7 @@ class MemberAttendanceQr {
   final String membershipExpiryLabel;
   final String qrExpiryLabel;
 
+  // UI can use this when deciding whether a stale QR should be refreshed.
   bool get isExpired => !expiresAt.isAfter(DateTime.now());
 }
 

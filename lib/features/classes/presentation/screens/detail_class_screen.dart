@@ -11,6 +11,7 @@ import '../../data/repositories/booking_class_repository.dart';
 import '../cubit/class_booking_cubit.dart';
 import '../widgets/detail_class_widgets.dart';
 
+// Detail screen for one class card, including slot selection and booking submit.
 class DetailClassScreen extends StatefulWidget {
   const DetailClassScreen({super.key, required this.session});
 
@@ -33,6 +34,8 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
   @override
   void initState() {
     super.initState();
+    // This Cubit is scoped to the detail flow because it only handles one
+    // bottom-sheet submission and success navigation.
     _classBookingCubit = ClassBookingCubit(
       repository: context.read<BookingClassRepository>(),
     );
@@ -84,6 +87,8 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
     Uri uri, {
     required String fallbackMessage,
   }) async {
+    // External launch failures are surfaced as user-facing snackbars instead
+    // of leaking platform exceptions to the UI.
     try {
       final bool isLaunched = await launchUrl(
         uri,
@@ -104,6 +109,7 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
     final String shareText =
         '${_session.title} - ${_selectedSlot.label} di ${_selectedSlot.branch ?? _session.branch}';
 
+    // The current share action is a clipboard fallback until native sharing is added.
     await Clipboard.setData(ClipboardData(text: shareText));
 
     if (mounted) {
@@ -129,6 +135,8 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
       return;
     }
 
+    // Reuse the shared success/QR screen so PT and class bookings keep one
+    // confirmation experience.
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => BookingSuccessScreen(
@@ -156,6 +164,8 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
     return BlocProvider<ClassBookingCubit>.value(
       value: _classBookingCubit,
       child: BlocListener<ClassBookingCubit, ClassBookingState>(
+        // Side effects such as snackbars and navigation stay in the listener,
+        // while the bottom sheet only rebuilds from submit state.
         listener: _handleClassBookingState,
         child: Scaffold(
           backgroundColor: AppColors.blackCore,
@@ -165,6 +175,8 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
                 final DetailClassLayoutSpec spec =
                     DetailClassLayoutSpec.fromWidth(constraints.maxWidth);
 
+                // The stack keeps decorative background, scroll content, modal
+                // scrim, and animated confirmation sheet in one route.
                 return Stack(
                   children: [
                     Positioned(
@@ -238,6 +250,7 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
   }
 
   Widget _buildStackedContent(DetailClassLayoutSpec spec) {
+    // Mobile and tablet keep sections in a single vertical reading order.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -273,6 +286,7 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
   }
 
   Widget _buildExpandedContent(DetailClassLayoutSpec spec) {
+    // Wide screens pin the hero/coach column while details and slots sit beside it.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -342,6 +356,7 @@ class DetailClassLayoutSpec {
   final double columnGap;
 
   factory DetailClassLayoutSpec.fromWidth(double width) {
+    // Mirrors the project breakpoints from AGENTS.md.
     if (width >= 840) {
       return const DetailClassLayoutSpec(
         isExpanded: true,

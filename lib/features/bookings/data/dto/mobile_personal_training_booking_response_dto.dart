@@ -1,3 +1,5 @@
+// DTOs mirror the mobile personal training booking API response. Keep parsing
+// strict here so repositories receive trusted, typed booking data.
 class MobilePersonalTrainingBookingResponseDto {
   const MobilePersonalTrainingBookingResponseDto({required this.booking});
 
@@ -246,5 +248,6 @@ DateTime _readRequiredDate(Map<String, Object?> data, String key) {
     throw FormatException('Expected $key to be an ISO date.');
   }
 
+  // Booking schedules are displayed in the member's device timezone.
   return date.toLocal();
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/booking_data.dart';
 
+// Horizontal date selector for class booking. It receives prebuilt date options
+// from the screen so date rollover logic stays in one place.
 class BookingDateStrip extends StatelessWidget {
   const BookingDateStrip({
     super.key,
@@ -99,6 +101,8 @@ class _DateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // AnimatedContainer keeps selection changes smooth without requiring local
+    // state inside each date card.
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       width: 74,

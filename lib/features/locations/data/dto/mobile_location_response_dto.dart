@@ -1,3 +1,5 @@
+// DTOs mirror the mobile locations API response. UI defaults and formatting are
+// handled by the repository so malformed API payloads fail near the network layer.
 class MobileLocationsResponseDto {
   const MobileLocationsResponseDto({required this.locations});
 
@@ -15,6 +17,7 @@ class MobileLocationsResponseDto {
   }
 }
 
+// One branch record from the backend, including optional media, map, and schedule data.
 class MobileLocationDto {
   const MobileLocationDto({
     required this.id,
@@ -79,6 +82,7 @@ class MobileLocationDto {
   }
 }
 
+// Map URLs are optional because the app can still build a Google Maps search URL.
 class MobileLocationMapUrlsDto {
   const MobileLocationMapUrlsDto({
     required this.openStreetMap,
@@ -101,6 +105,7 @@ class MobileLocationMapUrlsDto {
   }
 }
 
+// Location images can be ordered or marked as primary from the admin side.
 class MobileLocationImageDto {
   const MobileLocationImageDto({
     required this.url,
@@ -126,22 +131,20 @@ class MobileLocationImageDto {
   }
 }
 
+// Backend only sends facility names; app icons are assigned during repository mapping.
 class MobileLocationFacilityDto {
-  const MobileLocationFacilityDto({required this.name, required this.iconKey});
+  const MobileLocationFacilityDto({required this.name});
 
   final String name;
-  final String? iconKey;
 
   factory MobileLocationFacilityDto.fromJson(Object? json) {
     final data = _readJsonMap(json, 'location facility');
 
-    return MobileLocationFacilityDto(
-      name: _readRequiredString(data, 'name'),
-      iconKey: _readOptionalString(data, 'iconKey'),
-    );
+    return MobileLocationFacilityDto(name: _readRequiredString(data, 'name'));
   }
 }
 
+// Operating schedule row. Null values mean the schedule is not fully configured yet.
 class MobileLocationScheduleDto {
   const MobileLocationScheduleDto({
     required this.dayOfWeek,

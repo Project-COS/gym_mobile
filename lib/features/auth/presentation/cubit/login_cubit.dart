@@ -6,6 +6,8 @@ import '../../data/repositories/auth_repository.dart';
 
 enum LoginSubmissionStatus { idle, submitting, success, failure }
 
+// Form submission state only. The authenticated app session lives in
+// AuthSessionCubit so the rest of the app can react from one source of truth.
 class LoginState {
   const LoginState({
     this.status = LoginSubmissionStatus.idle,
@@ -46,6 +48,7 @@ class LoginCubit extends Cubit<LoginState> {
     required String password,
     required bool rememberMe,
   }) async {
+    // Guard against double taps while a request is already in flight.
     if (state.isSubmitting) {
       return false;
     }
@@ -68,6 +71,8 @@ class LoginCubit extends Cubit<LoginState> {
       await _sessionCubit.startSession(
         accessToken: result.accessToken,
         expiresAt: result.expiresAt,
+        // Remember Me controls persistence; either path still starts an
+        // in-memory session for the current app run.
         persist: rememberMe,
       );
 
@@ -112,6 +117,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   String _mapErrorMessage(Object error) {
+    // Keep backend/network details out of visible copy.
     if (error is! ApiException) {
       return 'Terjadi kesalahan. Silakan coba kembali.';
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
 
+// Top actions for the branch detail route.
 class BranchDetailTopBar extends StatelessWidget {
   const BranchDetailTopBar({
     super.key,

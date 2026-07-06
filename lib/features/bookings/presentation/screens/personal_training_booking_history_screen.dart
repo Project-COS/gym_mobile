@@ -7,6 +7,8 @@ import '../../data/repositories/personal_training_booking_repository.dart';
 import 'booking_success_screen.dart';
 import '../cubit/personal_training_booking_history_cubit.dart';
 
+// Dedicated PT booking history screen. Class history is shown through the
+// activity/classes flow, so this screen only owns PT filters and QR access.
 class PersonalTrainingBookingHistoryScreen extends StatelessWidget {
   const PersonalTrainingBookingHistoryScreen({super.key});
 
@@ -45,6 +47,8 @@ class _PersonalTrainingBookingHistoryView extends StatelessWidget {
                       .read<PersonalTrainingBookingHistoryCubit>()
                       .fetchBookings(forceRefresh: true),
                   child: SingleChildScrollView(
+                    // Always scrollable keeps pull-to-refresh available for
+                    // loading, empty, and short history states.
                     physics: const AlwaysScrollableScrollPhysics(),
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
@@ -117,6 +121,8 @@ class _HistoryFilterSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // SegmentedButton is appropriate here because the history has three
+    // mutually exclusive filters.
     return SegmentedButton<PersonalTrainingBookingHistoryFilter>(
       showSelectedIcon: false,
       style: ButtonStyle(
@@ -380,6 +386,8 @@ class _BookingHistoryCard extends StatelessWidget {
   }
 
   void _openBookingQr(BuildContext context) {
+    // Reuse the confirmation screen so QR rendering and booking copy stay
+    // consistent with newly-created bookings.
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => BookingSuccessScreen(
@@ -566,6 +574,8 @@ class _HistoryLayoutSpec {
   final double sectionGap;
 
   factory _HistoryLayoutSpec.fromWidth(double width) {
+    // Match the app's shared responsive breakpoints while keeping history cards
+    // narrow enough for comfortable reading.
     if (width >= 840) {
       return const _HistoryLayoutSpec(
         maxContentWidth: 680,

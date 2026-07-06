@@ -10,6 +10,8 @@ enum PersonalTrainingBookingHistoryLoadStatus {
   failure,
 }
 
+// State for PT booking history only. Class booking history uses the classes
+// feature Cubit so each booking type keeps ownership of its own API contract.
 class PersonalTrainingBookingHistoryState {
   const PersonalTrainingBookingHistoryState({
     this.status = PersonalTrainingBookingHistoryLoadStatus.initial,
@@ -60,6 +62,8 @@ class PersonalTrainingBookingHistoryCubit
   }) async {
     final nextFilter = filter ?? state.filter;
 
+    // Prevent duplicate fetches from rebuilds, while still allowing explicit
+    // pull-to-refresh to restart the request.
     if (state.isLoading && !forceRefresh) {
       return;
     }
@@ -67,6 +71,7 @@ class PersonalTrainingBookingHistoryCubit
     emit(
       PersonalTrainingBookingHistoryState.loading(
         filter: nextFilter,
+        // Keep the existing list visible when refreshing the same filter.
         bookings: state.filter == nextFilter ? state.bookings : const [],
       ),
     );
@@ -97,6 +102,7 @@ class PersonalTrainingBookingHistoryCubit
   }
 
   String _mapErrorMessage(Object error) {
+    // Keep network details out of user-facing copy.
     if (error is! ApiException) {
       return 'Riwayat booking belum bisa dimuat. Silakan coba kembali.';
     }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'activity_data.dart';
 import 'repositories/member_attendance_activity_repository.dart';
 
+// Attendance records do not open a booking detail screen, so they map only into
+// timeline card metadata and intentionally leave bookingDetail null.
 ActivityHistoryItem mapMemberAttendanceToActivityHistoryItem(
   MemberAttendanceHistoryItem attendance, {
   bool isFeatured = false,
@@ -44,6 +46,7 @@ ActivityHistoryItem mapMemberAttendanceToActivityHistoryItem(
 }
 
 String _formatDate(DateTime dateTime) {
+  // Activity history is shown in the member's device timezone.
   final localDate = dateTime.toLocal();
   final monthName = _monthNames[localDate.month - 1];
 

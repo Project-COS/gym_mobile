@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/booking_data.dart';
 
+// Segmented control for the booking sources. Labels and icons are centralized in
+// BookingTab so the screen and selector stay in sync.
 class BookingTabSelector extends StatelessWidget {
   const BookingTabSelector({
     super.key,

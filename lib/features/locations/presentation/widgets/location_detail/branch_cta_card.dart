@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Branch detail CTA. Current callbacks are injected so future check-in/booking
+// flows can be wired without changing this presentational widget.
 class BranchCtaCard extends StatelessWidget {
   const BranchCtaCard({
     super.key,

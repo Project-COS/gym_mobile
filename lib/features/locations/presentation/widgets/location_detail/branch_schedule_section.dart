@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Class schedule preview rendered on the branch detail page.
 class BranchScheduleSection extends StatelessWidget {
   const BranchScheduleSection({
     super.key,

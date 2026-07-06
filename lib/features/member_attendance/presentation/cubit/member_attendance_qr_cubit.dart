@@ -5,6 +5,7 @@ import '../../data/repositories/member_attendance_repository.dart';
 
 enum MemberAttendanceQrLoadStatus { initial, loading, success, failure }
 
+// State for creating and refreshing the member attendance QR shown in the sheet.
 class MemberAttendanceQrState {
   const MemberAttendanceQrState({
     this.status = MemberAttendanceQrLoadStatus.initial,
@@ -38,10 +39,12 @@ class MemberAttendanceQrCubit extends Cubit<MemberAttendanceQrState> {
   final MemberAttendanceRepository _repository;
 
   Future<void> createQr({bool forceRefresh = false}) async {
+    // Block accidental duplicate requests while allowing explicit refresh taps.
     if (state.isLoading && !forceRefresh) {
       return;
     }
 
+    // Keep the previous QR visible while a refresh request is in progress.
     emit(MemberAttendanceQrState.loading(qr: state.qr));
 
     try {
@@ -55,6 +58,7 @@ class MemberAttendanceQrCubit extends Cubit<MemberAttendanceQrState> {
         emit(
           MemberAttendanceQrState.failure(
             errorMessage: _mapErrorMessage(error),
+            // Preserve the last usable QR so the member is not left with an empty sheet.
             qr: state.qr,
           ),
         );

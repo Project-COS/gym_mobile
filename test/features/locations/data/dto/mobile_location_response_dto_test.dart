@@ -32,7 +32,7 @@ void main() {
             },
           ],
           'facilities': [
-            {'name': 'Shower Room', 'iconKey': 'shower'},
+            {'name': 'Shower Room'},
           ],
           'schedules': [
             {'dayOfWeek': 1, 'startTime': '06:00', 'endTime': '22:00'},
@@ -44,7 +44,7 @@ void main() {
     expect(response.locations, hasLength(1));
     expect(response.locations.first.name, 'DO GYM Denpasar');
     expect(response.locations.first.images.first.isPrimary, isTrue);
-    expect(response.locations.first.facilities.first.iconKey, 'shower');
+    expect(response.locations.first.facilities.first.name, 'Shower Room');
     expect(response.locations.first.mapUrls.googleNavigation, contains('nav'));
   });
 

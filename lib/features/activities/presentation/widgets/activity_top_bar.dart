@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/colors.dart';
 
+// Static heading for the activity page. It is separate so the screen can focus
+// on data loading, tab state, and responsive composition.
 class ActivityTopBar extends StatelessWidget {
   const ActivityTopBar({super.key});
 

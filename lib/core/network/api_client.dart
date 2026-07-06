@@ -7,6 +7,8 @@ import 'api_exception.dart';
 
 typedef AccessTokenProvider = Future<String?> Function();
 
+// Shared HTTP boundary for all feature services. Widgets and repositories should
+// not decode JSON or attach authorization headers themselves.
 class ApiClient {
   ApiClient({
     required this.baseUri,
@@ -18,6 +20,9 @@ class ApiClient {
   final Uri baseUri;
   final AccessTokenProvider? accessTokenProvider;
   final Duration timeout;
+
+  // A client can be injected by tests, while production keeps one persistent
+  // client for connection reuse until close() is called.
   final http.Client _client;
 
   Future<Object?> get(
@@ -115,6 +120,8 @@ class ApiClient {
     Map<String, String>? queryParameters,
     Map<String, String>? headers,
   }) async {
+    // Keep request construction in one place so every HTTP verb gets the same
+    // base URL handling, headers, timeout, and error mapping.
     final request = http.Request(method, _buildUri(path, queryParameters));
 
     request.headers.addAll(
@@ -153,11 +160,15 @@ class ApiClient {
   }
 
   Future<http.Response> _sendRequest(http.BaseRequest request) async {
+    // Client.send supports the request type used here, then Response.fromStream
+    // gives services a simple full-body response to decode.
     final streamedResponse = await _client.send(request);
     return http.Response.fromStream(streamedResponse);
   }
 
   Uri _buildUri(String path, Map<String, String>? queryParameters) {
+    // Ensure relative paths resolve under the mobile API base even when the
+    // configured base URL was provided without a trailing slash.
     final base = baseUri.toString().endsWith('/')
         ? baseUri
         : Uri.parse('${baseUri.toString()}/');
@@ -168,6 +179,8 @@ class ApiClient {
       return uri;
     }
 
+    // Preserve query parameters that may already exist on the endpoint path,
+    // while allowing caller-provided values to override duplicates.
     return uri.replace(
       queryParameters: {...uri.queryParameters, ...queryParameters},
     );
@@ -184,6 +197,8 @@ class ApiClient {
       ...?headers,
     };
 
+    // Login and other public endpoints pass authenticated: false. Authenticated
+    // calls receive a Bearer token only when one is available.
     if (authenticated && accessTokenProvider != null) {
       final token = (await accessTokenProvider!())?.trim();
 
@@ -205,6 +220,8 @@ class ApiClient {
     try {
       return jsonDecode(responseBody);
     } on FormatException {
+      // Error responses may be plain text from proxies or infrastructure. Keep
+      // that text for ApiException instead of replacing it with parse failure.
       if (response.statusCode < 200 || response.statusCode >= 300) {
         return responseBody;
       }

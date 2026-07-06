@@ -5,6 +5,7 @@ import '../dto/mobile_class_booking_response_dto.dart';
 import '../dto/mobile_class_response_dto.dart';
 import '../services/booking_class_api_service.dart';
 
+// Repository exposes app-ready class models and hides mobile API DTO shapes.
 abstract interface class BookingClassRepository {
   Future<BookingClassCatalog> fetchClassCatalog({
     String? locationId,
@@ -88,6 +89,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
   Future<List<ClassBookingHistoryItem>> fetchClassBookings({
     ClassBookingHistoryFilter filter = ClassBookingHistoryFilter.upcoming,
   }) async {
+    // The mobile dashboard consumes a compact first page for each history tab.
     final response = await _apiService.fetchBookings(
       status: filter.queryValue,
       pageSize: 50,
@@ -112,6 +114,8 @@ class RemoteBookingClassRepository implements BookingClassRepository {
   }
 
   BookingClassCatalog _mapClassCatalog(MobileClassesResponseDto response) {
+    // Flatten parent classes into card models because each card carries its
+    // own available slots and display summary.
     return BookingClassCatalog(
       categories: response.categories
           .map(_mapClassCategoryOption)
@@ -131,6 +135,8 @@ class RemoteBookingClassRepository implements BookingClassRepository {
       return const [];
     }
 
+    // Prefer an available session for headline data so cards highlight a
+    // bookable coach/location when at least one slot is open.
     final primarySession = gymClass.sessions.firstWhere(
       (session) => session.availableSlots > 0,
       orElse: () => gymClass.sessions.first,
@@ -183,6 +189,8 @@ class RemoteBookingClassRepository implements BookingClassRepository {
   BookingSlot _mapBookingSlot(MobileClassSessionDto session) {
     final startsAt = session.startsAt.toLocal();
 
+    // BookingSlot is shared with the bookings feature, so class-specific API
+    // fields are adapted here before reaching widgets.
     return BookingSlot(
       day: _formatRelativeDay(startsAt),
       time: _formatTime(startsAt),
@@ -233,11 +241,13 @@ class RemoteBookingClassRepository implements BookingClassRepository {
       location: _formatBookingLocation(booking.location, booking.session),
       status: booking.status,
       source: booking.source,
+      // QR remains visible only while the booking can still be presented at check-in.
       canShowQr: booking.status == 'REQUESTED' || booking.status == 'SCHEDULED',
     );
   }
 
   String _pickCoverImageUrl(MobileGymClassDto gymClass) {
+    // Prefer CMS cover image, then gallery, then a stable fallback image.
     return gymClass.coverImageUrl ??
         (gymClass.images.isEmpty
             ? _fallbackClassImageUrl
@@ -245,6 +255,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
   }
 
   ClassCategory _mapClassCategory(String name) {
+    // Preserve existing local styling enum while API categories remain dynamic.
     final normalizedName = name.toLowerCase();
 
     if (normalizedName.contains('pilates')) {
@@ -265,6 +276,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
 
   List<BookingBenefit> _mapBenefits(List<MobileClassBenefitDto> benefits) {
     if (benefits.isEmpty) {
+      // Keep the detail screen informative even before benefits are configured.
       return const [
         BookingBenefit(icon: AppLucideIcons.users, label: 'Group Class'),
       ];
@@ -273,10 +285,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
     return benefits
         .map(
           (benefit) => BookingBenefit(
-            icon: AppLucideIcons.resolveGymIcon(
-              benefit.iconKey ?? benefit.label,
-              fallback: AppLucideIcons.badgeCheck,
-            ),
+            icon: AppLucideIcons.badgeCheck,
             label: benefit.label,
           ),
         )
@@ -306,6 +315,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
       ...gymClass.images.map((image) => image.url),
     ];
 
+    // De-dupe because the cover can also be included in the image collection.
     return gallery.toSet().toList(growable: false);
   }
 
@@ -488,6 +498,8 @@ List<String> _uniqueSessionValues(
   List<MobileClassSessionDto> sessions,
   String? Function(MobileClassSessionDto session) selector,
 ) {
+  // Used by summary labels so multiple sessions do not repeat the same branch,
+  // room, or coach in compact card text.
   return sessions
       .map(selector)
       .whereType<String>()
@@ -559,6 +571,7 @@ enum ClassBookingHistoryFilter {
 
   const ClassBookingHistoryFilter(this.queryValue);
 
+  // Must stay aligned with the mobile class booking history endpoint filters.
   final String queryValue;
 }
 

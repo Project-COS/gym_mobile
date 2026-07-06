@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Hero card for the selected branch. Call and map actions are owned by the screen.
 class BranchDetailHeroCard extends StatelessWidget {
   const BranchDetailHeroCard({
     super.key,
@@ -151,6 +152,7 @@ class _HeroCover extends StatelessWidget {
       child: Image.network(
         imageUrl,
         fit: BoxFit.cover,
+        // Hero image is remote media; fall back to a neutral surface on failure.
         errorBuilder: (_, _, _) => const ColoredBox(
           color: AppColors.steelBlack,
           child: SizedBox.expand(),

@@ -4,6 +4,10 @@ import '../../../../core/icons/app_lucide_icons.dart';
 import '../dto/mobile_trainer_response_dto.dart';
 import '../services/trainer_api_service.dart';
 
+/// Kontrak data trainer yang dikonsumsi presentation layer.
+///
+/// Implementasi remote menyembunyikan DTO backend sehingga Cubit dan widget
+/// hanya menerima model yang sudah siap ditampilkan.
 abstract interface class TrainerRepository {
   Future<List<TrainerProfile>> fetchTrainers();
 
@@ -49,6 +53,9 @@ class RemoteTrainerRepository implements TrainerRepository {
   }
 
   TrainerProfile _mapTrainer(MobileTrainerDto trainer) {
+    // Satu payload trainer bisa punya banyak lokasi dan program. Mobile memilih
+    // data utama untuk ringkasan, tetapi tetap menyimpan daftar lengkap untuk
+    // detail dan booking.
     final primaryLocation = _pickPrimaryLocation(trainer);
     final primaryProgram = trainer.programs.isEmpty
         ? null
@@ -106,6 +113,8 @@ class RemoteTrainerRepository implements TrainerRepository {
     MobileTrainerDto trainer,
     MobileTrainerProgramDto? primaryProgram,
   ) {
+    // Urutan fallback menjaga kartu tetap punya gambar walaupun backend belum
+    // mengirim photoUrl khusus trainer.
     return trainer.photoUrl ??
         (trainer.images.isEmpty ? null : trainer.images.first.url) ??
         primaryProgram?.coverImageUrl ??
@@ -116,6 +125,8 @@ class RemoteTrainerRepository implements TrainerRepository {
     final seenImageUrls = <String>{};
     final gallery = <String>[];
 
+    // Gallery hanya memakai gambar aktif dan URL unik agar slider tidak berisi
+    // gambar kosong atau duplikat.
     for (final image in trainer.images) {
       final imageUrl = image.url.trim();
 
@@ -136,6 +147,8 @@ class RemoteTrainerRepository implements TrainerRepository {
     final benefits = program?.benefits ?? const [];
 
     if (benefits.isEmpty) {
+      // Benefit fallback adalah copy aplikasi, bukan data backend. Ini menjaga
+      // section detail tetap informatif saat program belum punya benefit.
       return const [
         TrainerBenefit(icon: AppLucideIcons.dumbbell, label: 'Personal plan'),
         TrainerBenefit(
@@ -150,10 +163,7 @@ class RemoteTrainerRepository implements TrainerRepository {
     return benefits
         .map(
           (benefit) => TrainerBenefit(
-            icon: AppLucideIcons.resolveGymIcon(
-              benefit.iconKey ?? benefit.label,
-              fallback: AppLucideIcons.badgeCheck,
-            ),
+            icon: AppLucideIcons.badgeCheck,
             label: benefit.label,
           ),
         )
@@ -164,6 +174,7 @@ class RemoteTrainerRepository implements TrainerRepository {
     List<MobileTrainerScheduleDto> schedules,
   ) {
     if (schedules.isEmpty) {
+      // Screen detail dan katalog mengandalkan minimal satu label jadwal.
       return const [
         TrainerSchedule(label: 'Jadwal menyusul', locationName: null),
       ];
@@ -274,6 +285,10 @@ class RemoteTrainerRepository implements TrainerRepository {
   }
 }
 
+/// Model app-ready untuk UI trainer.
+///
+/// Semua string di sini sudah punya fallback user-facing sehingga widget tidak
+/// perlu memahami bentuk kosong atau nullable dari response backend.
 class TrainerProfile {
   const TrainerProfile({
     required this.id,
@@ -324,6 +339,7 @@ class TrainerProfile {
   String get scheduleLabel =>
       schedules.isEmpty ? 'Jadwal menyusul' : schedules.first.label;
 
+  /// Dipakai setelah submit rating agar UI bisa update tanpa fetch ulang.
   TrainerProfile copyWithRating(double? nextRating) {
     return TrainerProfile(
       id: id,

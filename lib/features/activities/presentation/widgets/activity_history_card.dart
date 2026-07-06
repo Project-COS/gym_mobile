@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../../data/activity_data.dart';
 
+// Reusable card for all activity types. The optional booking detail block is
+// shown only for PT/class rows that can navigate to booking QR or detail.
 class ActivityHistoryCard extends StatelessWidget {
   const ActivityHistoryCard({
     super.key,
@@ -324,6 +326,7 @@ class _MetaGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        // Keep metadata dense on wider cards but readable on narrow phones.
         final int columnCount = constraints.maxWidth >= 520 ? 4 : 2;
         final double spacing = 10;
         final double itemWidth =

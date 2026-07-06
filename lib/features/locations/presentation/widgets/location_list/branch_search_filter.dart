@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Search field and filter chips for the branch list.
 class BranchSearchFilter extends StatelessWidget {
   const BranchSearchFilter({
     super.key,
@@ -112,6 +113,7 @@ class _FilterChipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // AnimatedContainer gives lightweight feedback when the active filter changes.
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       decoration: BoxDecoration(

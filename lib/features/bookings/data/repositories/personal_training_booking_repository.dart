@@ -1,6 +1,8 @@
 import '../dto/mobile_personal_training_booking_response_dto.dart';
 import '../services/personal_training_booking_api_service.dart';
 
+// Repository boundary for PT bookings. Screens and Cubits work with these
+// app-ready models instead of raw mobile API DTOs.
 abstract interface class PersonalTrainingBookingRepository {
   Future<List<PersonalTrainingBookingHistoryItem>>
   fetchPersonalTrainingBookings({
@@ -32,6 +34,8 @@ class RemotePersonalTrainingBookingRepository
     PersonalTrainingBookingHistoryFilter filter =
         PersonalTrainingBookingHistoryFilter.upcoming,
   }) async {
+    // History screens render one compact list; keep page size high enough to
+    // avoid extra pagination UI until the product needs it.
     final response = await _apiService.fetchBookings(
       status: filter.queryValue,
       pageSize: 50,
@@ -68,6 +72,8 @@ class RemotePersonalTrainingBookingRepository
   ) {
     final program = booking.program;
 
+    // Preserve backend status/source values for filtering and status badges,
+    // while formatting schedule/location for direct UI use.
     return PersonalTrainingBookingHistoryItem(
       id: booking.id,
       bookingCode: booking.bookingCode,
@@ -107,6 +113,7 @@ class RemotePersonalTrainingBookingRepository
         programDurationMinutes ??
         booking.endsAt.difference(booking.startsAt).inMinutes;
 
+    // Defensive fallback for incomplete schedules or ad-hoc sessions.
     if (durationMinutes <= 0) {
       return 'Durasi menyesuaikan';
     }
@@ -158,6 +165,7 @@ class PersonalTrainingBookingConfirmation {
   final String location;
 }
 
+// Values are sent directly as the status query parameter for the mobile API.
 enum PersonalTrainingBookingHistoryFilter {
   upcoming('upcoming'),
   history('history'),

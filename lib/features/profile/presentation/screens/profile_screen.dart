@@ -8,6 +8,7 @@ import '../../data/repositories/profile_repository.dart';
 import '../cubit/profile_cubit.dart';
 import 'edit_profile_screen.dart';
 
+// Profile tab screen. Data is lazy-loaded only when the Home tab becomes active.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, this.isActive = false});
 
@@ -28,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final repository = context.read<ProfileRepository>();
 
     if (_repository != repository || _cubit == null) {
+      // Recreate the route-scoped Cubit if the injected repository changes.
       _cubit?.close();
       _repository = repository;
       _cubit = ProfileCubit(repository: repository);
@@ -56,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _fetchProfileIfNeeded() {
     final cubit = _cubit;
 
+    // IndexedStack keeps tabs alive, so only the initial state should auto-load.
     if (cubit == null || cubit.state.status != ProfileLoadStatus.initial) {
       return;
     }
@@ -77,6 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => BlocProvider.value(
+          // Share the same Cubit so successful edits update this screen immediately.
           value: cubit,
           child: EditProfileScreen(profile: profile),
         ),
@@ -107,6 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 bloc: cubit,
                 builder: (context, state) {
                   return SingleChildScrollView(
+                    // Required so pull-to-refresh works even for short states.
                     physics: const AlwaysScrollableScrollPhysics(),
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
@@ -177,9 +182,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (!spec.isExpanded) {
+      // Mobile and tablet use one vertical content flow.
       return profileContent;
     }
 
+    // Wide screens split identity and detailed membership data into columns.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -677,6 +684,7 @@ class ProfileLayoutSpec {
   final double columnGap;
 
   factory ProfileLayoutSpec.fromWidth(double width) {
+    // Mirrors the shared breakpoints from AGENTS.md.
     if (width >= 840) {
       return const ProfileLayoutSpec(
         isExpanded: true,
@@ -708,6 +716,7 @@ class ProfileLayoutSpec {
 }
 
 String _profileInitials(String name) {
+  // Use text initials instead of a remote avatar so profile never depends on media.
   final parts = name
       .trim()
       .split(RegExp(r'\s+'))

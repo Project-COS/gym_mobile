@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Horizontal gallery for branch images returned by the locations API.
 class BranchGallerySection extends StatelessWidget {
   const BranchGallerySection({super.key, required this.images});
 
@@ -67,6 +68,7 @@ class _BranchGalleryImageCard extends StatelessWidget {
             image.imageUrl,
             semanticLabel: image.semanticLabel,
             fit: BoxFit.cover,
+            // Gallery cards should remain stable when one remote image fails.
             errorBuilder: (_, _, _) => const _BrokenImageFallback(),
           ),
           if (caption != null)

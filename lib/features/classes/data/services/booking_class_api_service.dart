@@ -4,6 +4,7 @@ import '../../../../core/network/api_exception.dart';
 import '../dto/mobile_class_booking_response_dto.dart';
 import '../dto/mobile_class_response_dto.dart';
 
+// Thin HTTP boundary for class catalog, class booking history, and create booking.
 class BookingClassApiService {
   const BookingClassApiService({required ApiClient apiClient})
     : _apiClient = apiClient;
@@ -21,6 +22,7 @@ class BookingClassApiService {
       queryParameters: {
         if (normalizedLocationId != null && normalizedLocationId.isNotEmpty)
           'locationId': normalizedLocationId,
+        // Send UTC range boundaries so the backend receives an unambiguous day window.
         'startsFrom': startsFrom.toUtc().toIso8601String(),
         'startsTo': startsTo.toUtc().toIso8601String(),
       },
@@ -53,6 +55,7 @@ class BookingClassApiService {
     final response = await _apiClient.get(
       ApiEndpoints.classBookings,
       queryParameters: {
+        // The repository owns valid status values via ClassBookingHistoryFilter.
         'status': status,
         'page': page.toString(),
         'pageSize': pageSize.toString(),
@@ -73,6 +76,7 @@ class BookingClassApiService {
     final response = await _apiClient.post(
       ApiEndpoints.classBookings,
       body: {
+        // Backend books a concrete session, not the parent class.
         'classSessionId': classSessionId,
         if (notes != null) 'notes': notes,
       },

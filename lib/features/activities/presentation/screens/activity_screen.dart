@@ -22,6 +22,8 @@ import '../widgets/activity_top_bar.dart';
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key, this.isActive = false});
 
+  // The home shell passes this flag so activity data is fetched only when the
+  // user can actually see the tab.
   final bool isActive;
 
   @override
@@ -59,6 +61,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    // Activity composes data from three owning features. Recreate local cubits
+    // only when their injected repositories change.
     final attendanceRepository = context
         .read<MemberAttendanceActivityRepository>();
     final personalTrainingRepository = context
@@ -121,6 +125,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     });
 
     if (tab == ActivityTab.attendance) {
+      // Each tab loads lazily the first time it is opened.
       _fetchAttendanceActivityIfNeeded();
     } else if (tab == ActivityTab.personalTrainer) {
       _fetchPersonalTrainingActivityIfNeeded();
@@ -134,6 +139,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
       _selectedFilters[_activeTab] = filter;
     });
 
+    // Attendance filters are server-backed. PT and class currently filter their
+    // already-loaded history locally in this screen.
     if (_activeTab == ActivityTab.attendance) {
       _memberAttendanceActivityCubit?.fetchAttendances(
         filter: _attendanceFilterFromLabel(filter),
@@ -143,6 +150,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   Future<void> _refreshActiveTab() {
+    // RefreshIndicator expects the returned Future to complete when refresh work
+    // is done, so each tab delegates to the matching Cubit request.
     if (_activeTab == ActivityTab.attendance) {
       return _memberAttendanceActivityCubit?.fetchAttendances(
             filter: _attendanceFilterFromLabel(_activeFilter),
@@ -183,6 +192,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   void _fetchActivityDataIfNeeded() {
+    // When the Activity tab becomes visible, prefetch all three summaries so the
+    // hero card can show counts without waiting for each tab to be opened.
     _fetchAttendanceActivityIfNeeded();
     _fetchPersonalTrainingActivityIfNeeded();
     _fetchClassActivityIfNeeded();
@@ -218,6 +229,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
 
     Navigator.of(context).push(
+      // Reuse the booking success/detail screen so PT and class QR behavior
+      // stays consistent with the booking flows.
       MaterialPageRoute<void>(
         builder: (_) => BookingSuccessScreen(
           typeCode: detail.typeCode,
@@ -269,6 +282,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   backgroundColor: AppColors.graphiteBlack,
                   onRefresh: _refreshActiveTab,
                   child: SingleChildScrollView(
+                    // Required so pull-to-refresh still works when the active
+                    // tab is empty, loading, or shorter than the viewport.
                     physics: const AlwaysScrollableScrollPhysics(),
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
@@ -357,6 +372,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget _buildBookingActivityHeroCard(
     MemberAttendanceActivityState? attendanceState,
   ) {
+    // Build the summary card from whichever Cubits are available. The nested
+    // builders keep each summary section reactive without introducing a new
+    // aggregate Cubit for this screen.
     final personalTrainingCubit = _personalTrainingBookingHistoryCubit;
     final classCubit = _classBookingHistoryCubit;
 
@@ -481,6 +499,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
     >(
       bloc: cubit,
       builder: (context, state) {
+        // Convert API-backed attendance records into the shared activity card
+        // model at the presentation boundary.
         final items = state.items
             .asMap()
             .entries
@@ -700,6 +720,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   List<ActivityHistoryItem> _filterPersonalTrainingActivityItems(
     List<ActivityHistoryItem> items,
   ) {
+    // PT and class APIs are already requested with the broad "all" status set;
+    // this filter only controls the visible list copy.
     if (_activeFilter == 'Selesai') {
       return items.where((item) => item.status == 'Selesai').toList();
     }
@@ -850,6 +872,8 @@ class ActivityLayoutSpec {
   final double columnGap;
 
   factory ActivityLayoutSpec.fromWidth(double width) {
+    // Breakpoints follow the project responsive guideline:
+    // mobile < 600, tablet 600-839, expanded >= 840.
     if (width >= 840) {
       return const ActivityLayoutSpec(
         isExpanded: true,

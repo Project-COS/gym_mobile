@@ -12,6 +12,8 @@ import '../widgets/form_login.dart';
 import '../widgets/header_login.dart';
 import '../widgets/hero_copy.dart';
 
+// LoginScreen owns the LoginCubit scope. AuthSessionCubit is provided by the
+// app root and receives the session only after a successful login.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -49,6 +51,8 @@ class _LoginViewState extends State<_LoginView> {
   @override
   void initState() {
     super.initState();
+    // Controllers stay in the screen because they are UI lifecycle objects.
+    // LoginCubit receives plain values only when the user submits.
     _identityController.addListener(_handleCredentialsChanged);
     _passwordController.addListener(_handleCredentialsChanged);
     _identityFocusNode.addListener(_refreshState);
@@ -73,6 +77,7 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   void _handleCredentialsChanged() {
+    // Clear stale errors as soon as the member edits either credential.
     context.read<LoginCubit>().clearError();
     _refreshState();
   }
@@ -99,6 +104,8 @@ class _LoginViewState extends State<_LoginView> {
     );
 
     if (success) {
+      // Ask the platform autofill service to save credentials only after a
+      // successful login.
       TextInput.finishAutofillContext();
     }
   }
@@ -113,6 +120,8 @@ class _LoginViewState extends State<_LoginView> {
           body: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
+                // The login layout uses the project breakpoints to switch
+                // between stacked mobile and side-by-side expanded content.
                 final LoginLayoutSpec spec = LoginLayoutSpec.fromWidth(
                   constraints.maxWidth,
                 );
@@ -249,6 +258,8 @@ class LoginLayoutSpec {
   bool get hasSurfaceFrame => isExpanded || isMedium;
 
   factory LoginLayoutSpec.fromWidth(double width) {
+    // Breakpoints follow the project responsive guideline:
+    // mobile < 600, tablet 600-839, expanded >= 840.
     if (width >= 840) {
       return const LoginLayoutSpec(
         isExpanded: true,

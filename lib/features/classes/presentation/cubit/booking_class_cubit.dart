@@ -6,6 +6,7 @@ import '../../data/repositories/booking_class_repository.dart';
 
 enum BookingClassLoadStatus { initial, loading, success, failure }
 
+// State for the class catalog shown in the booking tab.
 class BookingClassState {
   const BookingClassState({
     this.status = BookingClassLoadStatus.initial,
@@ -55,12 +56,14 @@ class BookingClassCubit extends Cubit<BookingClassState> {
     DateTime selectedDate, {
     bool forceRefresh = false,
   }) async {
+    // Avoid duplicate loads from repeated rebuilds while still allowing pull refresh.
     if (state.isLoading && !forceRefresh) {
       return;
     }
 
     emit(
       BookingClassState.loading(
+        // Keep the current catalog visible while a refresh is in progress.
         sessions: state.sessions,
         categories: state.categories,
         locationName: state.locationName,
@@ -68,6 +71,7 @@ class BookingClassCubit extends Cubit<BookingClassState> {
     );
 
     try {
+      // The catalog endpoint expects a one-day window for the selected date.
       final startsFrom = DateTime(
         selectedDate.year,
         selectedDate.month,

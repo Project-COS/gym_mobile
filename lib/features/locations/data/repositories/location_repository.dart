@@ -3,6 +3,7 @@ import '../branch_location_data.dart';
 import '../dto/mobile_location_response_dto.dart';
 import '../services/location_api_service.dart';
 
+// Repository converts API DTOs into app-ready branch models for presentation.
 abstract interface class LocationRepository {
   Future<List<BranchLocation>> fetchLocations();
 }
@@ -17,12 +18,14 @@ class RemoteLocationRepository implements LocationRepository {
   Future<List<BranchLocation>> fetchLocations() async {
     final response = await _apiService.fetchLocations();
 
+    // Widgets consume BranchLocation only; DTO details should not leak upward.
     return response.locations.map(_mapLocation).toList(growable: false);
   }
 
   BranchLocation _mapLocation(MobileLocationDto location) {
     final schedules = _mapSchedules(location.schedules);
 
+    // Provide user-facing defaults so partially configured branches still render.
     return BranchLocation(
       id: location.id,
       name: location.name,
@@ -51,6 +54,7 @@ class RemoteLocationRepository implements LocationRepository {
       return _fallbackLocationImageUrl;
     }
 
+    // Admin-selected primary image wins; otherwise use the first media item.
     for (final image in images) {
       if (image.isPrimary) {
         return image.url;
@@ -67,6 +71,7 @@ class RemoteLocationRepository implements LocationRepository {
     for (final image in location.images) {
       final imageUrl = image.url.trim();
 
+      // De-dupe because the primary image can also appear in the gallery list.
       if (imageUrl.isEmpty || seenImageUrls.contains(imageUrl)) {
         continue;
       }
@@ -89,6 +94,7 @@ class RemoteLocationRepository implements LocationRepository {
     List<MobileLocationFacilityDto> facilities,
   ) {
     if (facilities.isEmpty) {
+      // Keep the facilities section meaningful before admin data is configured.
       return const [
         BranchFacility(icon: AppLucideIcons.dumbbell, name: 'Gym Area'),
       ];
@@ -97,9 +103,7 @@ class RemoteLocationRepository implements LocationRepository {
     return facilities
         .map(
           (facility) => BranchFacility(
-            icon: AppLucideIcons.resolveGymIcon(
-              facility.iconKey ?? facility.name,
-            ),
+            icon: AppLucideIcons.dumbbell,
             name: facility.name,
           ),
         )
@@ -110,6 +114,7 @@ class RemoteLocationRepository implements LocationRepository {
     List<MobileLocationScheduleDto> schedules,
   ) {
     if (schedules.isEmpty) {
+      // Fallback schedule keeps detail UI populated without implying exact hours.
       return const [
         BranchSchedule(
           time: 'Ready',
@@ -121,6 +126,7 @@ class RemoteLocationRepository implements LocationRepository {
     }
 
     return schedules
+        // The location detail preview shows a short operating-hours summary.
         .take(3)
         .map(
           (schedule) => BranchSchedule(
@@ -177,6 +183,7 @@ class RemoteLocationRepository implements LocationRepository {
 
     if (schedule.startTime == '00:00' &&
         (schedule.endTime == '23:59' || schedule.endTime == '24:00')) {
+      // Compact label used by BranchSchedule.timeSuffix.
       return '24H';
     }
 

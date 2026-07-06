@@ -22,6 +22,8 @@ import '../widgets/booking_screen/booking_hero_card.dart';
 import '../widgets/booking_screen/booking_tab_selector.dart';
 import '../widgets/booking_screen/booking_top_bar.dart';
 
+// Main booking surface. It composes PT trainer discovery from the trainers
+// feature and class session discovery from the classes feature.
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
 
@@ -52,6 +54,8 @@ class _BookingScreenState extends State<BookingScreen>
   @override
   void initState() {
     super.initState();
+    // Observe app resume so the class date strip can roll forward after the app
+    // has been backgrounded overnight.
     WidgetsBinding.instance.addObserver(this);
     _scheduleNextClassDateRefresh();
   }
@@ -60,6 +64,7 @@ class _BookingScreenState extends State<BookingScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    // Recreate local Cubits only when their injected repositories change.
     final trainerRepository = context.read<TrainerRepository>();
     final bookingClassRepository = context.read<BookingClassRepository>();
 
@@ -98,6 +103,8 @@ class _BookingScreenState extends State<BookingScreen>
     final bool dateOptionsChanged = _refreshClassDateOptionsIfNeeded();
     _scheduleNextClassDateRefresh();
 
+    // If the date strip moved to a new day while paused, refresh the currently
+    // visible class results to match the new selected date.
     if (dateOptionsChanged && _activeTab == BookingTab.classSession) {
       _fetchClassesForSelectedDate(forceRefresh: true);
     }
@@ -118,6 +125,7 @@ class _BookingScreenState extends State<BookingScreen>
     if (tab == BookingTab.classSession &&
         (_bookingClassCubit?.state.status == BookingClassLoadStatus.initial ||
             shouldRefreshClassDates)) {
+      // Class data is loaded lazily because the default booking tab shows PT.
       _fetchClassesForSelectedDate(forceRefresh: shouldRefreshClassDates);
     }
   }
@@ -161,6 +169,8 @@ class _BookingScreenState extends State<BookingScreen>
   }
 
   Future<void> _refreshActiveTab() {
+    // RefreshIndicator expects this Future to complete after the active tab has
+    // finished reloading.
     if (_activeTab == BookingTab.personalTrainer) {
       return _trainerListCubit?.fetchTrainers(forceRefresh: true) ??
           Future<void>.value();
@@ -186,6 +196,8 @@ class _BookingScreenState extends State<BookingScreen>
       now,
     ).add(const Duration(days: 1));
 
+    // Keep the in-memory date strip correct even when the booking screen stays
+    // mounted past midnight.
     _classDateRefreshTimer = Timer(
       nextCalendarDay.difference(now),
       _refreshClassDateOptionsAfterMidnight,
@@ -229,6 +241,8 @@ class _BookingScreenState extends State<BookingScreen>
       nextDateOptions,
       previouslySelectedDate,
     );
+    // Categories are tied to loaded class data, so clear them after the date
+    // window changes.
     _activeCategoryId = null;
   }
 
@@ -285,6 +299,8 @@ class _BookingScreenState extends State<BookingScreen>
                     backgroundColor: AppColors.graphiteBlack,
                     onRefresh: _refreshActiveTab,
                     child: SingleChildScrollView(
+                      // Required so pull-to-refresh still works for empty or
+                      // short booking lists.
                       physics: const AlwaysScrollableScrollPhysics(),
                       keyboardDismissBehavior:
                           ScrollViewKeyboardDismissBehavior.onDrag,
@@ -414,6 +430,7 @@ class _BookingScreenState extends State<BookingScreen>
   Widget _buildClassContent(BookingLayoutSpec spec) {
     return BlocBuilder<BookingClassCubit, BookingClassState>(
       builder: (context, state) {
+        // Category filtering is local to the selected date result.
         final List<GroupClassSession> visibleClasses = _visibleClasses(state);
 
         return Column(
@@ -600,6 +617,8 @@ class BookingLayoutSpec {
   final double columnGap;
 
   factory BookingLayoutSpec.fromWidth(double width) {
+    // Breakpoints follow the project responsive guideline:
+    // mobile < 600, tablet 600-839, expanded >= 840.
     if (width >= 840) {
       return const BookingLayoutSpec(
         isExpanded: true,

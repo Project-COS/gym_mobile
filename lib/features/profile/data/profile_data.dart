@@ -1,3 +1,4 @@
+// App-ready member profile model consumed by profile display and edit screens.
 class MemberProfile {
   const MemberProfile({
     required this.id,

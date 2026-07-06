@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
 
+// Empty state for class search/filter results on the booking screen.
 class BookingEmptyState extends StatelessWidget {
   const BookingEmptyState({super.key});
 

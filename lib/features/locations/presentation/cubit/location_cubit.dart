@@ -6,6 +6,7 @@ import '../../data/repositories/location_repository.dart';
 
 enum LocationLoadStatus { initial, loading, success, failure }
 
+// State for the API-backed branch list.
 class LocationState {
   const LocationState({
     this.status = LocationLoadStatus.initial,
@@ -41,6 +42,7 @@ class LocationCubit extends Cubit<LocationState> {
   final LocationRepository _repository;
 
   Future<void> fetchLocations() async {
+    // Prevent duplicate requests from repeated tab rebuilds.
     if (state.isLoading) {
       return;
     }

@@ -7,12 +7,7 @@ void main() {
     final response = MobileClassesResponseDto.fromJson({
       'success': true,
       'categories': [
-        {
-          'id': 'category-1',
-          'name': 'Yoga',
-          'colorHex': null,
-          'iconKey': 'yoga',
-        },
+        {'id': 'category-1', 'name': 'Yoga', 'colorHex': null},
       ],
       'classes': [
         {
@@ -24,17 +19,12 @@ void main() {
           'durationMinutes': 60,
           'defaultCapacity': 12,
           'coverImageUrl': 'https://cdn.example/yoga.jpg',
-          'category': {
-            'id': 'category-1',
-            'name': 'Yoga',
-            'colorHex': null,
-            'iconKey': 'yoga',
-          },
+          'category': {'id': 'category-1', 'name': 'Yoga', 'colorHex': null},
           'images': [
             {'url': 'https://cdn.example/gallery.jpg'},
           ],
           'benefits': [
-            {'label': 'Mobility', 'iconKey': 'mobility'},
+            {'label': 'Mobility'},
           ],
           'sessions': [
             {

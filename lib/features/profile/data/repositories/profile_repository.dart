@@ -3,6 +3,7 @@ import '../dto/update_member_profile_request_dto.dart';
 import '../profile_data.dart';
 import '../services/profile_api_service.dart';
 
+// Repository exposes app-ready profile data and hides API DTO details.
 abstract interface class ProfileRepository {
   Future<MemberProfile> fetchProfile();
 
@@ -42,6 +43,7 @@ class RemoteProfileRepository implements ProfileRepository {
     final membership = dto.membership;
     final hasActiveMembership = membership?.status == 'ACTIVE';
 
+    // Convert nullable backend fields into stable labels for the profile UI.
     return MemberProfile(
       id: dto.member.id,
       memberCode: dto.member.memberCode,
@@ -66,6 +68,7 @@ class RemoteProfileRepository implements ProfileRepository {
   String _formatBadgeLabel(String? planName) {
     final normalizedPlanName = planName?.trim();
 
+    // Badge copy is derived locally so admin plan names can remain flexible.
     if (normalizedPlanName == null || normalizedPlanName.isEmpty) {
       return 'Member';
     }
@@ -93,6 +96,7 @@ class RemoteProfileRepository implements ProfileRepository {
   String _formatAccessLabel(String? accessLabel) {
     final normalizedAccessLabel = accessLabel?.trim();
 
+    // Backend uses English access labels; mobile presents member-facing copy.
     if (normalizedAccessLabel == null || normalizedAccessLabel.isEmpty) {
       return 'Belum tersedia';
     }

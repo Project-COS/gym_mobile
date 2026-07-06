@@ -1,3 +1,5 @@
+// DTO for POST /api/mobile/auth/login. Keep this class close to the API payload
+// shape; repository and Cubit logic should not add fields directly.
 class LoginRequestDto {
   const LoginRequestDto({
     required this.email,
@@ -17,8 +19,12 @@ class LoginRequestDto {
 
   Map<String, Object?> toJson() {
     return {
+      // The backend treats email as the member identity, so normalize casing
+      // before sending it over the network.
       'email': email.trim().toLowerCase(),
       'password': password,
+      // Optional device and company fields are omitted when absent so the API
+      // can apply its own defaults and conflict handling.
       if (companyId case final companyId?) 'companyId': companyId,
       if (deviceId case final deviceId?) 'deviceId': deviceId,
       if (deviceName case final deviceName?) 'deviceName': deviceName,

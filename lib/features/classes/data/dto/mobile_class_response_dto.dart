@@ -1,3 +1,5 @@
+// DTOs mirror the mobile classes API response. Keep UI defaults and formatting
+// out of this file so invalid backend payloads fail close to the network layer.
 class MobileClassesResponseDto {
   const MobileClassesResponseDto({
     required this.categories,
@@ -26,6 +28,8 @@ class MobileClassesResponseDto {
   }
 }
 
+// Backend echoes the requested date window so repositories can trust which
+// sessions belong to the selected calendar range.
 class MobileClassRangeDto {
   const MobileClassRangeDto({required this.startsFrom, required this.startsTo});
 
@@ -42,18 +46,18 @@ class MobileClassRangeDto {
   }
 }
 
+// Category metadata comes from the CMS/admin side and drives the horizontal
+// filter chips in the booking screen.
 class MobileClassCategoryDto {
   const MobileClassCategoryDto({
     required this.id,
     required this.name,
     required this.colorHex,
-    required this.iconKey,
   });
 
   final String id;
   final String name;
   final String? colorHex;
-  final String? iconKey;
 
   factory MobileClassCategoryDto.fromJson(Object? json) {
     final data = _readJsonMap(json, 'class category');
@@ -62,11 +66,12 @@ class MobileClassCategoryDto {
       id: _readRequiredString(data, 'id'),
       name: _readRequiredString(data, 'name'),
       colorHex: _readOptionalString(data, 'colorHex'),
-      iconKey: _readOptionalString(data, 'iconKey'),
     );
   }
 }
 
+// A class may contain multiple scheduled sessions for different times,
+// trainers, rooms, or locations.
 class MobileGymClassDto {
   const MobileGymClassDto({
     required this.id,
@@ -127,6 +132,7 @@ class MobileGymClassDto {
   }
 }
 
+// The API may return a dedicated coverImageUrl and additional gallery images.
 class MobileClassImageDto {
   const MobileClassImageDto({required this.url});
 
@@ -139,22 +145,20 @@ class MobileClassImageDto {
   }
 }
 
+// Benefit labels are displayed with app-selected icons, not dynamic API icons.
 class MobileClassBenefitDto {
-  const MobileClassBenefitDto({required this.label, required this.iconKey});
+  const MobileClassBenefitDto({required this.label});
 
   final String label;
-  final String? iconKey;
 
   factory MobileClassBenefitDto.fromJson(Object? json) {
     final data = _readJsonMap(json, 'class benefit');
 
-    return MobileClassBenefitDto(
-      label: _readRequiredString(data, 'label'),
-      iconKey: _readOptionalString(data, 'iconKey'),
-    );
+    return MobileClassBenefitDto(label: _readRequiredString(data, 'label'));
   }
 }
 
+// One concrete bookable class occurrence.
 class MobileClassSessionDto {
   const MobileClassSessionDto({
     required this.id,
@@ -211,6 +215,8 @@ class MobileClassSessionDto {
   }
 }
 
+// Trainer and location are optional on a session because some schedules can be
+// published before staff or room assignments are final.
 class MobileClassTrainerDto {
   const MobileClassTrainerDto({
     required this.id,
@@ -385,5 +391,7 @@ DateTime _readRequiredDateTime(Map<String, Object?> data, String key) {
     throw FormatException('Invalid $key data.');
   }
 
+  // Preserve the API timestamp as parsed; repository mapping decides when to
+  // display it in local time.
   return parsed;
 }

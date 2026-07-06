@@ -3,6 +3,8 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../dto/mobile_personal_training_booking_response_dto.dart';
 
+// HTTP boundary for PT bookings. It only calls ApiClient and decodes DTOs; app
+// display mapping stays in the repository.
 class PersonalTrainingBookingApiService {
   const PersonalTrainingBookingApiService({required ApiClient apiClient})
     : _apiClient = apiClient;
@@ -42,6 +44,7 @@ class PersonalTrainingBookingApiService {
       ApiEndpoints.personalTrainingBookings,
       body: {
         'trainerId': trainerId,
+        // Send UTC to the backend so scheduled sessions are unambiguous.
         'startsAt': startsAt.toUtc().toIso8601String(),
         if (programId != null) 'programId': programId,
         if (locationId != null) 'locationId': locationId,

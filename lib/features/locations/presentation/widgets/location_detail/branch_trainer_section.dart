@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Trainer section is ready for branch-level trainer data when backend exposes it.
 class BranchTrainerSection extends StatelessWidget {
   const BranchTrainerSection({super.key, required this.trainers});
 

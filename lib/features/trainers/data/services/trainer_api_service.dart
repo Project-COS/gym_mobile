@@ -3,6 +3,11 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../dto/mobile_trainer_response_dto.dart';
 
+/// Batas HTTP untuk fitur trainer.
+///
+/// Service hanya memanggil endpoint melalui ApiClient dan mengubah payload
+/// valid menjadi DTO. Mapping ke model aplikasi tetap menjadi tanggung jawab
+/// repository.
 class TrainerApiService {
   const TrainerApiService({required ApiClient apiClient})
     : _apiClient = apiClient;
@@ -33,6 +38,7 @@ class TrainerApiService {
     }
   }
 
+  /// Mengirim rating trainer setelah backend mengizinkan member memberi nilai.
   Future<MobileTrainerRatingResponseDto> submitTrainerRating({
     required String trainerId,
     required double rating,

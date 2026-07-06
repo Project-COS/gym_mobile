@@ -3,6 +3,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../../core/colors.dart';
 
+// Presentational pieces for BookingSuccessScreen. Keeping them here makes the
+// screen read as a simple ordered list of confirmation sections.
 class BookingSuccessHero extends StatelessWidget {
   const BookingSuccessHero({super.key});
 
@@ -201,6 +203,8 @@ class BookingQrCodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // qr_flutter renders the payload locally; the API-provided payload is used
+    // unchanged so staff scanners can validate the booking.
     return _SuccessCard(
       child: Column(
         children: [
@@ -241,6 +245,7 @@ class BookingQrCodeCard extends StatelessWidget {
                 gapless: false,
                 semanticsLabel: 'Kode check-in booking $code',
                 errorStateBuilder: (_, _) {
+                  // Keep the card stable and readable if QR generation fails.
                   return const Center(
                     child: Text(
                       'Kode check-in belum bisa ditampilkan.',

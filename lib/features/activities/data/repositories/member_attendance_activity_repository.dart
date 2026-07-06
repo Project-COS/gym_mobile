@@ -1,6 +1,8 @@
 import '../dto/member_attendance_history_response_dto.dart';
 import '../services/member_attendance_activity_api_service.dart';
 
+// Repository boundary for the attendance tab. The screen and cubit should not
+// depend on DTO classes from the HTTP layer.
 abstract interface class MemberAttendanceActivityRepository {
   Future<MemberAttendanceHistoryPage> fetchMemberAttendanceHistory({
     MemberAttendanceHistoryFilter filter = MemberAttendanceHistoryFilter.all,
@@ -19,6 +21,8 @@ class RemoteMemberAttendanceActivityRepository
   Future<MemberAttendanceHistoryPage> fetchMemberAttendanceHistory({
     MemberAttendanceHistoryFilter filter = MemberAttendanceHistoryFilter.all,
   }) async {
+    // Activity history currently renders one page as a compact timeline. Keep
+    // pagination metadata so the UI can still show the server total.
     final response = await _apiService.fetchAttendances(
       range: filter.queryValue,
       pageSize: 50,
@@ -48,6 +52,7 @@ class RemoteMemberAttendanceActivityRepository
   }
 }
 
+// Values are sent directly as the mobile API range query parameter.
 enum MemberAttendanceHistoryFilter {
   all('all'),
   today('today'),
@@ -59,6 +64,8 @@ enum MemberAttendanceHistoryFilter {
   final String queryValue;
 }
 
+// App-ready attendance page used by the Cubit. It intentionally contains only
+// fields the activity UI needs.
 class MemberAttendanceHistoryPage {
   const MemberAttendanceHistoryPage({
     required this.items,

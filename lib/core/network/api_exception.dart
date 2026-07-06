@@ -13,6 +13,8 @@ enum ApiExceptionType {
   invalidResponse,
 }
 
+// Normalized error object for the data layer. Services can throw one exception
+// type, and cubits can map it into user-facing messages without inspecting HTTP.
 class ApiException implements Exception {
   const ApiException({
     required this.type,
@@ -26,6 +28,8 @@ class ApiException implements Exception {
     required int statusCode,
     required Object? data,
   }) {
+    // Prefer a backend-provided message when available, but keep a predictable
+    // fallback so UI code always has safe copy to show.
     return ApiException(
       type: _typeFromStatusCode(statusCode),
       message: _messageFromData(data) ?? _fallbackMessage(statusCode),
@@ -64,6 +68,8 @@ class ApiException implements Exception {
   final Object? data;
   final Object? cause;
 
+  // Auth flows often need to react to 401 and 403 the same way: clear or request
+  // credentials instead of treating them as generic request failures.
   bool get isAuthenticationFailure =>
       type == ApiExceptionType.unauthorized ||
       type == ApiExceptionType.forbidden;

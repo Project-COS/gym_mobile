@@ -1,5 +1,6 @@
 import '../../bookings/data/booking_data.dart';
 
+// Legacy enum kept for local category styling and fallback matching.
 enum ClassCategory {
   all(label: 'Semua'),
   pilates(label: 'Pilates'),
@@ -12,6 +13,7 @@ enum ClassCategory {
   final String label;
 }
 
+// API-backed category option. A null id represents the "all classes" filter.
 class ClassCategoryOption {
   const ClassCategoryOption({required this.id, required this.label});
 
@@ -23,6 +25,7 @@ class ClassCategoryOption {
   static const all = ClassCategoryOption(id: null, label: 'Semua');
 }
 
+// App-ready class card/detail model assembled from class data plus sessions.
 class GroupClassSession {
   const GroupClassSession({
     required this.id,
@@ -74,5 +77,6 @@ class GroupClassSession {
   final List<String> gallery;
   final bool isFeatured;
 
+  // The detail header uses the first mapped slot as its compact schedule label.
   String get schedule => slots.first.label;
 }

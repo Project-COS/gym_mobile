@@ -5,6 +5,8 @@ import '../../data/repositories/trainer_repository.dart';
 
 enum TrainerListLoadStatus { initial, loading, success, failure }
 
+/// State daftar trainer menyimpan data lama saat refresh agar UI tidak kosong
+/// mendadak ketika user menarik pull-to-refresh.
 class TrainerListState {
   const TrainerListState({
     this.status = TrainerListLoadStatus.initial,
@@ -43,6 +45,7 @@ class TrainerListCubit extends Cubit<TrainerListState> {
       return;
     }
 
+    // Data saat ini diteruskan ke loading state untuk refresh yang lebih stabil.
     emit(TrainerListState.loading(trainers: state.trainers));
 
     try {
@@ -59,6 +62,7 @@ class TrainerListCubit extends Cubit<TrainerListState> {
   }
 
   String _mapErrorMessage(Object error) {
+    // Cubit menerjemahkan ApiException menjadi copy yang aman untuk user.
     if (error is! ApiException) {
       return 'Trainer belum bisa dimuat. Silakan coba kembali.';
     }

@@ -17,6 +17,7 @@ import '../widgets/location_detail/branch_quick_stats_grid.dart';
 import '../widgets/location_detail/branch_schedule_section.dart';
 import '../widgets/location_detail/branch_trainer_section.dart';
 
+// Detail route for one branch, including contact actions and class schedule preview.
 class DetailLokasiCabangScreen extends StatefulWidget {
   const DetailLokasiCabangScreen({super.key, required this.branch});
 
@@ -33,6 +34,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   @override
   void initState() {
     super.initState();
+    // Schedule preview comes from class data, so this Cubit is scoped to the detail route.
     _scheduleCubit = LocationClassScheduleCubit(
       repository: context.read<BookingClassRepository>(),
     )..fetchSchedulesForLocation(widget.branch.id);
@@ -43,6 +45,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.branch.id != widget.branch.id) {
+      // Refresh schedules if this route is reused for a different branch.
       _scheduleCubit.fetchSchedulesForLocation(widget.branch.id);
     }
   }
@@ -83,6 +86,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
     Uri uri, {
     required String fallbackMessage,
   }) async {
+    // url_launcher failures are reported as snackbars instead of surfacing platform errors.
     try {
       final bool isLaunched = await launchUrl(
         uri,
@@ -102,6 +106,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   Future<void> _shareBranch() async {
     final String shareText = '${widget.branch.name} - ${widget.branch.address}';
 
+    // Clipboard sharing keeps this action dependency-free until native share is added.
     await Clipboard.setData(ClipboardData(text: shareText));
 
     if (mounted) {
@@ -133,6 +138,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
               final DetailLocationLayoutSpec spec =
                   DetailLocationLayoutSpec.fromWidth(constraints.maxWidth);
 
+              // Stack layers decorative background behind the scrollable detail content.
               return Stack(
                 children: [
                   Positioned(
@@ -181,6 +187,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
     DetailLocationLayoutSpec spec,
     BranchLocation branch,
   ) {
+    // Mobile and tablet detail content follows a single vertical order.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -222,6 +229,7 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
     DetailLocationLayoutSpec spec,
     BranchLocation branch,
   ) {
+    // Wide screens keep hero/gallery/CTA beside the operational details.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -278,6 +286,8 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   }
 
   Widget _buildBranchClassScheduleSection() {
+    // This section is independently loaded so branch details stay visible while
+    // class schedules are fetched.
     return BlocBuilder<LocationClassScheduleCubit, LocationClassScheduleState>(
       builder: (context, scheduleState) {
         if (scheduleState.status == LocationClassScheduleStatus.loading ||
@@ -327,6 +337,7 @@ class DetailLocationLayoutSpec {
   final double columnGap;
 
   factory DetailLocationLayoutSpec.fromWidth(double width) {
+    // Mirrors the shared breakpoints from AGENTS.md.
     if (width >= 840) {
       return const DetailLocationLayoutSpec(
         isExpanded: true,

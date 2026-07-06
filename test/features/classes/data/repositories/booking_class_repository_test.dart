@@ -16,7 +16,6 @@ void main() {
               id: 'category-1',
               name: 'Yoga',
               colorHex: null,
-              iconKey: 'yoga',
             ),
           ],
           range: MobileClassRangeDto(
@@ -37,12 +36,9 @@ void main() {
                 id: 'category-1',
                 name: 'Yoga',
                 colorHex: null,
-                iconKey: 'yoga',
               ),
               images: const [],
-              benefits: const [
-                MobileClassBenefitDto(label: 'Mobility', iconKey: 'mobility'),
-              ],
+              benefits: const [MobileClassBenefitDto(label: 'Mobility')],
               sessions: [
                 MobileClassSessionDto(
                   id: 'session-1',
@@ -131,7 +127,7 @@ void main() {
     expect(classes.first.slots.last.sessionId, 'session-2');
     expect(classes.first.slots.last.branch, 'Renon');
     expect(classes.first.benefits.first.label, 'Mobility');
-    expect(classes.first.benefits.first.icon, AppLucideIcons.heart);
+    expect(classes.first.benefits.first.icon, AppLucideIcons.badgeCheck);
   });
 
   test('maps class booking response into confirmation', () async {

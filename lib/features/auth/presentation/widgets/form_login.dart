@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:do_gym/core/colors.dart';
 
+// Pure login form UI. It receives controllers and callbacks from LoginScreen so
+// it does not know about repositories, sessions, or Cubits.
 class FormLogin extends StatelessWidget {
   const FormLogin({
     super.key,
@@ -36,6 +38,8 @@ class FormLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Keep email and password in one autofill context so the platform can offer
+    // to save them after LoginScreen calls TextInput.finishAutofillContext.
     return AutofillGroup(
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -278,6 +282,8 @@ class _LoginField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Field styling is custom because the login screen uses a dark branded card
+    // instead of the default Material TextField surface.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

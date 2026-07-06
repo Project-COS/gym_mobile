@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../classes/data/repositories/booking_class_repository.dart';
 import 'activity_data.dart';
 
+// Class booking history already comes from the classes feature. This mapper only
+// adapts it to the shared activity card shape and preserves QR-capable detail.
 ActivityHistoryItem mapClassBookingToActivityHistoryItem(
   ClassBookingHistoryItem booking, {
   bool isFeatured = false,

@@ -4,6 +4,7 @@ import '../../../../core/colors.dart';
 import '../../../../core/icons/app_lucide_icons.dart';
 import '../../data/repositories/trainer_repository.dart';
 
+/// Header katalog trainer menampilkan jumlah data yang sudah dipetakan repository.
 class TrainerCatalogHeader extends StatelessWidget {
   const TrainerCatalogHeader({super.key, required this.count});
 
@@ -52,6 +53,8 @@ class TrainerCatalogHeader extends StatelessWidget {
   }
 }
 
+/// Kartu ringkasan trainer untuk list. Semua data yang tampil berasal dari
+/// TrainerProfile sehingga widget ini tidak perlu mengenal DTO backend.
 class TrainerProfileCard extends StatelessWidget {
   const TrainerProfileCard({
     super.key,
@@ -182,6 +185,8 @@ class TrainerProfileCard extends StatelessWidget {
   }
 }
 
+/// Status list disatukan agar loading, empty, dan failure punya ukuran minimum
+/// yang konsisten di dalam scroll view home.
 class TrainerStatusCard extends StatelessWidget {
   const TrainerStatusCard.loading({super.key})
     : message = 'Memuat trainer tersedia...',
@@ -335,6 +340,8 @@ class _NetworkCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Gambar katalog boleh gagal tanpa merusak kartu; fallback tetap menjaga
+    // kontras teks di atas gradient.
     return Opacity(
       opacity: 0.22,
       child: Image.network(

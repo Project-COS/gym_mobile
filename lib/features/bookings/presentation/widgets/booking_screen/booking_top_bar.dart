@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
 
+// Compact heading for the booking page, reused by stacked and expanded layouts.
 class BookingTopBar extends StatelessWidget {
   const BookingTopBar({super.key});
 

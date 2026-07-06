@@ -3,6 +3,8 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_exception.dart';
 import '../dto/member_attendance_history_response_dto.dart';
 
+// Service owns only the HTTP call and response decoding for member attendance
+// activity. Mapping into UI models happens in the repository/mapper layers.
 class MemberAttendanceActivityApiService {
   const MemberAttendanceActivityApiService({required ApiClient apiClient})
     : _apiClient = apiClient;

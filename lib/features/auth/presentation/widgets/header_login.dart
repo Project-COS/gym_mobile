@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:do_gym/core/colors.dart';
 
+// Compact brand header reused by both stacked and expanded login layouts.
 class HeaderLogin extends StatelessWidget {
   const HeaderLogin({super.key});
 
@@ -35,6 +36,7 @@ class HeaderLogin extends StatelessWidget {
             'lib/assets/logo-1.jpeg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
+              // Keep the login screen usable if the bundled logo asset fails.
               return const Center(
                 child: Text(
                   'DG',

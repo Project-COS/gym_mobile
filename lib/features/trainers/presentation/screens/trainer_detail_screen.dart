@@ -10,6 +10,10 @@ import '../../data/repositories/trainer_repository.dart';
 import '../cubit/trainer_detail_cubit.dart';
 import '../widgets/trainer_detail_widgets.dart';
 
+/// Screen detail trainer mengorkestrasi Cubit, aksi eksternal, dan booking sheet.
+///
+/// Widget detail di bawahnya tetap presentational; screen ini yang menangani
+/// snackbar, navigasi, clipboard, Maps, dan submit booking.
 class TrainerDetailScreen extends StatefulWidget {
   const TrainerDetailScreen({super.key, required this.trainerId});
 
@@ -26,6 +30,8 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
   @override
   void initState() {
     super.initState();
+    // Cubit dibuat per route karena detail membutuhkan trainerId dari argumen.
+    // Dependency repository tetap diambil dari provider yang sudah dipasang app.
     _trainerDetailCubit = TrainerDetailCubit(
       repository: context.read<TrainerRepository>(),
       bookingRepository: context.read<PersonalTrainingBookingRepository>(),
@@ -46,6 +52,8 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
   }
 
   Future<void> _openMaps(TrainerProfile trainer) async {
+    // Jika backend belum menyediakan deep link Maps, gunakan query yang tetap
+    // dapat dibuka oleh Google Maps.
     final Uri mapsUri = trainer.mapUrl == null || trainer.mapUrl!.trim().isEmpty
         ? Uri.https('www.google.com', '/maps/search/', {
             'api': '1',
@@ -80,6 +88,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
   }
 
   Future<void> _shareTrainer(TrainerProfile trainer) async {
+    // Fallback share sederhana tanpa plugin tambahan: salin ringkasan trainer.
     final shareText = '${trainer.name} - ${trainer.location}';
 
     await Clipboard.setData(ClipboardData(text: shareText));
@@ -104,6 +113,8 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
         body: SafeArea(
           child: BlocConsumer<TrainerDetailCubit, TrainerDetailState>(
             listener: (context, state) {
+              // Side effect presentation dipusatkan di listener agar build tetap
+              // idempotent dan tidak memicu snackbar/navigasi berulang.
               final successMessage = state.ratingSuccessMessage;
               final errorMessage = state.ratingErrorMessage;
               final bookingErrorMessage = state.bookingErrorMessage;
@@ -373,6 +384,8 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
                       child: ElevatedButton.icon(
                         onPressed: () {
                           Navigator.of(sheetContext).pop();
+                          // Sheet hanya mengumpulkan pilihan. Pembuatan booking
+                          // tetap melewati Cubit agar loading dan error konsisten.
                           _trainerDetailCubit.bookPersonalTrainingSession(
                             startsAt: selectedSlot.startsAt,
                             programId: selectedProgram?.id,
@@ -443,6 +456,8 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
     final now = DateTime.now();
     final slots = <_TrainerBookingSlot>[];
 
+    // Jadwal backend berbentuk hari dan jam. Mobile mengubahnya menjadi slot
+    // DateTime terdekat agar payload booking selalu punya startsAt konkret.
     for (final schedule in trainer.schedules) {
       final startTime = _parseScheduleStartTime(schedule.startTime);
 
@@ -466,6 +481,8 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
     }
 
     if (slots.isEmpty) {
+      // Fallback ini menjaga user tetap punya opsi booking ketika backend belum
+      // mengirim jadwal, namun tetap memakai lokasi utama trainer bila ada.
       final tomorrow = now.add(const Duration(days: 1));
       final fallbackStartsAt = DateTime(
         tomorrow.year,
@@ -518,6 +535,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
     required int? dayOfWeek,
     required TimeOfDay startTime,
   }) {
+    // Backend memakai 0 untuk Minggu, sedangkan DateTime.weekday memakai 7.
     final targetWeekday = dayOfWeek == null
         ? now.add(const Duration(days: 1)).weekday
         : dayOfWeek == 0
@@ -539,6 +557,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
     );
 
     if (!startsAt.isAfter(now.add(const Duration(minutes: 5)))) {
+      // Hindari slot yang sudah lewat atau terlalu mepet dari waktu sekarang.
       date = date.add(const Duration(days: 7));
       startsAt = DateTime(
         date.year,
@@ -617,6 +636,7 @@ class TrainerDetailLayoutSpec {
   final double columnGap;
 
   factory TrainerDetailLayoutSpec.fromWidth(double width) {
+    // Breakpoint mengikuti AGENTS.md: mobile, tablet, lalu expanded layout.
     if (width >= 840) {
       return const TrainerDetailLayoutSpec(
         isExpanded: true,

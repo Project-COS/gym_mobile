@@ -6,6 +6,8 @@ import '../../data/repositories/trainer_repository.dart';
 
 enum TrainerDetailLoadStatus { initial, loading, success, failure }
 
+/// State detail trainer juga membawa status aksi turunan seperti rating dan
+/// booking, sehingga screen bisa menampilkan snackbar/navigasi dari satu alur.
 class TrainerDetailState {
   const TrainerDetailState({
     this.status = TrainerDetailLoadStatus.initial,
@@ -82,6 +84,7 @@ class TrainerDetailCubit extends Cubit<TrainerDetailState> {
       return;
     }
 
+    // Trainer lama dipertahankan saat refresh detail agar halaman tidak berkedip.
     emit(TrainerDetailState.loading(trainer: state.trainer));
 
     try {
@@ -105,6 +108,7 @@ class TrainerDetailCubit extends Cubit<TrainerDetailState> {
     }
 
     if (!trainer.canRate) {
+      // Guard lokal menyamakan pesan dengan validasi backend forbidden.
       emit(
         TrainerDetailState.success(
           trainer,
@@ -154,6 +158,8 @@ class TrainerDetailCubit extends Cubit<TrainerDetailState> {
       return;
     }
 
+    // Booking dibuat melalui repository bookings karena QR sukses memakai
+    // kontrak booking PT yang sama dengan halaman riwayat booking.
     emit(TrainerDetailState.success(trainer, isSubmittingBooking: true));
 
     try {

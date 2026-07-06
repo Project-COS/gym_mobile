@@ -1,5 +1,7 @@
 import '../../../auth/data/dto/member_dto.dart';
 
+// DTOs mirror the mobile current-member response. Display labels are mapped in
+// the repository so parsing stays focused on API shape and validation.
 class MobileMemberProfileResponseDto {
   const MobileMemberProfileResponseDto({required this.profile});
 
@@ -18,6 +20,8 @@ class MobileMemberProfileResponseDto {
       );
     }
 
+    // Some auth/session responses still return a legacy member object. Keep
+    // this fallback so the profile screen can render during backend transitions.
     final legacyMember = MemberDto.fromJson(data['member']);
 
     return MobileMemberProfileResponseDto(
@@ -42,6 +46,7 @@ class MobileMemberProfileResponseDto {
   final MobileMemberProfileDto profile;
 }
 
+// Normalized profile object expected by the current mobile profile endpoint.
 class MobileMemberProfileDto {
   const MobileMemberProfileDto({
     required this.member,
@@ -66,6 +71,7 @@ class MobileMemberProfileDto {
   final MobileMemberProfileMembershipDto? membership;
 }
 
+// Member identity can be edited only through the explicit update endpoint.
 class MobileMemberProfileMemberDto {
   const MobileMemberProfileMemberDto({
     required this.id,
@@ -118,6 +124,7 @@ class MobileMemberProfileCompanyDto {
   final String name;
 }
 
+// Active membership is optional because a member may exist without a valid plan.
 class MobileMemberProfileMembershipDto {
   const MobileMemberProfileMembershipDto({
     required this.id,
@@ -214,5 +221,6 @@ DateTime _requireDateTime(
     throw FormatException('$fieldName must be a valid date time.');
   }
 
+  // Profile dates are shown to the member, so normalize before repository mapping.
   return dateTime.toLocal();
 }

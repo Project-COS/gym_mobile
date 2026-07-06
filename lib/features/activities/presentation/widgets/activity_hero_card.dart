@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../../data/activity_data.dart';
 
+// Summary card at the top of the activity screen. It receives already-computed
+// stats so it stays presentational and independent from Cubit types.
 class ActivityHeroCard extends StatelessWidget {
   const ActivityHeroCard({super.key, required this.stats});
 

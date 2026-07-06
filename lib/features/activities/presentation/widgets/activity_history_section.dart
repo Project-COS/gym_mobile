@@ -4,6 +4,8 @@ import '../../../../core/colors.dart';
 import '../../data/activity_data.dart';
 import 'activity_history_card.dart';
 
+// Section wrapper owns title/count presentation and delegates each row to the
+// card widget so all tabs share the same timeline layout.
 class ActivityHistorySection extends StatelessWidget {
   const ActivityHistorySection({
     super.key,

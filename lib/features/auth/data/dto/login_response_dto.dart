@@ -1,5 +1,7 @@
 import 'member_dto.dart';
 
+// Strict parser for a successful login response. Invalid shapes become
+// FormatException so AuthApiService can convert them into ApiException.
 class LoginResponseDto {
   const LoginResponseDto({
     required this.token,
@@ -35,6 +37,7 @@ class LoginResponseDto {
 
     return LoginResponseDto(
       token: token.trim(),
+      // Store session expiry in UTC to match the core session model.
       expiresAt: expiresAt.toUtc(),
       member: MemberDto.fromJson(json['member']),
     );

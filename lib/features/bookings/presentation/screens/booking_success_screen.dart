@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/colors.dart';
 import '../widgets/booking_success/booking_success_widgets.dart';
 
+// Shared confirmation/QR screen for PT and class bookings. Activity history can
+// also reopen this screen to display an existing booking QR.
 class BookingSuccessScreen extends StatelessWidget {
   const BookingSuccessScreen({
     super.key,
@@ -32,6 +34,8 @@ class BookingSuccessScreen extends StatelessWidget {
       return apiBookingCode.trim();
     }
 
+    // Fallback code keeps older/local flows usable if the API did not return a
+    // booking code. API-provided codes always take precedence.
     final String cleanId = itemId
         .replaceAll(RegExp('[^a-zA-Z0-9]'), '')
         .toUpperCase()
@@ -54,6 +58,8 @@ class BookingSuccessScreen extends StatelessWidget {
       return apiQrPayload.trim();
     }
 
+    // Fallback payload is deterministic and type-scoped so staff tools can still
+    // distinguish PT bookings from class bookings in local/demo flows.
     return '${typeCode == 'pt' ? 'pt_booking' : 'class_booking'}:$_bookingCode';
   }
 
@@ -160,6 +166,8 @@ class BookingSuccessLayoutSpec {
   final double bottomGap;
 
   factory BookingSuccessLayoutSpec.fromWidth(double width) {
+    // Keep QR and booking details readable by constraining the success page
+    // width even on tablets and expanded layouts.
     if (width >= 840) {
       return const BookingSuccessLayoutSpec(
         isExpanded: true,

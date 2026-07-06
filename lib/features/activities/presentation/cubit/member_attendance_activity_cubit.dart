@@ -5,6 +5,8 @@ import '../../data/repositories/member_attendance_activity_repository.dart';
 
 enum MemberAttendanceActivityLoadStatus { initial, loading, success, failure }
 
+// State is scoped to the attendance tab. PT and class activity reuse their own
+// booking history cubits from their owning features.
 class MemberAttendanceActivityState {
   const MemberAttendanceActivityState({
     this.status = MemberAttendanceActivityLoadStatus.initial,
@@ -59,6 +61,8 @@ class MemberAttendanceActivityCubit
   }) async {
     final nextFilter = filter ?? state.filter;
 
+    // Prevent duplicate requests from repeated rebuilds, but allow explicit
+    // pull-to-refresh to restart the request.
     if (state.isLoading && !forceRefresh) {
       return;
     }
@@ -66,6 +70,7 @@ class MemberAttendanceActivityCubit
     emit(
       MemberAttendanceActivityState.loading(
         filter: nextFilter,
+        // Keep the current timeline visible while refreshing the same filter.
         items: state.filter == nextFilter ? state.items : const [],
         totalItems: state.filter == nextFilter ? state.totalItems : 0,
       ),
@@ -91,6 +96,7 @@ class MemberAttendanceActivityCubit
           MemberAttendanceActivityState.failure(
             filter: nextFilter,
             errorMessage: _mapErrorMessage(error),
+            // A failed refresh should not blank an already-loaded list.
             items: state.filter == nextFilter ? state.items : const [],
             totalItems: state.filter == nextFilter ? state.totalItems : 0,
           ),

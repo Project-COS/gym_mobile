@@ -1,3 +1,4 @@
+// Response after creating a single class booking.
 class MobileClassBookingResponseDto {
   const MobileClassBookingResponseDto({required this.booking});
 
@@ -12,6 +13,7 @@ class MobileClassBookingResponseDto {
   }
 }
 
+// Paginated response for Requested, History, and All class booking tabs.
 class MobileClassBookingsResponseDto {
   const MobileClassBookingsResponseDto({
     required this.bookings,
@@ -38,6 +40,7 @@ class MobileClassBookingsResponseDto {
   }
 }
 
+// Pagination is parsed even when the current UI only consumes the items.
 class MobileClassBookingPaginationDto {
   const MobileClassBookingPaginationDto({
     required this.page,
@@ -63,6 +66,7 @@ class MobileClassBookingPaginationDto {
   }
 }
 
+// Booking DTO keeps both QR data and relational display data returned by API.
 class MobileClassBookingDto {
   const MobileClassBookingDto({
     required this.id,
@@ -269,5 +273,6 @@ DateTime _readRequiredDate(Map<String, Object?> data, String key) {
     throw FormatException('Expected $key to be an ISO date.');
   }
 
+  // Booking history is user-facing, so normalize timestamps before formatting.
   return date.toLocal();
 }

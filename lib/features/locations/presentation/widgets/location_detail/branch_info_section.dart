@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Static branch contact and membership-access details.
 class BranchInfoSection extends StatelessWidget {
   const BranchInfoSection({super.key, required this.branch});
 

@@ -42,10 +42,7 @@ void main() {
                 ),
               ],
               facilities: const [
-                MobileLocationFacilityDto(
-                  name: 'Shower Room',
-                  iconKey: 'shower',
-                ),
+                MobileLocationFacilityDto(name: 'Shower Room'),
               ],
               schedules: const [
                 MobileLocationScheduleDto(
@@ -74,7 +71,7 @@ void main() {
       'https://cdn.example/location-lobby.jpg',
     );
     expect(locations.first.facilities.first.name, 'Shower Room');
-    expect(locations.first.facilities.first.icon, AppLucideIcons.shower);
+    expect(locations.first.facilities.first.icon, AppLucideIcons.dumbbell);
   });
 }
 

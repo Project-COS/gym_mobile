@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/colors.dart';
 
+// Static booking page hero. Data loading lives below it so the top of the page
+// stays stable while PT/class lists refresh.
 class BookingHeroCard extends StatelessWidget {
   const BookingHeroCard({super.key});
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/colors.dart';
 import '../../../data/branch_location_data.dart';
 
+// Responsive facility grid embedded inside the branch detail scroll view.
 class BranchFacilitySection extends StatelessWidget {
   const BranchFacilitySection({super.key, required this.facilities});
 
@@ -21,6 +22,7 @@ class BranchFacilitySection extends StatelessWidget {
             final bool isWide = constraints.maxWidth >= 520;
 
             return GridView.builder(
+              // Parent detail screen owns vertical scrolling.
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: facilities.length,

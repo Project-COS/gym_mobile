@@ -1,3 +1,5 @@
+// DTOs mirror the member attendance QR API response. Keep display formatting
+// in the repository so invalid backend payloads fail near the network layer.
 class MemberAttendanceQrResponseDto {
   const MemberAttendanceQrResponseDto({required this.data});
 
@@ -12,6 +14,7 @@ class MemberAttendanceQrResponseDto {
   }
 }
 
+// Short-lived QR data used by staff scanners for member check-in/check-out.
 class MemberAttendanceQrDataDto {
   const MemberAttendanceQrDataDto({
     required this.qrPayload,
@@ -39,6 +42,7 @@ class MemberAttendanceQrDataDto {
   }
 }
 
+// Member identity shown below the QR and used as manual staff fallback context.
 class MemberAttendanceMemberDto {
   const MemberAttendanceMemberDto({
     required this.id,
@@ -67,6 +71,7 @@ class MemberAttendanceMemberDto {
   }
 }
 
+// Active membership is required before the backend will issue a gym attendance QR.
 class MemberAttendanceMembershipDto {
   const MemberAttendanceMembershipDto({
     required this.id,
@@ -138,5 +143,6 @@ DateTime _readRequiredDate(Map<String, Object?> data, String key) {
     throw FormatException('Expected $key to be an ISO date.');
   }
 
+  // QR and membership times are displayed to the member, so normalize to local time.
   return date.toLocal();
 }

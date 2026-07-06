@@ -6,6 +6,7 @@ import '../../data/repositories/profile_repository.dart';
 
 enum ProfileLoadStatus { initial, loading, success, updating, failure }
 
+// State for profile fetch and edit flows.
 class ProfileState {
   const ProfileState({
     this.status = ProfileLoadStatus.initial,
@@ -28,6 +29,7 @@ class ProfileState {
     Object? errorMessage = _unchanged,
     Object? formErrorMessage = _unchanged,
   }) {
+    // Sentinel values let callers clear nullable fields intentionally.
     return ProfileState(
       status: status ?? this.status,
       profile: identical(profile, _unchanged)
@@ -51,10 +53,12 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ProfileRepository _repository;
 
   Future<void> fetchProfile({bool forceRefresh = false}) async {
+    // Avoid duplicate loads while still allowing explicit pull-to-refresh.
     if ((state.isLoading || state.isUpdating) && !forceRefresh) {
       return;
     }
 
+    // Profile tab lazy-loads once, then keeps the cached profile until refresh.
     if (state.status == ProfileLoadStatus.success && !forceRefresh) {
       return;
     }
@@ -90,6 +94,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     required String email,
     required String phone,
   }) async {
+    // Normalize before validating so UI and API submit the same values.
     final normalizedName = name.trim();
     final normalizedEmail = email.trim().toLowerCase();
     final normalizedPhone = phone.trim();
@@ -100,6 +105,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
 
     if (validationMessage != null) {
+      // Client validation stays in Cubit so the edit screen only renders messages.
       emit(
         state.copyWith(formErrorMessage: validationMessage, errorMessage: null),
       );
@@ -204,4 +210,5 @@ class ProfileCubit extends Cubit<ProfileState> {
 }
 
 const Object _unchanged = Object();
+// Lightweight email validation for member profile edits.
 final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');

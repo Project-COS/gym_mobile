@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../bookings/data/repositories/personal_training_booking_repository.dart';
 import 'activity_data.dart';
 
+// PT booking history keeps its source/status terminology in the bookings
+// feature. This mapper translates that record into member-facing activity copy.
 ActivityHistoryItem mapPersonalTrainingBookingToActivityHistoryItem(
   PersonalTrainingBookingHistoryItem booking, {
   bool isFeatured = false,

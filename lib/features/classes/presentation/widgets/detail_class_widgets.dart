@@ -4,6 +4,7 @@ import '../../../../core/colors.dart';
 import '../../../bookings/data/booking_data.dart';
 import '../../data/class_data.dart';
 
+// Presentational pieces for DetailClassScreen. Business actions are injected as callbacks.
 class ClassDetailTopBar extends StatelessWidget {
   const ClassDetailTopBar({
     super.key,
@@ -87,6 +88,7 @@ class ClassDetailHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The hero owns visual emphasis only; booking and map behavior stay in the screen.
     return Container(
       height: 340,
       clipBehavior: Clip.antiAlias,
@@ -275,6 +277,8 @@ class ClassSlotSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Slot selection is controlled by the parent so the confirmation sheet uses
+    // the same selected slot.
     return _SectionCard(
       title: 'Pilih Slot',
       trailing: TextButton(
@@ -334,6 +338,7 @@ class ClassActivityPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Gallery images are already de-duped by the repository mapper.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -380,6 +385,7 @@ class ClassBookingSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Bottom sheet is stateless; submit progress is driven by ClassBookingCubit.
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       decoration: BoxDecoration(
@@ -539,6 +545,7 @@ class _HeroCover extends StatelessWidget {
       child: Image.network(
         imageUrl,
         fit: BoxFit.cover,
+        // Covers are remote CMS assets, so keep a non-crashing fallback.
         errorBuilder: (_, _, _) => const _BrokenImageFallback(),
       ),
     );
@@ -647,6 +654,7 @@ class _DetailActionButton extends StatelessWidget {
     return SizedBox(
       height: 48,
       child: ElevatedButton.icon(
+        // Disable taps while loading so submit actions cannot fire twice.
         onPressed: isLoading ? null : onPressed,
         icon: isLoading
             ? SizedBox(
@@ -882,6 +890,7 @@ class _SlotGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The parent screen provides scrolling; this grid only lays out its children.
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -968,6 +977,7 @@ class _BenefitGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Like the slot grid, this is embedded in a scrollable detail page.
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -1134,6 +1144,7 @@ class _ActivityImage extends StatelessWidget {
       child: Image.network(
         imageUrl,
         fit: BoxFit.cover,
+        // Gallery image failures should not break the detail screen.
         errorBuilder: (_, _, _) => const _BrokenImageFallback(),
       ),
     );
