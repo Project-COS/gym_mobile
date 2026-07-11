@@ -10,6 +10,7 @@ void main() {
         {
           'id': 'trainer-1',
           'name': 'Coach Maya',
+          'phone': '081234567890',
           'specialty': 'Strength',
           'bio': 'Strength and conditioning coach.',
           'photoUrl': 'https://cdn.example/trainer.jpg',
@@ -22,6 +23,7 @@ void main() {
               'name': 'DO GYM Denpasar',
               'area': 'Denpasar',
               'address': 'Jl. Gatot Subroto',
+              'whatsapp': '+6281234567890',
               'isPrimary': true,
               'sortOrder': 1,
               'latitude': -8.65,
@@ -74,7 +76,9 @@ void main() {
 
     expect(response.trainers, hasLength(1));
     expect(response.trainers.first.name, 'Coach Maya');
+    expect(response.trainers.first.phone, '081234567890');
     expect(response.trainers.first.rating, 4.8);
+    expect(response.trainers.first.locations.first.whatsapp, '+6281234567890');
     expect(
       response.trainers.first.locations.first.mapUrls.googleMaps,
       'https://maps.example/location-1',

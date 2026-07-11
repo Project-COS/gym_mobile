@@ -75,6 +75,7 @@ class MobileClassCategoryDto {
 class MobileGymClassDto {
   const MobileGymClassDto({
     required this.id,
+    this.companyLogoUrl,
     required this.name,
     required this.subtitle,
     required this.description,
@@ -89,6 +90,7 @@ class MobileGymClassDto {
   });
 
   final String id;
+  final String? companyLogoUrl;
   final String name;
   final String? subtitle;
   final String? description;
@@ -106,6 +108,7 @@ class MobileGymClassDto {
 
     return MobileGymClassDto(
       id: _readRequiredString(data, 'id'),
+      companyLogoUrl: _readOptionalString(data, 'companyLogoUrl'),
       name: _readRequiredString(data, 'name'),
       subtitle: _readOptionalString(data, 'subtitle'),
       description: _readOptionalString(data, 'description'),
@@ -221,6 +224,7 @@ class MobileClassTrainerDto {
   const MobileClassTrainerDto({
     required this.id,
     required this.name,
+    this.phone,
     required this.specialty,
     required this.photoUrl,
     required this.rating,
@@ -228,6 +232,7 @@ class MobileClassTrainerDto {
 
   final String id;
   final String name;
+  final String? phone;
   final String? specialty;
   final String? photoUrl;
   final double? rating;
@@ -238,6 +243,7 @@ class MobileClassTrainerDto {
     return MobileClassTrainerDto(
       id: _readRequiredString(data, 'id'),
       name: _readRequiredString(data, 'name'),
+      phone: _readOptionalString(data, 'phone'),
       specialty: _readOptionalString(data, 'specialty'),
       photoUrl: _readOptionalString(data, 'photoUrl'),
       rating: _readOptionalDouble(data, 'rating'),
@@ -251,6 +257,7 @@ class MobileClassLocationDto {
     required this.name,
     required this.area,
     required this.address,
+    this.whatsapp,
     required this.latitude,
     required this.longitude,
     required this.googlePlaceId,
@@ -260,6 +267,7 @@ class MobileClassLocationDto {
   final String name;
   final String? area;
   final String? address;
+  final String? whatsapp;
   final double? latitude;
   final double? longitude;
   final String? googlePlaceId;
@@ -272,6 +280,7 @@ class MobileClassLocationDto {
       name: _readRequiredString(data, 'name'),
       area: _readOptionalString(data, 'area'),
       address: _readOptionalString(data, 'address'),
+      whatsapp: _readOptionalString(data, 'whatsapp'),
       latitude: _readOptionalDouble(data, 'latitude'),
       longitude: _readOptionalDouble(data, 'longitude'),
       googlePlaceId:

@@ -51,6 +51,7 @@ class RemoteProfileRepository implements ProfileRepository {
       email: dto.member.email ?? '',
       phone: dto.member.phone ?? '',
       companyName: dto.company.name,
+      companyLogoUrl: dto.company.logoUrl,
       badgeLabel: _formatBadgeLabel(membership?.planName),
       membershipPlanName: membership?.planName ?? 'Member Access',
       membershipStatusLabel: membership == null

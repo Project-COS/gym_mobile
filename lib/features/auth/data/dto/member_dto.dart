@@ -1,7 +1,7 @@
 // Minimal company context returned with a member login. It lets the app know
 // which gym tenant the authenticated member belongs to.
 class MemberCompanyDto {
-  const MemberCompanyDto({required this.id, required this.name});
+  const MemberCompanyDto({required this.id, required this.name, this.logoUrl});
 
   factory MemberCompanyDto.fromJson(Object? json) {
     final data = _requireJsonObject(json, 'member.company');
@@ -9,11 +9,13 @@ class MemberCompanyDto {
     return MemberCompanyDto(
       id: _requireString(data, 'id', 'member.company.id'),
       name: _requireString(data, 'name', 'member.company.name'),
+      logoUrl: _optionalString(data, 'logoUrl', 'member.company.logoUrl'),
     );
   }
 
   final String id;
   final String name;
+  final String? logoUrl;
 }
 
 // Member identity returned by login. Keep this DTO limited to API response data;

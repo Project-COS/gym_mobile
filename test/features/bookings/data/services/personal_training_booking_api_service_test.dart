@@ -51,7 +51,7 @@ Map<String, Object?> _bookingJson({required String status}) {
     'id': 'booking-1',
     'bookingCode': 'PTB-TEST001',
     'qrPayload': 'pt_booking:PTB-TEST001',
-    'source': 'AD_HOC',
+    'source': 'CUSTOM_SESSION',
     'status': status,
     'startsAt': '2026-06-24T01:00:00.000Z',
     'endsAt': '2026-06-24T02:00:00.000Z',

@@ -24,6 +24,7 @@ void main() {
     expect(trainers.first.branch, 'Denpasar');
     expect(trainers.first.duration, '60 Menit');
     expect(trainers.first.ratingLabel, '4.8');
+    expect(trainers.first.whatsappNumber, '081234567890');
     expect(trainers.first.scheduleLabel, 'Senin - 08:00 - 12:00');
     expect(trainers.first.mapUrl, 'https://maps.example/location-1');
     expect(trainers.first.gallery, ['https://cdn.example/gallery.jpg']);
@@ -114,6 +115,7 @@ MobileTrainerDto _trainerDto({required bool canRate}) {
   return MobileTrainerDto(
     id: 'trainer-1',
     name: 'Coach Maya',
+    phone: '081234567890',
     specialty: 'Strength',
     bio: 'Strength and conditioning coach.',
     photoUrl: 'https://cdn.example/trainer.jpg',
@@ -126,6 +128,7 @@ MobileTrainerDto _trainerDto({required bool canRate}) {
         name: 'DO GYM Denpasar',
         area: 'Denpasar',
         address: 'Jl. Gatot Subroto',
+        whatsapp: '+628199999999',
         isPrimary: true,
         sortOrder: 1,
         latitude: -8.65,

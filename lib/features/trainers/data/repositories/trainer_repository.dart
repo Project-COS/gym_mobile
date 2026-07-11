@@ -67,6 +67,7 @@ class RemoteTrainerRepository implements TrainerRepository {
     return TrainerProfile(
       id: trainer.id,
       name: trainer.name,
+      whatsappNumber: trainer.phone ?? primaryLocation?.whatsapp,
       subtitle:
           trainer.specialty ??
           primaryProgram?.subtitle ??
@@ -221,6 +222,7 @@ class RemoteTrainerRepository implements TrainerRepository {
       name: location.name,
       area: location.area,
       address: location.address,
+      whatsapp: location.whatsapp,
       isPrimary: location.isPrimary,
       mapUrl: location.mapUrls.googleMaps,
     );
@@ -293,6 +295,7 @@ class TrainerProfile {
   const TrainerProfile({
     required this.id,
     required this.name,
+    this.whatsappNumber,
     required this.subtitle,
     required this.description,
     required this.branch,
@@ -315,6 +318,7 @@ class TrainerProfile {
 
   final String id;
   final String name;
+  final String? whatsappNumber;
   final String subtitle;
   final String description;
   final String branch;
@@ -344,6 +348,7 @@ class TrainerProfile {
     return TrainerProfile(
       id: id,
       name: name,
+      whatsappNumber: whatsappNumber,
       subtitle: subtitle,
       description: description,
       branch: branch,
@@ -425,6 +430,7 @@ class TrainerLocation {
     required this.name,
     required this.area,
     required this.address,
+    this.whatsapp,
     required this.isPrimary,
     required this.mapUrl,
   });
@@ -433,6 +439,7 @@ class TrainerLocation {
   final String name;
   final String? area;
   final String? address;
+  final String? whatsapp;
   final bool isPrimary;
   final String? mapUrl;
 }

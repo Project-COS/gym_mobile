@@ -170,11 +170,13 @@ class MobileClassBookingTrainerDto {
   const MobileClassBookingTrainerDto({
     required this.id,
     required this.name,
+    this.phone,
     required this.specialty,
   });
 
   final String id;
   final String name;
+  final String? phone;
   final String? specialty;
 
   factory MobileClassBookingTrainerDto.fromJson(Object? json) {
@@ -183,6 +185,7 @@ class MobileClassBookingTrainerDto {
     return MobileClassBookingTrainerDto(
       id: _readRequiredString(data, 'id'),
       name: _readRequiredString(data, 'name'),
+      phone: _readOptionalString(data, 'phone'),
       specialty: _readOptionalString(data, 'specialty'),
     );
   }
@@ -194,12 +197,14 @@ class MobileClassBookingLocationDto {
     required this.name,
     required this.area,
     required this.address,
+    this.whatsapp,
   });
 
   final String id;
   final String name;
   final String? area;
   final String? address;
+  final String? whatsapp;
 
   factory MobileClassBookingLocationDto.fromJson(Object? json) {
     final data = _readMap(json);
@@ -209,6 +214,7 @@ class MobileClassBookingLocationDto {
       name: _readRequiredString(data, 'name'),
       area: _readOptionalString(data, 'area'),
       address: _readOptionalString(data, 'address'),
+      whatsapp: _readOptionalString(data, 'whatsapp'),
     );
   }
 }

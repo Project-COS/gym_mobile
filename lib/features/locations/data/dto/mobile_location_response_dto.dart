@@ -21,6 +21,7 @@ class MobileLocationsResponseDto {
 class MobileLocationDto {
   const MobileLocationDto({
     required this.id,
+    this.companyLogoUrl,
     required this.name,
     required this.description,
     required this.address,
@@ -37,6 +38,7 @@ class MobileLocationDto {
   });
 
   final String id;
+  final String? companyLogoUrl;
   final String name;
   final String? description;
   final String? address;
@@ -56,6 +58,7 @@ class MobileLocationDto {
 
     return MobileLocationDto(
       id: _readRequiredString(data, 'id'),
+      companyLogoUrl: _readOptionalString(data, 'companyLogoUrl'),
       name: _readRequiredString(data, 'name'),
       description: _readOptionalString(data, 'description'),
       address: _readOptionalString(data, 'address'),

@@ -15,7 +15,11 @@ void main() {
           'name': 'Member Test',
           'email': 'member@example.com',
           'phone': null,
-          'company': {'id': 'company-1', 'name': 'DO GYM'},
+          'company': {
+            'id': 'company-1',
+            'name': 'DO GYM',
+            'logoUrl': 'https://cdn.example/company-logo.png',
+          },
         },
       });
 
@@ -23,6 +27,10 @@ void main() {
       expect(response.expiresAt, DateTime.utc(2026, 6, 13, 12));
       expect(response.member.memberCode, 'MEM-001');
       expect(response.member.company.name, 'DO GYM');
+      expect(
+        response.member.company.logoUrl,
+        'https://cdn.example/company-logo.png',
+      );
     });
 
     test('rejects a successful response without a token', () {

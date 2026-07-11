@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/colors.dart';
+import '../../../notifications/presentation/cubit/notification_inbox_cubit.dart';
+import '../../../notifications/presentation/screens/notification_screen.dart';
 
 class HomeTopBar extends StatelessWidget {
   const HomeTopBar({super.key});
@@ -61,17 +64,37 @@ class HomeTopBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: AppColors.graphiteBlack,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.gunmetal),
-          ),
-          child: const Icon(
-            Icons.notifications_rounded,
-            color: AppColors.metallicWhite,
+        BlocBuilder<NotificationInboxCubit, NotificationInboxState>(
+          buildWhen: (previous, current) =>
+              previous.unreadCount != current.unreadCount,
+          builder: (context, state) => Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.graphiteBlack,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.gunmetal),
+            ),
+            child: Badge.count(
+              count: state.unreadCount,
+              isLabelVisible: state.unreadCount > 0,
+              backgroundColor: AppColors.gymGold,
+              textColor: AppColors.blackCore,
+              child: IconButton(
+                tooltip: 'Buka notifikasi',
+                onPressed: () {
+                  Navigator.of(context).push<void>(
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.notifications_rounded,
+                  color: AppColors.metallicWhite,
+                ),
+              ),
+            ),
           ),
         ),
       ],

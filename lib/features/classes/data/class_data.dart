@@ -29,6 +29,7 @@ class ClassCategoryOption {
 class GroupClassSession {
   const GroupClassSession({
     required this.id,
+    this.companyLogoUrl,
     required this.title,
     required this.subtitle,
     required this.description,
@@ -40,6 +41,7 @@ class GroupClassSession {
     required this.slotLabel,
     required this.infoCategory,
     required this.location,
+    this.contactPhoneNumber,
     required this.level,
     required this.coachName,
     required this.coachRole,
@@ -54,6 +56,7 @@ class GroupClassSession {
   });
 
   final String id;
+  final String? companyLogoUrl;
   final String title;
   final String subtitle;
   final String description;
@@ -65,6 +68,7 @@ class GroupClassSession {
   final String slotLabel;
   final String infoCategory;
   final String location;
+  final String? contactPhoneNumber;
   final String level;
   final String coachName;
   final String coachRole;

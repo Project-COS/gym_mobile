@@ -5,9 +5,74 @@ import 'package:do_gym/features/classes/data/class_data.dart';
 import 'package:do_gym/features/locations/data/repositories/location_repository.dart';
 import 'package:do_gym/features/locations/data/branch_location_data.dart';
 import 'package:do_gym/features/member_attendance/data/repositories/member_attendance_repository.dart';
+import 'package:do_gym/features/notifications/data/dto/push_device_registration_dto.dart';
+import 'package:do_gym/features/notifications/data/dto/member_notification_dto.dart';
+import 'package:do_gym/features/notifications/data/repositories/notification_repository.dart';
+import 'package:do_gym/features/notifications/data/services/push_notification_service.dart';
 import 'package:do_gym/features/profile/data/profile_data.dart';
 import 'package:do_gym/features/profile/data/repositories/profile_repository.dart';
+import 'package:do_gym/features/share_links/data/repositories/share_content_repository.dart';
 import 'package:do_gym/features/trainers/data/repositories/trainer_repository.dart';
+
+class FakeNotificationRepository implements NotificationRepository {
+  FakeNotificationRepository({this.items = const []});
+
+  final List<MemberNotificationDto> items;
+
+  @override
+  Future<MemberNotificationInboxResult> fetchNotifications({
+    required int page,
+    required int pageSize,
+  }) async {
+    return MemberNotificationInboxResult(
+      items: items,
+      unreadCount: items.where((item) => !item.isRead).length,
+      page: page,
+      pageSize: pageSize,
+      totalItems: items.length,
+      totalPages: 1,
+    );
+  }
+
+  @override
+  Future<void> registerPushDevice(
+    PushDeviceRegistrationDto registration,
+  ) async {}
+
+  @override
+  Future<void> disablePushDevice({String? registrationToken}) async {}
+
+  @override
+  Future<void> markNotificationRead(String notificationId) async {}
+
+  @override
+  Future<void> markAllNotificationsRead() async {}
+}
+
+class FakePushNotificationService implements PushNotificationService {
+  @override
+  String get currentPlatform => 'android';
+
+  @override
+  Stream<PushNotificationEvent> get foregroundMessages => const Stream.empty();
+
+  @override
+  Stream<Map<String, String>> get openedNotifications => const Stream.empty();
+
+  @override
+  Stream<String> get tokenRefreshes => const Stream.empty();
+
+  @override
+  Future<String?> getRegistrationToken() async => null;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<PushAuthorizationStatus> requestPermission() async {
+    return PushAuthorizationStatus.authorized;
+  }
+}
 
 class FakeLocationRepository implements LocationRepository {
   FakeLocationRepository({this.locations = const []});
@@ -277,6 +342,67 @@ class FakeProfileRepository implements ProfileRepository {
     );
 
     return profile;
+  }
+}
+
+class FakeShareContentRepository implements ShareContentRepository {
+  FakeShareContentRepository({this.error});
+
+  final Object? error;
+  String? submittedTrainerId;
+  String? submittedClassId;
+  String? submittedLocationId;
+
+  @override
+  Future<ShareContent> createTrainerShareLink({
+    required String trainerId,
+  }) async {
+    final Object? error = this.error;
+
+    if (error != null) {
+      throw error;
+    }
+
+    submittedTrainerId = trainerId;
+    return const ShareContent(
+      title: 'Coach Maya',
+      description: 'Personal training tersedia di aplikasi.',
+      publicUrl: 'https://gym.example.com/s/trainer-token',
+    );
+  }
+
+  @override
+  Future<ShareContent> createClassShareLink({required String classId}) async {
+    final Object? error = this.error;
+
+    if (error != null) {
+      throw error;
+    }
+
+    submittedClassId = classId;
+    return const ShareContent(
+      title: 'Yoga Flow',
+      description: 'Detail kelas tersedia di aplikasi.',
+      publicUrl: 'https://gym.example.com/s/class-token',
+    );
+  }
+
+  @override
+  Future<ShareContent> createLocationShareLink({
+    required String locationId,
+  }) async {
+    final Object? error = this.error;
+
+    if (error != null) {
+      throw error;
+    }
+
+    submittedLocationId = locationId;
+    return const ShareContent(
+      title: 'DO GYM Denpasar',
+      description: 'Detail cabang tersedia di aplikasi.',
+      publicUrl: 'https://gym.example.com/s/location-token',
+    );
   }
 }
 

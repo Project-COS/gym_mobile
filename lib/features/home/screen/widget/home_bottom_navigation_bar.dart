@@ -19,56 +19,63 @@ class HomeBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 84,
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 18),
       decoration: const BoxDecoration(
         color: AppColors.blackCore,
         border: Border(top: BorderSide(color: AppColors.gunmetal, width: 1)),
       ),
-      child: Row(
-        children: List.generate(labels.length, (index) {
-          final bool isActive = selectedIndex == index;
+      child: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            children: List.generate(labels.length, (index) {
+              final bool isActive = selectedIndex == index;
 
-          return Expanded(
-            child: InkWell(
-              onTap: () => onDestinationSelected(index),
-              borderRadius: BorderRadius.circular(18),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? AppColors.gymGold.withValues(alpha: 0.10)
-                      : Colors.transparent,
+              return Expanded(
+                child: InkWell(
+                  onTap: () => onDestinationSelected(index),
                   borderRadius: BorderRadius.circular(18),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      icons[index],
-                      size: 23,
-                      color: isActive ? AppColors.gymGold : AppColors.ironGray,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? AppColors.gymGold.withValues(alpha: 0.10)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      labels[index],
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: isActive
-                            ? AppColors.metallicWhite
-                            : AppColors.ironGray,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          icons[index],
+                          size: 23,
+                          color: isActive
+                              ? AppColors.gymGold
+                              : AppColors.ironGray,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          labels[index],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: isActive
+                                ? AppColors.metallicWhite
+                                : AppColors.ironGray,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        }),
+              );
+            }),
+          ),
+        ),
       ),
     );
   }

@@ -68,7 +68,7 @@ class MemberAttendanceQrCubit extends Cubit<MemberAttendanceQrState> {
 
   String _mapErrorMessage(Object error) {
     if (error is! ApiException) {
-      return 'Barcode member belum bisa dibuat. Silakan coba kembali.';
+      return 'QR member belum bisa dibuat. Silakan coba kembali.';
     }
 
     return switch (error.type) {
@@ -77,12 +77,12 @@ class MemberAttendanceQrCubit extends Cubit<MemberAttendanceQrState> {
       ApiExceptionType.conflict =>
         'Membership aktif diperlukan sebelum check-in ke gym.',
       ApiExceptionType.timeout =>
-        'Membuat barcode terlalu lama. Periksa koneksi lalu coba kembali.',
+        'Membuat QR terlalu lama. Periksa koneksi lalu coba kembali.',
       ApiExceptionType.network =>
         'Tidak dapat terhubung ke server. Periksa koneksi dan alamat API.',
       ApiExceptionType.invalidResponse =>
-        'Data barcode belum bisa dibaca. Silakan coba kembali.',
-      _ => 'Barcode member belum bisa dibuat. Silakan coba kembali.',
+        'Data QR belum bisa dibaca. Silakan coba kembali.',
+      _ => 'QR member belum bisa dibuat. Silakan coba kembali.',
     };
   }
 }

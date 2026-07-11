@@ -54,21 +54,7 @@ class BranchDetailHeroCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: AppColors.gymGold.withValues(alpha: 0.36),
-                      ),
-                    ),
-                    child: Image.asset(
-                      'lib/assets/logo-1.jpeg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  _CompanyLogoBadge(logoUrl: branch.companyLogoUrl),
                   _BranchOpenStatusChip(branch: branch),
                 ],
               ),
@@ -153,6 +139,48 @@ class _HeroCover extends StatelessWidget {
           child: SizedBox.expand(),
         ),
       ),
+    );
+  }
+}
+
+class _CompanyLogoBadge extends StatelessWidget {
+  const _CompanyLogoBadge({required this.logoUrl});
+
+  final String? logoUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final normalizedLogoUrl = logoUrl?.trim();
+
+    return Container(
+      width: 52,
+      height: 52,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.graphiteBlack,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.36)),
+      ),
+      child: normalizedLogoUrl == null || normalizedLogoUrl.isEmpty
+          ? const _CompanyLogoFallback()
+          : Image.network(
+              normalizedLogoUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const _CompanyLogoFallback();
+              },
+            ),
+    );
+  }
+}
+
+class _CompanyLogoFallback extends StatelessWidget {
+  const _CompanyLogoFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Icon(AppLucideIcons.building, color: AppColors.gymGold, size: 24),
     );
   }
 }

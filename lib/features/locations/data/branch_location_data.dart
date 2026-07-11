@@ -16,6 +16,7 @@ enum BranchFilter {
 class BranchLocation {
   const BranchLocation({
     required this.id,
+    this.companyLogoUrl,
     required this.name,
     required this.address,
     required this.area,
@@ -38,6 +39,7 @@ class BranchLocation {
   });
 
   final String id;
+  final String? companyLogoUrl;
   final String name;
   final String address;
   final String area;

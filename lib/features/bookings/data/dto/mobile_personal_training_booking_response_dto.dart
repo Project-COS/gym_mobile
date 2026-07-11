@@ -123,11 +123,13 @@ class MobilePersonalTrainingBookingTrainerDto {
   const MobilePersonalTrainingBookingTrainerDto({
     required this.id,
     required this.name,
+    this.phone,
     required this.specialty,
   });
 
   final String id;
   final String name;
+  final String? phone;
   final String? specialty;
 
   factory MobilePersonalTrainingBookingTrainerDto.fromJson(Object? json) {
@@ -136,6 +138,7 @@ class MobilePersonalTrainingBookingTrainerDto {
     return MobilePersonalTrainingBookingTrainerDto(
       id: _readRequiredString(data, 'id'),
       name: _readRequiredString(data, 'name'),
+      phone: _readOptionalString(data, 'phone'),
       specialty: _readOptionalString(data, 'specialty'),
     );
   }
@@ -169,12 +172,14 @@ class MobilePersonalTrainingBookingLocationDto {
     required this.name,
     required this.area,
     required this.address,
+    this.whatsapp,
   });
 
   final String id;
   final String name;
   final String? area;
   final String? address;
+  final String? whatsapp;
 
   factory MobilePersonalTrainingBookingLocationDto.fromJson(Object? json) {
     final data = _readMap(json);
@@ -184,6 +189,7 @@ class MobilePersonalTrainingBookingLocationDto {
       name: _readRequiredString(data, 'name'),
       area: _readOptionalString(data, 'area'),
       address: _readOptionalString(data, 'address'),
+      whatsapp: _readOptionalString(data, 'whatsapp'),
     );
   }
 }

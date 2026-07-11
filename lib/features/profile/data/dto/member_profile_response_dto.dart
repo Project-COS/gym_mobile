@@ -37,6 +37,7 @@ class MobileMemberProfileResponseDto {
         company: MobileMemberProfileCompanyDto(
           id: legacyMember.company.id,
           name: legacyMember.company.name,
+          logoUrl: legacyMember.company.logoUrl,
         ),
         membership: null,
       ),
@@ -109,7 +110,11 @@ class MobileMemberProfileMemberDto {
 }
 
 class MobileMemberProfileCompanyDto {
-  const MobileMemberProfileCompanyDto({required this.id, required this.name});
+  const MobileMemberProfileCompanyDto({
+    required this.id,
+    required this.name,
+    this.logoUrl,
+  });
 
   factory MobileMemberProfileCompanyDto.fromJson(Object? json) {
     final data = _requireJsonObject(json, 'profile.company');
@@ -117,11 +122,13 @@ class MobileMemberProfileCompanyDto {
     return MobileMemberProfileCompanyDto(
       id: _requireString(data, 'id', 'profile.company.id'),
       name: _requireString(data, 'name', 'profile.company.name'),
+      logoUrl: _optionalString(data, 'logoUrl', 'profile.company.logoUrl'),
     );
   }
 
   final String id;
   final String name;
+  final String? logoUrl;
 }
 
 // Active membership is optional because a member may exist without a valid plan.

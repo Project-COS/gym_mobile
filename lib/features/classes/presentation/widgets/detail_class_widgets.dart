@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/icons/app_lucide_icons.dart';
 import '../../../bookings/data/booking_data.dart';
 import '../../data/class_data.dart';
 
@@ -79,11 +80,13 @@ class ClassDetailHeroCard extends StatelessWidget {
     super.key,
     required this.session,
     required this.onMapPressed,
+    required this.onWhatsAppPressed,
     required this.onBookingPressed,
   });
 
   final GroupClassSession session;
   final VoidCallback onMapPressed;
+  final VoidCallback onWhatsAppPressed;
   final VoidCallback onBookingPressed;
 
   @override
@@ -124,7 +127,7 @@ class ClassDetailHeroCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const _BrandLogo(),
+                  _BrandLogo(logoUrl: session.companyLogoUrl),
                   _StatusChip(label: session.slotLabel),
                 ],
               ),
@@ -164,6 +167,15 @@ class ClassDetailHeroCard extends StatelessWidget {
               const SizedBox(height: 18),
               Row(
                 children: [
+                  Expanded(
+                    child: _DetailActionButton(
+                      label: 'WhatsApp',
+                      icon: AppLucideIcons.phone,
+                      isPrimary: false,
+                      onPressed: onWhatsAppPressed,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _DetailActionButton(
                       label: 'Maps',
@@ -571,19 +583,43 @@ class _BrokenImageFallback extends StatelessWidget {
 }
 
 class _BrandLogo extends StatelessWidget {
-  const _BrandLogo();
+  const _BrandLogo({required this.logoUrl});
+
+  final String? logoUrl;
 
   @override
   Widget build(BuildContext context) {
+    final normalizedLogoUrl = logoUrl?.trim();
+
     return Container(
       width: 52,
       height: 52,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
+        color: AppColors.graphiteBlack,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.gymGold.withValues(alpha: 0.28)),
       ),
-      child: Image.asset('lib/assets/logo-1.jpeg', fit: BoxFit.cover),
+      child: normalizedLogoUrl == null || normalizedLogoUrl.isEmpty
+          ? const _BrandLogoFallback()
+          : Image.network(
+              normalizedLogoUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const _BrandLogoFallback();
+              },
+            ),
+    );
+  }
+}
+
+class _BrandLogoFallback extends StatelessWidget {
+  const _BrandLogoFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Icon(AppLucideIcons.building, color: AppColors.gymGold, size: 24),
     );
   }
 }

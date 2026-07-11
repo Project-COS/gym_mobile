@@ -7,6 +7,7 @@ class MemberProfile {
     required this.email,
     required this.phone,
     required this.companyName,
+    this.companyLogoUrl,
     required this.badgeLabel,
     required this.membershipPlanName,
     required this.membershipStatusLabel,
@@ -22,6 +23,7 @@ class MemberProfile {
   final String email;
   final String phone;
   final String companyName;
+  final String? companyLogoUrl;
   final String badgeLabel;
   final String membershipPlanName;
   final String membershipStatusLabel;

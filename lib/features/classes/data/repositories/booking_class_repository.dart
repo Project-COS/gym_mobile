@@ -151,6 +151,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
     return [
       GroupClassSession(
         id: gymClass.id,
+        companyLogoUrl: gymClass.companyLogoUrl,
         title: gymClass.name,
         subtitle: _formatClassSubtitle(gymClass.sessions, primarySlot),
         description:
@@ -165,6 +166,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
         slotLabel: _formatAvailableSlotSummary(gymClass.sessions),
         infoCategory: _formatInfoCategory(categoryName, gymClass.level),
         location: _formatLocationSummary(gymClass.sessions),
+        contactPhoneNumber: _contactNumberForClassSession(primarySession),
         level: gymClass.level ?? 'All Level',
         coachName: _formatCoachNameSummary(gymClass.sessions),
         coachRole: _formatCoachRoleSummary(gymClass.sessions),
@@ -200,6 +202,7 @@ class RemoteBookingClassRepository implements BookingClassRepository {
       branch: session.location?.area ?? session.location?.name,
       location: _formatClassLocation(session.location, session.roomName),
       mapQuery: _formatMapQuery(session.location),
+      contactPhoneNumber: _contactNumberForClassSession(session),
       coachName: session.trainer?.name,
       coachRole: session.trainer?.specialty,
     );
@@ -346,6 +349,10 @@ class RemoteBookingClassRepository implements BookingClassRepository {
     }
 
     return [location.name, location.address].whereType<String>().join(' ');
+  }
+
+  String? _contactNumberForClassSession(MobileClassSessionDto session) {
+    return session.trainer?.phone ?? session.location?.whatsapp;
   }
 
   String _formatClassSubtitle(

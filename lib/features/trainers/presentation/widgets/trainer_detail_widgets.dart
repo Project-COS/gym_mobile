@@ -24,6 +24,7 @@ class TrainerDetailView extends StatelessWidget {
     required this.onRatingChanged,
     required this.onRatingSubmitted,
     required this.onBookingPressed,
+    required this.onWhatsAppPressed,
   });
 
   final TrainerProfile trainer;
@@ -39,6 +40,7 @@ class TrainerDetailView extends StatelessWidget {
   final ValueChanged<double> onRatingChanged;
   final VoidCallback onRatingSubmitted;
   final VoidCallback onBookingPressed;
+  final VoidCallback onWhatsAppPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +67,7 @@ class TrainerDetailView extends StatelessWidget {
           isSubmittingBooking: isSubmittingBooking,
           onBookingPressed: onBookingPressed,
           onMapPressed: onMapPressed,
+          onWhatsAppPressed: onWhatsAppPressed,
         ),
         SizedBox(height: sectionGap),
         TrainerQuickGrid(trainer: trainer),
@@ -116,6 +119,7 @@ class TrainerDetailView extends StatelessWidget {
                     isSubmittingBooking: isSubmittingBooking,
                     onBookingPressed: onBookingPressed,
                     onMapPressed: onMapPressed,
+                    onWhatsAppPressed: onWhatsAppPressed,
                   ),
                   SizedBox(height: sectionGap),
                   TrainerQuickGrid(trainer: trainer),
@@ -303,12 +307,14 @@ class TrainerHeroCard extends StatelessWidget {
     required this.isSubmittingBooking,
     required this.onBookingPressed,
     required this.onMapPressed,
+    required this.onWhatsAppPressed,
   });
 
   final TrainerProfile trainer;
   final bool isSubmittingBooking;
   final VoidCallback onBookingPressed;
   final VoidCallback onMapPressed;
+  final VoidCallback onWhatsAppPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +384,7 @@ class TrainerHeroCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    flex: 5,
+                    flex: 4,
                     child: SizedBox(
                       height: 46,
                       child: ElevatedButton.icon(
@@ -410,6 +416,35 @@ class TrainerHeroCard extends StatelessWidget {
                           disabledBackgroundColor: AppColors.darkGold,
                           disabledForegroundColor: AppColors.blackCore,
                           side: const BorderSide(color: AppColors.gymGold),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 3,
+                    child: SizedBox(
+                      height: 46,
+                      child: OutlinedButton.icon(
+                        onPressed: onWhatsAppPressed,
+                        icon: const Icon(AppLucideIcons.phone, size: 16),
+                        label: const Text(
+                          'WhatsApp',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.success,
+                          side: BorderSide(
+                            color: AppColors.success.withValues(alpha: 0.64),
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),

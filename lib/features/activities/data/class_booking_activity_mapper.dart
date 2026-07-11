@@ -54,9 +54,10 @@ ActivityHistoryItem mapClassBookingToActivityHistoryItem(
 
 String _formatBookingSource(String source) {
   return switch (source) {
-    'MOBILE_APP' => 'Mobile App',
-    'ADMIN' => 'Admin',
-    'WALK_IN' => 'Walk In',
+    'MEMBERSHIP_BENEFIT' => 'Membership Benefit',
+    'CUSTOM_SESSION' => 'Custom session',
+    'MANUAL' => 'Manual',
+    'TRIAL' => 'Trial',
     _ => source,
   };
 }

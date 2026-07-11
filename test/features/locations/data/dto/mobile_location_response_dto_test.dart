@@ -9,6 +9,7 @@ void main() {
       'locations': [
         {
           'id': 'location-1',
+          'companyLogoUrl': 'https://cdn.example/company-logo.png',
           'name': 'DO GYM Denpasar',
           'description': null,
           'address': 'Jl. Gatot Subroto',
@@ -43,6 +44,10 @@ void main() {
 
     expect(response.locations, hasLength(1));
     expect(response.locations.first.name, 'DO GYM Denpasar');
+    expect(
+      response.locations.first.companyLogoUrl,
+      'https://cdn.example/company-logo.png',
+    );
     expect(response.locations.first.images.first.isPrimary, isTrue);
     expect(response.locations.first.facilities.first.name, 'Shower Room');
     expect(response.locations.first.mapUrls.googleNavigation, contains('nav'));

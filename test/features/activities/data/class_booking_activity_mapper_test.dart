@@ -16,7 +16,7 @@ void main() {
       duration: '60 Menit',
       location: 'DO GYM Denpasar - Studio 1',
       status: 'COMPLETED',
-      source: 'MOBILE_APP',
+      source: 'CUSTOM_SESSION',
       canShowQr: false,
     );
 
@@ -34,7 +34,7 @@ void main() {
     expect(item.bookingDetail?.itemId, 'class-booking-1');
     expect(item.bookingDetail?.typeCode, 'class');
     expect(item.bookingDetail?.bookingCode, 'CLB-TEST001');
-    expect(item.bookingDetail?.source, 'Mobile App');
+    expect(item.bookingDetail?.source, 'Custom session');
     expect(item.bookingDetail?.qrPayload, 'class_booking:CLB-TEST001');
     expect(item.bookingDetail?.canShowQr, isFalse);
     expect(item.metas.map((meta) => meta.value), contains('60 Menit'));

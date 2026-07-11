@@ -39,6 +39,7 @@ class BookingSlot {
     this.branch,
     this.location,
     this.mapQuery,
+    this.contactPhoneNumber,
     this.coachName,
     this.coachRole,
   });
@@ -51,6 +52,7 @@ class BookingSlot {
   final String? branch;
   final String? location;
   final String? mapQuery;
+  final String? contactPhoneNumber;
   final String? coachName;
   final String? coachRole;
 

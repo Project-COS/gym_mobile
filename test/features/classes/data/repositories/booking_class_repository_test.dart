@@ -55,6 +55,7 @@ void main() {
                   trainer: const MobileClassTrainerDto(
                     id: 'trainer-1',
                     name: 'Coach Maya',
+                    phone: '081234567890',
                     specialty: 'Yoga',
                     photoUrl: null,
                     rating: 4.8,
@@ -64,6 +65,7 @@ void main() {
                     name: 'DO GYM Denpasar',
                     area: 'Denpasar',
                     address: 'Jl. Gatot Subroto',
+                    whatsapp: '+628199999999',
                     latitude: null,
                     longitude: null,
                     googlePlaceId: null,
@@ -124,6 +126,8 @@ void main() {
     expect(classes.first.location, '2 lokasi tersedia');
     expect(classes.first.slots, hasLength(2));
     expect(classes.first.slots.first.sessionId, 'session-1');
+    expect(classes.first.contactPhoneNumber, '081234567890');
+    expect(classes.first.slots.first.contactPhoneNumber, '081234567890');
     expect(classes.first.slots.last.sessionId, 'session-2');
     expect(classes.first.slots.last.branch, 'Renon');
     expect(classes.first.benefits.first.label, 'Mobility');
@@ -147,7 +151,7 @@ void main() {
             bookingCode: 'CLB-TEST001',
             qrPayload: 'class_booking:CLB-TEST001',
             className: 'Yoga Flow',
-            source: 'AD_HOC',
+            source: 'CUSTOM_SESSION',
             status: 'SCHEDULED',
             startsAt: DateTime.utc(2026, 6, 16, 10),
             endsAt: DateTime.utc(2026, 6, 16, 11),
@@ -206,7 +210,7 @@ void main() {
             bookingCode: 'CLB-TEST001',
             qrPayload: 'class_booking:CLB-TEST001',
             className: 'Yoga Flow',
-            source: 'MOBILE_APP',
+            source: 'CUSTOM_SESSION',
             status: 'SCHEDULED',
             startsAt: DateTime.utc(2026, 6, 16, 10),
             endsAt: DateTime.utc(2026, 6, 16, 11),
@@ -329,7 +333,7 @@ class _FakeBookingClassApiService implements BookingClassApiService {
             bookingCode: 'CLB-TEST001',
             qrPayload: 'class_booking:CLB-TEST001',
             className: 'Yoga Flow',
-            source: 'AD_HOC',
+            source: 'CUSTOM_SESSION',
             status: 'SCHEDULED',
             startsAt: DateTime.utc(2026, 6, 16, 10),
             endsAt: DateTime.utc(2026, 6, 16, 11),

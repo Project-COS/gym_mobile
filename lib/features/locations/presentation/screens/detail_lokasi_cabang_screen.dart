@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/sharing/native_share.dart';
 import '../../../classes/data/repositories/booking_class_repository.dart';
+import '../../../share_links/data/repositories/share_content_repository.dart';
 import '../../data/branch_location_data.dart';
 import '../cubit/location_class_schedule_cubit.dart';
 import '../widgets/location_detail/branch_cta_card.dart';
@@ -116,14 +117,46 @@ class _DetailLokasiCabangScreenState extends State<DetailLokasiCabangScreen> {
   }
 
   Future<void> _shareBranch() async {
-    final String shareText = '${widget.branch.name} - ${widget.branch.address}';
+    final String fallbackText =
+        '${widget.branch.name} - ${widget.branch.address}';
 
-    // Clipboard sharing keeps this action dependency-free until native share is added.
-    await Clipboard.setData(ClipboardData(text: shareText));
+    try {
+      final shareContent = await context
+          .read<ShareContentRepository>()
+          .createLocationShareLink(locationId: widget.branch.id);
 
-    if (mounted) {
-      _showMessage('Informasi cabang disalin.');
+      if (!mounted) {
+        return;
+      }
+
+      final outcome = await shareTextWithNativeSheet(
+        context,
+        title: shareContent.title,
+        text: _buildShareMessage(
+          headline: 'Cek cabang ${shareContent.title}',
+          description: shareContent.description,
+          publicUrl: shareContent.publicUrl,
+        ),
+      );
+
+      if (mounted && outcome == NativeShareOutcome.copiedFallback) {
+        _showMessage('Link cabang disalin.');
+      }
+    } catch (_) {
+      await copyShareText(fallbackText);
+
+      if (mounted) {
+        _showMessage('Link belum bisa disiapkan. Info cabang disalin.');
+      }
     }
+  }
+
+  String _buildShareMessage({
+    required String headline,
+    required String description,
+    required String publicUrl,
+  }) {
+    return '$headline\n$description\n$publicUrl';
   }
 
   Future<void> _refreshBranchDetailSchedules() {

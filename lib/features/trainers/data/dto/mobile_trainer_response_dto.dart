@@ -71,6 +71,7 @@ class MobileTrainerDto {
   const MobileTrainerDto({
     required this.id,
     required this.name,
+    this.phone,
     required this.specialty,
     required this.bio,
     required this.photoUrl,
@@ -86,6 +87,7 @@ class MobileTrainerDto {
 
   final String id;
   final String name;
+  final String? phone;
   final String? specialty;
   final String? bio;
   final String? photoUrl;
@@ -104,6 +106,7 @@ class MobileTrainerDto {
     return MobileTrainerDto(
       id: _readRequiredString(data, 'id'),
       name: _readRequiredString(data, 'name'),
+      phone: _readOptionalString(data, 'phone'),
       specialty: _readOptionalString(data, 'specialty'),
       bio: _readOptionalString(data, 'bio'),
       photoUrl: _readOptionalString(data, 'photoUrl'),
@@ -138,6 +141,7 @@ class MobileTrainerLocationDto {
     required this.name,
     required this.area,
     required this.address,
+    this.whatsapp,
     required this.isPrimary,
     required this.sortOrder,
     required this.latitude,
@@ -151,6 +155,7 @@ class MobileTrainerLocationDto {
   final String name;
   final String? area;
   final String? address;
+  final String? whatsapp;
   final bool isPrimary;
   final int sortOrder;
   final double? latitude;
@@ -167,6 +172,7 @@ class MobileTrainerLocationDto {
       name: _readRequiredString(data, 'name'),
       area: _readOptionalString(data, 'area'),
       address: _readOptionalString(data, 'address'),
+      whatsapp: _readOptionalString(data, 'whatsapp'),
       isPrimary: data['isPrimary'] == true,
       sortOrder: _readInt(data, 'sortOrder', fallback: 0),
       latitude: _readOptionalDouble(data, 'latitude'),

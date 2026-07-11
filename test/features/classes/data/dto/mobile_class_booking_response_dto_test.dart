@@ -11,7 +11,7 @@ void main() {
         'bookingCode': 'CLB-TEST001',
         'qrPayload': 'class_booking:CLB-TEST001',
         'className': 'Yoga Flow',
-        'source': 'AD_HOC',
+        'source': 'CUSTOM_SESSION',
         'status': 'SCHEDULED',
         'startsAt': '2026-06-16T10:00:00.000Z',
         'endsAt': '2026-06-16T11:00:00.000Z',
@@ -21,6 +21,7 @@ void main() {
         'trainer': {
           'id': 'trainer-1',
           'name': 'Coach Maya',
+          'phone': '081234567890',
           'specialty': 'Yoga',
         },
         'location': {
@@ -28,6 +29,7 @@ void main() {
           'name': 'DO GYM Denpasar',
           'area': 'Denpasar',
           'address': 'Jl. Gatot Subroto',
+          'whatsapp': '+628199999999',
         },
       },
     });
@@ -35,8 +37,10 @@ void main() {
     expect(response.booking.id, 'class-booking-1');
     expect(response.booking.bookingCode, 'CLB-TEST001');
     expect(response.booking.gymClass?.name, 'Yoga Flow');
+    expect(response.booking.trainer.phone, '081234567890');
     expect(response.booking.session?.roomName, 'Studio 1');
     expect(response.booking.location?.area, 'Denpasar');
+    expect(response.booking.location?.whatsapp, '+628199999999');
   });
 
   test('parses mobile class bookings list response', () {
@@ -48,7 +52,7 @@ void main() {
           'bookingCode': 'CLB-TEST001',
           'qrPayload': 'class_booking:CLB-TEST001',
           'className': 'Yoga Flow',
-          'source': 'MOBILE_APP',
+          'source': 'CUSTOM_SESSION',
           'status': 'COMPLETED',
           'startsAt': '2026-06-16T10:00:00.000Z',
           'endsAt': '2026-06-16T11:00:00.000Z',
@@ -62,6 +66,7 @@ void main() {
           'trainer': {
             'id': 'trainer-1',
             'name': 'Coach Maya',
+            'phone': null,
             'specialty': 'Yoga',
           },
           'location': {
@@ -69,6 +74,7 @@ void main() {
             'name': 'DO GYM Denpasar',
             'area': 'Denpasar',
             'address': 'Jl. Gatot Subroto',
+            'whatsapp': '+628199999999',
           },
         },
       ],
@@ -94,7 +100,7 @@ void main() {
           'bookingCode': 'CLB-TEST001',
           'qrPayload': 'class_booking:CLB-TEST001',
           'className': 'Yoga Flow',
-          'source': 'AD_HOC',
+          'source': 'CUSTOM_SESSION',
           'status': 'SCHEDULED',
           'startsAt': 'invalid',
           'endsAt': '2026-06-16T11:00:00.000Z',

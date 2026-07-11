@@ -27,6 +27,7 @@ void main() {
             trainer: const MobilePersonalTrainingBookingTrainerDto(
               id: 'trainer-1',
               name: 'Coach Maya',
+              phone: '081234567890',
               specialty: 'Strength',
             ),
             program: const MobilePersonalTrainingBookingProgramDto(
@@ -39,6 +40,7 @@ void main() {
               name: 'DO GYM Denpasar',
               area: 'Denpasar',
               address: 'Jl. Gatot Subroto',
+              whatsapp: '+628199999999',
             ),
           ),
         ],

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/contacts/whatsapp_contact_link.dart';
+import '../../../../core/sharing/native_share.dart';
 import '../../../bookings/data/booking_data.dart';
 import '../../../bookings/presentation/screens/booking_success_screen.dart';
+import '../../../share_links/data/repositories/share_content_repository.dart';
 import '../../data/class_data.dart';
 import '../../data/repositories/booking_class_repository.dart';
 import '../cubit/class_booking_cubit.dart';
@@ -83,6 +85,24 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
     );
   }
 
+  Future<void> _openWhatsApp() async {
+    final contactLink = buildWhatsAppContactLink(
+      _selectedSlot.contactPhoneNumber ?? _session.contactPhoneNumber,
+      message:
+          'Halo, saya ingin bertanya tentang kelas ${_session.title} pada ${_selectedSlot.label}.',
+    );
+
+    if (contactLink == null) {
+      _showMessage('Nomor WhatsApp kelas belum tersedia.');
+      return;
+    }
+
+    await _launchExternalUri(
+      contactLink.uri,
+      fallbackMessage: 'WhatsApp belum bisa dibuka dari perangkat ini.',
+    );
+  }
+
   Future<void> _launchExternalUri(
     Uri uri, {
     required String fallbackMessage,
@@ -106,15 +126,46 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
   }
 
   Future<void> _shareClass() async {
-    final String shareText =
+    final String fallbackText =
         '${_session.title} - ${_selectedSlot.label} di ${_selectedSlot.branch ?? _session.branch}';
 
-    // The current share action is a clipboard fallback until native sharing is added.
-    await Clipboard.setData(ClipboardData(text: shareText));
+    try {
+      final shareContent = await context
+          .read<ShareContentRepository>()
+          .createClassShareLink(classId: _session.id);
 
-    if (mounted) {
-      _showMessage('Link berhasil disalin.');
+      if (!mounted) {
+        return;
+      }
+
+      final outcome = await shareTextWithNativeSheet(
+        context,
+        title: shareContent.title,
+        text: _buildShareMessage(
+          headline: 'Cek kelas ${shareContent.title}',
+          description: shareContent.description,
+          publicUrl: shareContent.publicUrl,
+        ),
+      );
+
+      if (mounted && outcome == NativeShareOutcome.copiedFallback) {
+        _showMessage('Link kelas disalin.');
+      }
+    } catch (_) {
+      await copyShareText(fallbackText);
+
+      if (mounted) {
+        _showMessage('Link belum bisa disiapkan. Info kelas disalin.');
+      }
     }
+  }
+
+  String _buildShareMessage({
+    required String headline,
+    required String description,
+    required String publicUrl,
+  }) {
+    return '$headline\n$description\n$publicUrl';
   }
 
   void _confirmBooking() {
@@ -262,6 +313,7 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
         ClassDetailHeroCard(
           session: _session,
           onMapPressed: _openMaps,
+          onWhatsAppPressed: _openWhatsApp,
           onBookingPressed: _openConfirmationSheet,
         ),
         SizedBox(height: spec.sectionGap),
@@ -305,6 +357,7 @@ class _DetailClassScreenState extends State<DetailClassScreen> {
                   ClassDetailHeroCard(
                     session: _session,
                     onMapPressed: _openMaps,
+                    onWhatsAppPressed: _openWhatsApp,
                     onBookingPressed: _openConfirmationSheet,
                   ),
                   SizedBox(height: spec.sectionGap),

@@ -33,6 +33,7 @@ class RemoteLocationRepository implements LocationRepository {
     // Provide user-facing defaults so partially configured branches still render.
     return BranchLocation(
       id: location.id,
+      companyLogoUrl: location.companyLogoUrl,
       name: location.name,
       address: location.address ?? 'Alamat belum tersedia',
       area: location.area ?? 'Area belum tersedia',

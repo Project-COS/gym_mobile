@@ -67,7 +67,7 @@ Konsep ini penting karena sistem tidak hanya menjual masa aktif membership, teta
 
 ### 7. Trainer, Personal Training, dan Kelas
 
-Model `Trainer`, `PersonalTrainingBooking`, dan `ClassBooking` menunjukkan arah bisnis layanan latihan. Booking dapat berasal dari benefit membership, ad hoc, manual, atau trial. Status booking mencakup requested, scheduled, completed, cancelled, dan no show.
+Model `Trainer`, `PersonalTrainingBooking`, dan `ClassBooking` menunjukkan arah bisnis layanan latihan. Booking dapat berasal dari benefit membership, custom session, manual, atau trial. Status booking mencakup requested, scheduled, completed, cancelled, dan no show.
 
 Di aplikasi mobile member, layar booking sudah menampilkan dua jalur layanan utama:
 

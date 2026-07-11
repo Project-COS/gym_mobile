@@ -113,7 +113,7 @@ class RemotePersonalTrainingBookingRepository
         programDurationMinutes ??
         booking.endsAt.difference(booking.startsAt).inMinutes;
 
-    // Defensive fallback for incomplete schedules or ad-hoc sessions.
+    // Defensive fallback for incomplete schedules or custom sessions.
     if (durationMinutes <= 0) {
       return 'Durasi menyesuaikan';
     }

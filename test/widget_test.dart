@@ -11,6 +11,8 @@ import 'package:do_gym/features/bookings/data/repositories/personal_training_boo
 import 'package:do_gym/features/classes/data/class_data.dart';
 import 'package:do_gym/features/classes/data/repositories/booking_class_repository.dart';
 import 'package:do_gym/features/locations/data/branch_location_data.dart';
+import 'package:do_gym/features/notifications/presentation/cubit/notification_inbox_cubit.dart';
+import 'package:do_gym/features/notifications/presentation/cubit/push_notification_cubit.dart';
 import 'package:do_gym/features/trainers/data/repositories/trainer_repository.dart';
 import 'package:do_gym/features/trainers/presentation/widgets/trainer_detail_widgets.dart';
 import 'package:do_gym/main.dart';
@@ -124,6 +126,7 @@ void main() {
                 isSubmittingBooking: false,
                 onBookingPressed: () {},
                 onMapPressed: () {},
+                onWhatsAppPressed: () {},
               ),
             ),
           ),
@@ -320,8 +323,10 @@ Widget _buildTestApp({
   FakePersonalTrainingBookingRepository? personalTrainingBookingRepository,
   FakeMemberAttendanceActivityRepository? memberAttendanceActivityRepository,
   FakeProfileRepository? profileRepository,
+  FakeShareContentRepository? shareContentRepository,
 }) {
   final repository = AuthSessionRepository(storage: InMemorySessionStorage());
+  final notificationRepository = FakeNotificationRepository();
 
   return MyApp(
     sessionCubit: AuthSessionCubit(repository: repository),
@@ -343,6 +348,16 @@ Widget _buildTestApp({
         memberAttendanceActivityRepository ??
         FakeMemberAttendanceActivityRepository(),
     profileRepository: profileRepository ?? FakeProfileRepository(),
+    shareContentRepository:
+        shareContentRepository ?? FakeShareContentRepository(),
+    notificationRepository: notificationRepository,
+    notificationInboxCubit: NotificationInboxCubit(
+      repository: notificationRepository,
+    ),
+    pushNotificationCubit: PushNotificationCubit(
+      repository: notificationRepository,
+      pushNotificationService: FakePushNotificationService(),
+    ),
   );
 }
 
@@ -470,7 +485,7 @@ const PersonalTrainingBookingHistoryItem _completedPersonalTrainingBooking =
       duration: '60 Menit',
       location: 'DO GYM Denpasar - Denpasar',
       status: 'COMPLETED',
-      source: 'AD_HOC',
+      source: 'CUSTOM_SESSION',
       canShowQr: false,
     );
 
@@ -485,7 +500,7 @@ const PersonalTrainingBookingHistoryItem _scheduledPersonalTrainingBooking =
       duration: '60 Menit',
       location: 'DO GYM Denpasar - Denpasar',
       status: 'SCHEDULED',
-      source: 'AD_HOC',
+      source: 'CUSTOM_SESSION',
       canShowQr: true,
     );
 
@@ -499,7 +514,7 @@ const ClassBookingHistoryItem _completedClassBooking = ClassBookingHistoryItem(
   duration: '60 Menit',
   location: 'DO GYM Denpasar - Studio 1',
   status: 'COMPLETED',
-  source: 'MOBILE_APP',
+  source: 'CUSTOM_SESSION',
   canShowQr: false,
 );
 
@@ -513,7 +528,7 @@ const ClassBookingHistoryItem _scheduledClassBooking = ClassBookingHistoryItem(
   duration: '60 Menit',
   location: 'DO GYM Denpasar - Studio 2',
   status: 'SCHEDULED',
-  source: 'MOBILE_APP',
+  source: 'CUSTOM_SESSION',
   canShowQr: true,
 );
 

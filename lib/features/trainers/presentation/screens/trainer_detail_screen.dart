@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/colors.dart';
+import '../../../../core/contacts/whatsapp_contact_link.dart';
 import '../../../../core/icons/app_lucide_icons.dart';
+import '../../../../core/sharing/native_share.dart';
 import '../../../bookings/data/repositories/personal_training_booking_repository.dart';
 import '../../../bookings/presentation/screens/booking_success_screen.dart';
+import '../../../share_links/data/repositories/share_content_repository.dart';
 import '../../data/repositories/trainer_repository.dart';
 import '../cubit/trainer_detail_cubit.dart';
 import '../widgets/trainer_detail_widgets.dart';
@@ -68,6 +70,24 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
     );
   }
 
+  Future<void> _openTrainerWhatsApp(TrainerProfile trainer) async {
+    final contactLink = buildWhatsAppContactLink(
+      trainer.whatsappNumber,
+      message:
+          'Halo ${trainer.name}, saya ingin bertanya tentang sesi personal training.',
+    );
+
+    if (contactLink == null) {
+      _showMessage('Nomor WhatsApp trainer belum tersedia.');
+      return;
+    }
+
+    await _launchExternalUri(
+      contactLink.uri,
+      fallbackMessage: 'WhatsApp belum bisa dibuka dari perangkat ini.',
+    );
+  }
+
   Future<void> _launchExternalUri(
     Uri uri, {
     required String fallbackMessage,
@@ -89,14 +109,45 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
   }
 
   Future<void> _shareTrainer(TrainerProfile trainer) async {
-    // Fallback share sederhana tanpa plugin tambahan: salin ringkasan trainer.
-    final shareText = '${trainer.name} - ${trainer.location}';
+    final fallbackText = '${trainer.name} - ${trainer.location}';
 
-    await Clipboard.setData(ClipboardData(text: shareText));
+    try {
+      final shareContent = await context
+          .read<ShareContentRepository>()
+          .createTrainerShareLink(trainerId: trainer.id);
 
-    if (mounted) {
-      _showMessage('Info trainer berhasil disalin.');
+      if (!mounted) {
+        return;
+      }
+
+      final outcome = await shareTextWithNativeSheet(
+        context,
+        title: shareContent.title,
+        text: _buildShareMessage(
+          headline: 'Cek trainer ${shareContent.title}',
+          description: shareContent.description,
+          publicUrl: shareContent.publicUrl,
+        ),
+      );
+
+      if (mounted && outcome == NativeShareOutcome.copiedFallback) {
+        _showMessage('Link trainer disalin.');
+      }
+    } catch (_) {
+      await copyShareText(fallbackText);
+
+      if (mounted) {
+        _showMessage('Link belum bisa disiapkan. Info trainer disalin.');
+      }
     }
+  }
+
+  String _buildShareMessage({
+    required String headline,
+    required String description,
+    required String publicUrl,
+  }) {
+    return '$headline\n$description\n$publicUrl';
   }
 
   void _showMessage(String message) {
@@ -262,6 +313,7 @@ class _TrainerDetailScreenState extends State<TrainerDetailScreen> {
       onBackPressed: () => Navigator.of(context).pop(),
       onSharePressed: () => _shareTrainer(trainer),
       onMapPressed: () => _openMaps(trainer),
+      onWhatsAppPressed: () => _openTrainerWhatsApp(trainer),
       onRatingChanged: _changeSelectedRating,
       onRatingSubmitted: () =>
           context.read<TrainerDetailCubit>().submitRating(_selectedRating),

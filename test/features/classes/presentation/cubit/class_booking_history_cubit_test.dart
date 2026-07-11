@@ -19,7 +19,7 @@ void main() {
           duration: '60 Menit',
           location: 'DO GYM Denpasar - Studio 1',
           status: 'COMPLETED',
-          source: 'MOBILE_APP',
+          source: 'CUSTOM_SESSION',
           canShowQr: false,
         ),
       ],

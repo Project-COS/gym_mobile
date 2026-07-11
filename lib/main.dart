@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,15 +23,26 @@ import 'features/locations/data/repositories/location_repository.dart';
 import 'features/locations/data/services/location_api_service.dart';
 import 'features/member_attendance/data/repositories/member_attendance_repository.dart';
 import 'features/member_attendance/data/services/member_attendance_api_service.dart';
+import 'features/notifications/data/repositories/notification_repository.dart';
+import 'features/notifications/data/services/firebase_push_notification_service.dart';
+import 'features/notifications/data/services/notification_api_service.dart';
+import 'features/notifications/presentation/cubit/notification_inbox_cubit.dart';
+import 'features/notifications/presentation/cubit/push_notification_cubit.dart';
+import 'features/notifications/presentation/screens/notification_screen.dart';
 import 'features/profile/data/repositories/profile_repository.dart';
 import 'features/profile/data/services/profile_api_service.dart';
+import 'features/share_links/data/repositories/share_content_repository.dart';
+import 'features/share_links/data/services/share_content_api_service.dart';
 import 'features/trainers/data/repositories/trainer_repository.dart';
 import 'features/trainers/data/services/trainer_api_service.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
   // Secure storage uses platform channels, so initialize Flutter bindings before
   // constructing session dependencies.
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   // Keep long-lived app dependencies at the root so feature screens receive the
   // same repositories through providers instead of creating their own clients.
@@ -72,6 +85,20 @@ void main() {
   final profileRepository = RemoteProfileRepository(
     apiService: ProfileApiService(apiClient: apiClient),
   );
+  final shareContentRepository = RemoteShareContentRepository(
+    apiService: ShareContentApiService(apiClient: apiClient),
+  );
+  final notificationRepository = RemoteNotificationRepository(
+    apiService: NotificationApiService(apiClient: apiClient),
+  );
+  final pushNotificationService = FirebasePushNotificationService();
+  final notificationInboxCubit = NotificationInboxCubit(
+    repository: notificationRepository,
+  );
+  final pushNotificationCubit = PushNotificationCubit(
+    repository: notificationRepository,
+    pushNotificationService: pushNotificationService,
+  );
 
   runApp(
     MyApp(
@@ -84,6 +111,10 @@ void main() {
       memberAttendanceRepository: memberAttendanceRepository,
       memberAttendanceActivityRepository: memberAttendanceActivityRepository,
       profileRepository: profileRepository,
+      shareContentRepository: shareContentRepository,
+      notificationRepository: notificationRepository,
+      notificationInboxCubit: notificationInboxCubit,
+      pushNotificationCubit: pushNotificationCubit,
     ),
   );
 }
@@ -100,6 +131,10 @@ class MyApp extends StatefulWidget {
     required this.memberAttendanceRepository,
     required this.memberAttendanceActivityRepository,
     required this.profileRepository,
+    required this.shareContentRepository,
+    required this.notificationRepository,
+    required this.notificationInboxCubit,
+    required this.pushNotificationCubit,
   });
 
   final AuthSessionCubit sessionCubit;
@@ -111,12 +146,19 @@ class MyApp extends StatefulWidget {
   final MemberAttendanceRepository memberAttendanceRepository;
   final MemberAttendanceActivityRepository memberAttendanceActivityRepository;
   final ProfileRepository profileRepository;
+  final ShareContentRepository shareContentRepository;
+  final NotificationRepository notificationRepository;
+  final NotificationInboxCubit notificationInboxCubit;
+  final PushNotificationCubit pushNotificationCubit;
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  bool _isNotificationScreenOpen = false;
+
   @override
   void initState() {
     super.initState();
@@ -139,6 +181,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     widget.sessionCubit.close();
+    widget.notificationInboxCubit.close();
+    widget.pushNotificationCubit.close();
     super.dispose();
   }
 
@@ -170,36 +214,115 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider<ProfileRepository>.value(
           value: widget.profileRepository,
         ),
+        RepositoryProvider<ShareContentRepository>.value(
+          value: widget.shareContentRepository,
+        ),
       ],
-      child: BlocProvider<AuthSessionCubit>.value(
-        value: widget.sessionCubit,
-        child: MaterialApp(
-          title: 'GYM APP',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            useMaterial3: true,
-            brightness: Brightness.dark,
-            fontFamily: 'Poppins',
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFFD9A52E),
-              brightness: Brightness.dark,
-            ),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthSessionCubit>.value(value: widget.sessionCubit),
+          BlocProvider<NotificationInboxCubit>.value(
+            value: widget.notificationInboxCubit,
           ),
-          home: BlocBuilder<AuthSessionCubit, AuthSessionState>(
-            builder: (context, state) {
-              // The root screen is driven only by session state; feature screens
-              // handle their own loading and error states after authentication.
-              return switch (state.status) {
-                AuthSessionStatus.initializing =>
-                  const _SessionBootstrapScreen(),
-                AuthSessionStatus.authenticated => const HomeScreen(),
-                AuthSessionStatus.unauthenticated => const LoginScreen(),
-              };
-            },
+          BlocProvider<PushNotificationCubit>.value(
+            value: widget.pushNotificationCubit,
+          ),
+        ],
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<AuthSessionCubit, AuthSessionState>(
+              listenWhen: (previous, current) =>
+                  previous.status != current.status,
+              listener: (context, state) {
+                if (state.status == AuthSessionStatus.authenticated) {
+                  final locale = WidgetsBinding
+                      .instance
+                      .platformDispatcher
+                      .locale
+                      .toLanguageTag();
+                  widget.pushNotificationCubit.startForAuthenticatedMember(
+                    locale: locale,
+                  );
+                  widget.notificationInboxCubit.fetchNotifications();
+                } else if (state.status == AuthSessionStatus.unauthenticated) {
+                  widget.pushNotificationCubit.stopForSignedOutMember();
+                  widget.notificationInboxCubit.clearForSignedOutMember();
+                }
+              },
+            ),
+            BlocListener<PushNotificationCubit, PushNotificationState>(
+              listenWhen: (previous, current) =>
+                  previous.receivedRevision != current.receivedRevision ||
+                  previous.openedRevision != current.openedRevision,
+              listener: (context, state) {
+                widget.notificationInboxCubit.fetchNotifications(
+                  forceRefresh: true,
+                );
+
+                if (state.openedRevision > 0) {
+                  final notificationId = state.openedData['notificationId'];
+
+                  if (notificationId != null && notificationId.isNotEmpty) {
+                    widget.notificationInboxCubit.markNotificationRead(
+                      notificationId,
+                    );
+                  }
+
+                  _openNotificationInbox();
+                }
+              },
+            ),
+          ],
+          child: MaterialApp(
+            navigatorKey: _navigatorKey,
+            title: 'GYM APP',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              useMaterial3: true,
+              brightness: Brightness.dark,
+              fontFamily: 'Poppins',
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color(0xFFD9A52E),
+                brightness: Brightness.dark,
+              ),
+            ),
+            home: BlocBuilder<AuthSessionCubit, AuthSessionState>(
+              builder: (context, state) {
+                // The root screen is driven only by session state; feature screens
+                // handle their own loading and error states after authentication.
+                return switch (state.status) {
+                  AuthSessionStatus.initializing =>
+                    const _SessionBootstrapScreen(),
+                  AuthSessionStatus.authenticated => const HomeScreen(),
+                  AuthSessionStatus.unauthenticated => const LoginScreen(),
+                };
+              },
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _openNotificationInbox() async {
+    if (_isNotificationScreenOpen) {
+      return;
+    }
+
+    final navigator = _navigatorKey.currentState;
+
+    if (navigator == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _openNotificationInbox();
+      });
+      return;
+    }
+
+    _isNotificationScreenOpen = true;
+    await navigator.push<void>(
+      MaterialPageRoute(builder: (_) => const NotificationScreen()),
+    );
+    _isNotificationScreenOpen = false;
   }
 }
 

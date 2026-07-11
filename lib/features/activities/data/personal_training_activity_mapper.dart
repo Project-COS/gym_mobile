@@ -55,7 +55,7 @@ ActivityHistoryItem mapPersonalTrainingBookingToActivityHistoryItem(
 String _formatBookingSource(String source) {
   return switch (source) {
     'MEMBERSHIP_BENEFIT' => 'Membership Benefit',
-    'AD_HOC' => 'Ad Hoc',
+    'CUSTOM_SESSION' => 'Custom session',
     'MANUAL' => 'Manual',
     'TRIAL' => 'Trial',
     _ => source,

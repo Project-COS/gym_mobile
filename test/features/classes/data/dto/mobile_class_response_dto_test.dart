@@ -12,6 +12,7 @@ void main() {
       'classes': [
         {
           'id': 'class-1',
+          'companyLogoUrl': 'https://cdn.example/company-logo.png',
           'name': 'Yoga Flow',
           'subtitle': 'Morning flow',
           'description': 'Low impact class',
@@ -42,6 +43,7 @@ void main() {
               'trainer': {
                 'id': 'trainer-1',
                 'name': 'Coach Maya',
+                'phone': '081234567890',
                 'specialty': 'Yoga',
                 'photoUrl': null,
                 'rating': 4.8,
@@ -51,6 +53,7 @@ void main() {
                 'name': 'DO GYM Denpasar',
                 'area': 'Denpasar',
                 'address': 'Jl. Gatot Subroto',
+                'whatsapp': '+628199999999',
                 'latitude': -8.65,
                 'longitude': 115.21,
                 'mapPlaceId': 'place-1',
@@ -66,8 +69,20 @@ void main() {
     });
 
     expect(response.categories.first.name, 'Yoga');
+    expect(
+      response.classes.first.companyLogoUrl,
+      'https://cdn.example/company-logo.png',
+    );
     expect(response.classes.first.sessions.first.availableSlots, 10);
     expect(response.classes.first.sessions.first.trainer?.name, 'Coach Maya');
+    expect(
+      response.classes.first.sessions.first.trainer?.phone,
+      '081234567890',
+    );
+    expect(
+      response.classes.first.sessions.first.location?.whatsapp,
+      '+628199999999',
+    );
     expect(
       response.classes.first.sessions.first.location?.googlePlaceId,
       'place-1',
